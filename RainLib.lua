@@ -1,90 +1,143 @@
--- RainLibV2 - By RainCreatorHub
--- v1.0
+-- RainLibV2 | By RainCreatorHub
+local RainLib = {}
+RainLib.__index = RainLib
 
-local RainLibV2 = {}
-RainLibV2.__index = RainLibV2
+local UIS = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
 
-local library = {
-    Tabs = {},
-    ActiveTab = nil,
-    Objects = {},
-}
+local RainGui = Instance.new("ScreenGui", CoreGui)
+RainGui.Name = "RainLibV2"
+RainGui.ResetOnSpawn = false
 
-local Drawing = Drawing
+-- UI Base
+local MainFrame = Instance.new("Frame", RainGui)
+MainFrame.Size = UDim2.new(0, 500, 0, 350)
+MainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Name = "MainFrame"
 
--- Core function to create drawings
-local function createDraw(type, props)
-    local obj = Drawing.new(type)
-    for prop, val in pairs(props) do
-        obj[prop] = val
+local UIStroke = Instance.new("UIStroke", MainFrame)
+UIStroke.Color = Color3.fromRGB(80, 80, 80)
+UIStroke.Thickness = 1
+
+local TabHolder = Instance.new("Frame", MainFrame)
+TabHolder.Size = UDim2.new(0, 130, 1, 0)
+TabHolder.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TabHolder.BorderSizePixel = 0
+
+local ContentHolder = Instance.new("Frame", MainFrame)
+ContentHolder.Position = UDim2.new(0, 130, 0, 0)
+ContentHolder.Size = UDim2.new(1, -130, 1, 0)
+ContentHolder.BackgroundTransparency = 1
+
+-- UIList for Tabs
+local TabLayout = Instance.new("UIListLayout", TabHolder)
+TabLayout.Padding = UDim.new(0, 4)
+TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+function RainLib:CreateTab(tabName)
+    local Tab = {}
+    local Page = Instance.new("Frame", ContentHolder)
+    Page.Name = tabName
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.BackgroundTransparency = 1
+    Page.Visible = false
+
+    local TabButton = Instance.new("TextButton", TabHolder)
+    TabButton.Text = tabName
+    TabButton.Size = UDim2.new(1, 0, 0, 30)
+    TabButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TabButton.BorderSizePixel = 0
+
+    TabButton.MouseButton1Click:Connect(function()
+        for _, v in pairs(ContentHolder:GetChildren()) do
+            if v:IsA("Frame") then v.Visible = false end
+        end
+        Page.Visible = true
+    end)
+
+    local Layout = Instance.new("UIListLayout", Page)
+    Layout.Padding = UDim.new(0, 6)
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    function Tab:AddButton(txt, callback)
+        local Button = Instance.new("TextButton", Page)
+        Button.Size = UDim2.new(1, -10, 0, 30)
+        Button.Text = txt
+        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.BorderSizePixel = 0
+        Button.MouseButton1Click:Connect(callback)
     end
-    table.insert(library.Objects, obj)
-    return obj
-end
 
--- Function to create the main window
-function RainLibV2:CreateWindow(title)
-    library.MainTitle = createDraw("Text", {
-        Text = title or "RainLibV2",
-        Size = 24,
-        Color = Color3.fromRGB(255, 255, 255),
-        Position = Vector2.new(50, 50),
-        Center = false,
-        Outline = true,
-        Visible = true,
-    })
-    return self
-end
+    function Tab:AddToggle(txt, default, callback)
+        local Toggle = Instance.new("TextButton", Page)
+        Toggle.Size = UDim2.new(1, -10, 0, 30)
+        Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Toggle.BorderSizePixel = 0
 
--- Function to create a tab
-function RainLibV2:CreateTab(name)
-    local tab = {
-        Name = name,
-        Buttons = {},
-        Toggles = {},
-        Sliders = {},
-        Labels = {},
-    }
+        local state = default
+        Toggle.Text = txt .. " [" .. (state and "ON" or "OFF") .. "]"
 
-    table.insert(library.Tabs, tab)
-
-    -- Example tab button draw
-    tab.Button = createDraw("Text", {
-        Text = name,
-        Size = 20,
-        Color = Color3.fromRGB(200, 200, 200),
-        Position = Vector2.new(50, 80 + (#library.Tabs * 25)),
-        Outline = true,
-        Visible = true,
-    })
-
-    -- Set active tab if none
-    if not library.ActiveTab then
-        library.ActiveTab = tab
+        Toggle.MouseButton1Click:Connect(function()
+            state = not state
+            Toggle.Text = txt .. " [" .. (state and "ON" or "OFF") .. "]"
+            callback(state)
+        end)
     end
 
-    return tab
-end
+    function Tab:AddSlider(txt, min, max, default, callback)
+        local SliderLabel = Instance.new("TextLabel", Page)
+        SliderLabel.Size = UDim2.new(1, -10, 0, 30)
+        SliderLabel.BackgroundTransparency = 1
+        SliderLabel.Text = txt .. ": " .. tostring(default)
+        SliderLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- Add Button to a tab
-function RainLibV2:AddButton(tab, text, callback)
-    local btn = createDraw("Text", {
-        Text = "[ " .. text .. " ]",
-        Size = 18,
-        Color = Color3.fromRGB(255, 255, 255),
-        Position = Vector2.new(100, 120 + (#tab.Buttons * 25)),
-        Outline = true,
-        Visible = true,
-    })
-    table.insert(tab.Buttons, btn)
-    -- You can bind input events here
-end
+        local SliderBar = Instance.new("Frame", Page)
+        SliderBar.Size = UDim2.new(1, -10, 0, 5)
+        SliderBar.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        SliderBar.BorderSizePixel = 0
 
--- Function to clear UI (optional)
-function RainLibV2:Clear()
-    for _, obj in pairs(library.Objects) do
-        obj:Remove()
+        local Fill = Instance.new("Frame", SliderBar)
+        Fill.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        Fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+        Fill.BorderSizePixel = 0
+
+        local dragging = false
+        local function update(input)
+            local pos = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+            local val = math.floor((min + ((max - min) * pos)) + 0.5)
+            Fill.Size = UDim2.new(pos, 0, 1, 0)
+            SliderLabel.Text = txt .. ": " .. tostring(val)
+            callback(val)
+        end
+
+        SliderBar.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+                update(input)
+            end
+        end)
+
+        UIS.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = false
+            end
+        end)
+
+        UIS.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                update(input)
+            end
+        end)
     end
+
+    Page.Visible = #ContentHolder:GetChildren() == 1
+    return Tab
 end
 
-return RainLibV2
+return RainLib
