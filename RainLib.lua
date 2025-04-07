@@ -3,13 +3,13 @@ local RainLib = {
     Themes = {
         Dark = {
             Background = Color3.fromRGB(30, 30, 30),
-            Accent = Color3.fromRGB(50, 150, 255), -- Azul dos elementos e abas selecionadas
+            Accent = Color3.fromRGB(50, 150, 255),
             Text = Color3.fromRGB(255, 255, 255),
             Secondary = Color3.fromRGB(50, 50, 50),
             Disabled = Color3.fromRGB(100, 100, 100)
         }
     },
-    Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLib/main/Icons.lua"))(), -- Importa os ícones
+    Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLib/main/Icons.lua"))(),
     Windows = {},
     CurrentTheme = nil
 }
@@ -24,6 +24,22 @@ local function tween(obj, info, properties)
     local tween = TweenService:Create(obj, info or TweenInfo.new(0.3), properties)
     tween:Play()
     return tween
+end
+
+-- Função pra criar a ConfigFolder com base nas opções
+local function createConfigFolder(configFolderName, saveConfig)
+    if saveConfig and isfolder and makefolder then -- Só cria se SaveConfig for true e as funções existirem
+        if not isfolder(configFolderName) then
+            makefolder(configFolderName)
+            print("[RainLib] Pasta '" .. configFolderName .. "' criada com sucesso!")
+        else
+            print("[RainLib] Pasta '" .. configFolderName .. "' já existe!")
+        end
+    elseif saveConfig then
+        warn("[RainLib] Não é possível criar a pasta '" .. configFolderName .. "' no jogo! Use o Roblox Studio.")
+    else
+        print("[RainLib] Criação da ConfigFolder desativada (SaveConfig = false).")
+    end
 end
 
 print("[RainLib] Inicializando...")
@@ -42,7 +58,7 @@ local success, err = pcall(function()
     RainLib.Notifications.Parent = RainLib.ScreenGui
 end)
 if not success then
-    return nil -- Sai silenciosamente se der erro
+    return nil
 end
 print("[RainLib] Inicializado com sucesso!")
 
@@ -52,12 +68,18 @@ function RainLib:Window(options)
     options = options or {}
     
     window.Title = options.Title or "Rain Lib"
+    window.Subtitle = options.Subtitle or "" -- Subtítulo opcional
     window.Size = options.Size or UDim2.new(0, 500, 0, 350)
     window.Position = options.Position or UDim2.new(0.5, -250, 0.5, -175)
+    window.SaveConfig = options.SaveConfig or false -- Padrão é false (não cria a pasta)
+    window.ConfigFolder = options.ConfigFolder or "ConfigFolder" -- Nome padrão da pasta
     window.Minimized = false
     window.Tabs = {}
     window.CurrentTabIndex = 1
     window.MinimizeButton = nil
+    
+    -- Criar a ConfigFolder com base nas opções
+    createConfigFolder(window.ConfigFolder, window.SaveConfig)
     
     local success, err = pcall(function()
         window.MainFrame = Instance.new("Frame")
@@ -83,13 +105,13 @@ function RainLib:Window(options)
         shadow.Parent = window.MainFrame
         
         window.TitleBar = Instance.new("Frame")
-        window.TitleBar.Size = UDim2.new(1, 0, 0, 40)
+        window.TitleBar.Size = UDim2.new(1, 0, 0, window.Subtitle ~= "" and 60 or 40) -- Aumenta a altura se tiver subtítulo
         window.TitleBar.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         window.TitleBar.Parent = window.MainFrame
         
         window.TitleLabel = Instance.new("TextLabel")
-        window.TitleLabel.Size = UDim2.new(1, -40, 1, 0)
-        window.TitleLabel.Position = UDim2.new(0, 10, 0, 0)
+        window.TitleLabel.Size = UDim2.new(1, -40, 0, 20)
+        window.TitleLabel.Position = UDim2.new(0, 10, 0, 10)
         window.TitleLabel.BackgroundTransparency = 1
         window.TitleLabel.Text = window.Title
         window.TitleLabel.TextColor3 = RainLib.CurrentTheme.Text
@@ -97,6 +119,19 @@ function RainLib:Window(options)
         window.TitleLabel.TextSize = 16
         window.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
         window.TitleLabel.Parent = window.TitleBar
+        
+        if window.Subtitle ~= "" then
+            window.SubtitleLabel = Instance.new("TextLabel")
+            window.SubtitleLabel.Size = UDim2.new(1, -40, 0, 20)
+            window.SubtitleLabel.Position = UDim2.new(0, 10, 0, 30)
+            window.SubtitleLabel.BackgroundTransparency = 1
+            window.SubtitleLabel.Text = window.Subtitle
+            window.SubtitleLabel.TextColor3 = RainLib.CurrentTheme.Text
+            window.SubtitleLabel.Font = Enum.Font.Gotham
+            window.SubtitleLabel.TextSize = 14
+            window.SubtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+            window.SubtitleLabel.Parent = window.TitleBar
+        end
         
         window.CloseButton = Instance.new("TextButton")
         window.CloseButton.Size = UDim2.new(0, 30, 0, 30)
@@ -113,8 +148,8 @@ function RainLib:Window(options)
         closeCorner.Parent = window.CloseButton
         
         window.TabContainer = Instance.new("ScrollingFrame")
-        window.TabContainer.Size = UDim2.new(0, 150, 1, -40)
-        window.TabContainer.Position = UDim2.new(0, 0, 0, 40)
+        window.TabContainer.Size = UDim2.new(0, 150, 1, window.Subtitle ~= "" and -60 or -40) -- Ajusta a altura com base no subtítulo
+        window.TabContainer.Position = UDim2.new(0, 0, 0, window.Subtitle ~= "" and 60 or 40)
         window.TabContainer.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         window.TabContainer.ScrollBarThickness = 0
         window.TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -127,7 +162,7 @@ function RainLib:Window(options)
         window.TabIndicator.Parent = window.TabContainer
     end)
     if not success then
-        return nil -- Sai silenciosamente se der erro
+        return nil
     end
     print("[RainLib] Janela criada!")
     
@@ -247,8 +282,8 @@ function RainLib:Window(options)
         tab.ElementCount = 0
         
         tab.Content = Instance.new("ScrollingFrame")
-        tab.Content.Size = UDim2.new(1, -160, 1, -50)
-        tab.Content.Position = UDim2.new(0, 155, 0, 45)
+        tab.Content.Size = UDim2.new(1, -160, 1, window.Subtitle ~= "" and -70 or -50) -- Ajusta a altura com base no subtítulo
+        tab.Content.Position = UDim2.new(0, 155, 0, window.Subtitle ~= "" and 65 or 45)
         tab.Content.BackgroundTransparency = 1
         tab.Content.ScrollBarThickness = 5
         tab.Content.CanvasPosition = Vector2.new(0, 0)
@@ -347,7 +382,6 @@ function RainLib:Window(options)
             return UDim2.new(0, xOffset, 0, yOffset)
         end
         
-        -- Função AddSection como cabeçalho
         function tab:AddSection(name)
             print("[RainLib] Adicionando seção: " .. name)
             local section = Instance.new("TextLabel")
@@ -482,7 +516,7 @@ function RainLib:Window(options)
             valueLabel.BackgroundTransparency = 1
             valueLabel.TextColor3 = RainLib.CurrentTheme.Text
             valueLabel.Font = Enum.Font.SourceSans
-            valueLabel.TextSize = 16
+            label.TextSize = 16
             valueLabel.Parent = frame
             
             local bar = Instance.new("Frame")
@@ -664,6 +698,9 @@ function RainLib:SetTheme(theme)
             window.MainFrame.BackgroundColor3 = theme.Background
             window.TitleBar.BackgroundColor3 = theme.Secondary
             window.TitleLabel.TextColor3 = theme.Text
+            if window.SubtitleLabel then
+                window.SubtitleLabel.TextColor3 = theme.Text
+            end
             window.TabContainer.BackgroundColor3 = theme.Secondary
             window.TabIndicator.BackgroundColor3 = theme.Accent
             for _, tab in pairs(window.Tabs) do
