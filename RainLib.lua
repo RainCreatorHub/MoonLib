@@ -14,8 +14,6 @@ local RainLib = {
     CurrentTheme = nil
 }
 
-print("[RainLib] Carregando serviços...")
-
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -26,7 +24,6 @@ local function tween(obj, info, properties)
     return tween
 end
 
-print("[RainLib] Inicializando...")
 local success, err = pcall(function()
     RainLib.ScreenGui = Instance.new("ScreenGui")
     RainLib.ScreenGui.Name = "RainLib"
@@ -44,10 +41,8 @@ end)
 if not success then
     return nil
 end
-print("[RainLib] Inicializado com sucesso!")
 
 function RainLib:Window(options)
-    print("[RainLib] Criando janela...")
     local window = {}
     options = options or {}
     
@@ -129,16 +124,13 @@ function RainLib:Window(options)
     if not success then
         return nil
     end
-    print("[RainLib] Janela criada!")
     
     window.CloseButton.MouseButton1Click:Connect(function()
         if window.MinimizeButton then
             window.MinimizeButton:Destroy()
             window.MinimizeButton = nil
-            print("[RainLib] Botão de minimizar destruído")
         end
         window.MainFrame:Destroy()
-        print("[RainLib] Janela destruída")
     end)
     
     local dragging, dragStart, startPos
@@ -147,7 +139,6 @@ function RainLib:Window(options)
             dragging = true
             dragStart = input.Position
             startPos = window.MainFrame.Position
-            print("[RainLib] Começando a arrastar janela")
         end
     end)
     
@@ -166,12 +157,10 @@ function RainLib:Window(options)
     window.TitleBar.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
-            print("[RainLib] Parou de arrastar janela")
         end
     end)
     
     function window:Minimize(options)
-        print("[RainLib] Criando botão de minimizar...")
         options = options or {}
         local button
         local success, err = pcall(function()
@@ -193,7 +182,6 @@ function RainLib:Window(options)
             button.MouseButton1Click:Connect(function()
                 window.MainFrame.Visible = not window.MainFrame.Visible
                 button.Text = window.MainFrame.Visible and (options.Text1 or "Close") or (options.Text2 or "Open")
-                print("[RainLib] GUI " .. (window.MainFrame.Visible and "aberto" or "fechado"))
             end)
             
             if options.Draggable then
@@ -203,7 +191,6 @@ function RainLib:Window(options)
                         draggingButton = true
                         dragStartButton = input.Position
                         startPosButton = button.Position
-                        print("[RainLib] Começando a arrastar botão")
                     end
                 end)
                 
@@ -222,7 +209,6 @@ function RainLib:Window(options)
                 button.InputEnded:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                         draggingButton = false
-                        print("[RainLib] Parou de arrastar botão")
                     end
                 end)
             end
@@ -238,25 +224,25 @@ function RainLib:Window(options)
     end
     
     function window:Tab(options)
-        print("[RainLib] Criando aba...")
         local tab = {}
         options = options or {}
         tab.Name = options.Name or "Tab"
         tab.Icon = options.Icon or nil
         tab.ElementsPerRow = options.ElementsPerRow or 1
         tab.ElementCount = 0
+        tab.TotalHeight = 0 -- Para rastrear a altura total do conteúdo
         
         tab.Content = Instance.new("ScrollingFrame")
         tab.Content.Size = UDim2.new(1, -160, 1, -50)
         tab.Content.Position = UDim2.new(0, 155, 0, 45)
         tab.Content.BackgroundTransparency = 1
         tab.Content.ScrollBarThickness = 5
-        tab.Content.CanvasPosition = Vector2.new(0, 0)
+        tab.Content.CanvasSize = UDim2.new(0, 0, 0, 0)
         tab.Content.Visible = false
         tab.Content.Parent = window.MainFrame
         
         tab.Container = Instance.new("Frame")
-        tab.Container.Size = UDim2.new(1, -10, 1, -10)
+        tab.Container.Size = UDim2.new(1, -10, 1, 0) -- Altura será ajustada dinamicamente
         tab.Container.Position = UDim2.new(0, 5, 0, 5)
         tab.Container.BackgroundTransparency = 1
         tab.Container.Parent = tab.Content
@@ -319,7 +305,6 @@ function RainLib:Window(options)
                     tween(window.TabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, (i-1) * 45 + 5)})
                     tween(t.Button, TweenInfo.new(0.2), {BackgroundColor3 = RainLib.CurrentTheme.Accent})
                     window.CurrentTabIndex = i
-                    print("[RainLib] Aba selecionada: " .. t.Name)
                 else
                     tween(t.Content, TweenInfo.new(0.2), {BackgroundTransparency = 1})
                     tween(t.Button, TweenInfo.new(0.2), {BackgroundColor3 = RainLib.CurrentTheme.Secondary})
@@ -337,30 +322,35 @@ function RainLib:Window(options)
             selectTab(1)
         end
         
+        local function updateCanvasSize(height)
+            tab.TotalHeight = tab.TotalHeight + height + 10 -- Adiciona padding
+            tab.Container.Size = UDim2.new(1, -10, 0, tab.TotalHeight)
+            tab.Content.CanvasSize = UDim2.new(0, 0, 0, tab.TotalHeight)
+        end
+        
         local function getNextPosition(elementSize)
-            local padding = 10 -- Espaço entre os elementos
+            local padding = 10
             local row = math.floor(tab.ElementCount / tab.ElementsPerRow)
             local col = tab.ElementCount % tab.ElementsPerRow
             local xOffset = padding + col * (elementSize.X.Offset + padding)
             local yOffset = padding + row * (elementSize.Y.Offset + padding)
             tab.ElementCount = tab.ElementCount + 1
-            tab.Content.CanvasSize = UDim2.new(0, 0, 0, yOffset + elementSize.Y.Offset + padding)
+            updateCanvasSize(elementSize.Y.Offset)
             return UDim2.new(0, xOffset, 0, yOffset)
         end
         
         local function createContainer(element, size)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(0, size.X.Offset + 20, 0, size.Y.Offset + 20) -- Margem extra de 10 em cada lado
+            container.Size = UDim2.new(0, size.X.Offset + 20, 0, size.Y.Offset + 20)
             container.Position = getNextPosition(size)
-            container.BackgroundTransparency = 1 -- Invisível
+            container.BackgroundTransparency = 1
             container.Parent = tab.Container
             element.Parent = container
-            element.Position = UDim2.new(0, 10, 0, 10) -- Centraliza o elemento no container
+            element.Position = UDim2.new(0, 10, 0, 10)
             return container
         end
         
         function tab:AddSection(name)
-            print("[RainLib] Adicionando seção: " .. name)
             local sectionSize = UDim2.new(1, -10, 0, 20)
             local section = Instance.new("TextLabel")
             section.Size = sectionSize
@@ -621,7 +611,6 @@ function RainLib:Window(options)
 end
 
 function RainLib:Notify(options)
-    print("[RainLib] Criando notificação...")
     local success, err = pcall(function()
         local notification = Instance.new("Frame")
         notification.Size = UDim2.new(0, 280, 0, 80)
@@ -658,13 +647,11 @@ function RainLib:Notify(options)
         task.wait(options.Duration or 3)
         tween(notification, TweenInfo.new(0.5), {Position = UDim2.new(1, 10, 0, notification.Position.Y.Offset)}).Completed:Connect(function()
             notification:Destroy()
-            print("[RainLib] Notificação removida")
         end)
     end)
 end
 
 function RainLib:SetTheme(theme)
-    print("[RainLib] Mudando tema...")
     local success, err = pcall(function()
         RainLib.CurrentTheme = theme
         for _, window in pairs(RainLib.Windows) do
@@ -703,10 +690,6 @@ function RainLib:SetTheme(theme)
             end
         end
     end)
-    if success then
-        print("[RainLib] Tema mudado com sucesso!")
-    end
 end
 
-print("[RainLib] Biblioteca carregada!")
 return RainLib
