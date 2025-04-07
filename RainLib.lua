@@ -719,4 +719,4 @@ function RainLib:SetTheme(theme)
 end
 
 print("[RainLib] Biblioteca carregada!")
-return lib
+return ReturnLib
