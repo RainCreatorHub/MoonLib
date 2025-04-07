@@ -1,5 +1,5 @@
 local RainLib = {
-    Version = "1.1.0",
+    Version = "1.0",
     Themes = {
         Dark = {
             Background = Color3.fromRGB(30, 30, 30),
@@ -11,7 +11,8 @@ local RainLib = {
     },
     Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLib/main/Icons.lua"))(),
     Windows = {},
-    CurrentTheme = nil
+    CurrentTheme = nil,
+    Configs = {}
 }
 
 print("[RainLib] Carregando serviços...")
@@ -19,11 +20,63 @@ print("[RainLib] Carregando serviços...")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
 
 local function tween(obj, info, properties)
     local tween = TweenService:Create(obj, info or TweenInfo.new(0.3), properties)
     tween:Play()
     return tween
+end
+
+-- Função CreateFolder
+function RainLib:CreateFolder(options)
+    options = options or {}
+    local folderName = options.FolderName or "RainLibFolder" -- Nome padrão
+    local create = options.Create ~= nil and options.Create or true -- Cria por padrão, a menos que seja false
+    
+    if not create then
+        print("[RainLib] Criação da pasta '" .. folderName .. "' desativada.")
+        return folderName
+    end
+    
+    if isfolder and makefolder then
+        if not isfolder(folderName) then
+            makefolder(folderName)
+            print("[RainLib] Pasta '" .. folderName .. "' criada com sucesso!")
+        else
+            print("[RainLib] Pasta '" .. folderName .. "' já existe!")
+        end
+    else
+        warn("[RainLib] Não é possível criar a pasta '" .. folderName .. "' no jogo! Use o Roblox Studio com um executor compatível.")
+    end
+    
+    return folderName
+end
+
+-- Função pra salvar configs
+local function saveConfig(configFolderName, configName, data)
+    if isfolder and writefile then
+        local filePath = configFolderName .. "/" .. configName .. ".json"
+        local encodedData = HttpService:JSONEncode(data)
+        writefile(filePath, encodedData)
+        print("[RainLib] Configuração '" .. configName .. "' salva em '" .. filePath .. "'!")
+    end
+end
+
+-- Função pra carregar configs
+local function loadConfig(configFolderName, configName)
+    if isfolder and readfile then
+        local filePath = configFolderName .. "/" .. configName .. ".json"
+        if isfile(filePath) then
+            local data = HttpService:JSONDecode(readfile(filePath))
+            print("[RainLib] Configuração '" .. configName .. "' carregada de '" .. filePath .. "'!")
+            return data
+        else
+            print("[RainLib] Configuração '" .. configName .. "' não encontrada!")
+            return nil
+        end
+    end
+    return nil
 end
 
 print("[RainLib] Inicializando...")
@@ -52,13 +105,25 @@ function RainLib:Window(options)
     options = options or {}
     
     window.Title = options.Title or "Rain Lib"
-    window.Subtitle = options.Subtitle or "" -- Subtítulo opcional
+    window.Subtitle = options.Subtitle or ""
     window.Size = options.Size or UDim2.new(0, 500, 0, 350)
     window.Position = options.Position or UDim2.new(0.5, -250, 0.5, -175)
+    window.SaveConfig = options.SaveConfig or false
+    window.ConfigFolder = options.ConfigFolder or RainLib:CreateFolder({FolderName = options.ConfigFolder, Create = window.SaveConfig})
+    window.ConfigName = options.ConfigName or "default"
     window.Minimized = false
     window.Tabs = {}
     window.CurrentTabIndex = 1
     window.MinimizeButton = nil
+    window.ConfigData = {}
+    
+    -- Carregar config existente se SaveConfig for true
+    if window.SaveConfig then
+        local loadedConfig = loadConfig(window.ConfigFolder, window.ConfigName)
+        if loadedConfig then
+            window.ConfigData = loadedConfig
+        end
+    end
     
     local success, err = pcall(function()
         window.MainFrame = Instance.new("Frame")
@@ -84,7 +149,7 @@ function RainLib:Window(options)
         shadow.Parent = window.MainFrame
         
         window.TitleBar = Instance.new("Frame")
-        window.TitleBar.Size = UDim2.new(1, 0, 0, window.Subtitle ~= "" and 60 or 40) -- Aumenta a altura se tiver subtítulo
+        window.TitleBar.Size = UDim2.new(1, 0, 0, window.Subtitle ~= "" and 60 or 40)
         window.TitleBar.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         window.TitleBar.Parent = window.MainFrame
         
@@ -127,7 +192,7 @@ function RainLib:Window(options)
         closeCorner.Parent = window.CloseButton
         
         window.TabContainer = Instance.new("ScrollingFrame")
-        window.TabContainer.Size = UDim2.new(0, 150, 1, window.Subtitle ~= "" and -60 or -40) -- Ajusta a altura com base no subtítulo
+        window.TabContainer.Size = UDim2.new(0, 150, 1, window.Subtitle ~= "" and -60 or -40)
         window.TabContainer.Position = UDim2.new(0, 0, 0, window.Subtitle ~= "" and 60 or 40)
         window.TabContainer.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         window.TabContainer.ScrollBarThickness = 0
@@ -150,6 +215,9 @@ function RainLib:Window(options)
             window.MinimizeButton:Destroy()
             window.MinimizeButton = nil
             print("[RainLib] Botão de minimizar destruído")
+        end
+        if window.SaveConfig then
+            saveConfig(window.ConfigFolder, window.ConfigName, window.ConfigData)
         end
         window.MainFrame:Destroy()
         print("[RainLib] Janela destruída")
@@ -261,7 +329,7 @@ function RainLib:Window(options)
         tab.ElementCount = 0
         
         tab.Content = Instance.new("ScrollingFrame")
-        tab.Content.Size = UDim2.new(1, -160, 1, window.Subtitle ~= "" and -70 or -50) -- Ajusta a altura com base no subtítulo
+        tab.Content.Size = UDim2.new(1, -160, 1, window.Subtitle ~= "" and -70 or -50)
         tab.Content.Position = UDim2.new(0, 155, 0, window.Subtitle ~= "" and 65 or 45)
         tab.Content.BackgroundTransparency = 1
         tab.Content.ScrollBarThickness = 5
@@ -415,8 +483,16 @@ function RainLib:Window(options)
             textbox.FocusLost:Connect(function(enterPressed)
                 if enterPressed and options.Callback then
                     options.Callback(textbox.Text)
+                    if window.SaveConfig then
+                        window.ConfigData[textbox.Name] = textbox.Text
+                    end
                 end
             end)
+            
+            textbox.Name = options.Name or "Textbox" .. tab.ElementCount
+            if window.ConfigData[textbox.Name] then
+                textbox.Text = window.ConfigData[textbox.Name]
+            end
             
             return textbox
         end
