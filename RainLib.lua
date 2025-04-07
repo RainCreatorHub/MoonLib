@@ -26,22 +26,6 @@ local function tween(obj, info, properties)
     return tween
 end
 
--- Função pra criar a ConfigFolder com base nas opções
-local function createConfigFolder(configFolderName, saveConfig)
-    if saveConfig and isfolder and makefolder then -- Só cria se SaveConfig for true e as funções existirem
-        if not isfolder(configFolderName) then
-            makefolder(configFolderName)
-            print("[RainLib] Pasta '" .. configFolderName .. "' criada com sucesso!")
-        else
-            print("[RainLib] Pasta '" .. configFolderName .. "' já existe!")
-        end
-    elseif saveConfig then
-        warn("[RainLib] Não é possível criar a pasta '" .. configFolderName .. "' no jogo! Use o Roblox Studio.")
-    else
-        print("[RainLib] Criação da ConfigFolder desativada (SaveConfig = false).")
-    end
-end
-
 print("[RainLib] Inicializando...")
 local success, err = pcall(function()
     RainLib.ScreenGui = Instance.new("ScreenGui")
@@ -71,15 +55,10 @@ function RainLib:Window(options)
     window.Subtitle = options.Subtitle or "" -- Subtítulo opcional
     window.Size = options.Size or UDim2.new(0, 500, 0, 350)
     window.Position = options.Position or UDim2.new(0.5, -250, 0.5, -175)
-    window.SaveConfig = options.SaveConfig or false -- Padrão é false (não cria a pasta)
-    window.ConfigFolder = options.ConfigFolder or "ConfigFolder" -- Nome padrão da pasta
     window.Minimized = false
     window.Tabs = {}
     window.CurrentTabIndex = 1
     window.MinimizeButton = nil
-    
-    -- Criar a ConfigFolder com base nas opções
-    createConfigFolder(window.ConfigFolder, window.SaveConfig)
     
     local success, err = pcall(function()
         window.MainFrame = Instance.new("Frame")
@@ -481,8 +460,17 @@ function RainLib:Window(options)
                     if options.Callback then
                         options.Callback(toggle.Value)
                     end
+                    if window.SaveConfig then
+                        window.ConfigData[frame.Name] = toggle.Value
+                    end
                 end
             end)
+            
+            frame.Name = options.Name or "Toggle" .. tab.ElementCount
+            if window.ConfigData[frame.Name] ~= nil then
+                toggle.Value = window.ConfigData[frame.Name]
+                indicator.BackgroundColor3 = toggle.Value and RainLib.CurrentTheme.Accent or RainLib.CurrentTheme.Disabled
+            end
             
             return toggle
         end
@@ -516,7 +504,7 @@ function RainLib:Window(options)
             valueLabel.BackgroundTransparency = 1
             valueLabel.TextColor3 = RainLib.CurrentTheme.Text
             valueLabel.Font = Enum.Font.SourceSans
-            label.TextSize = 16
+            valueLabel.TextSize = 16
             valueLabel.Parent = frame
             
             local bar = Instance.new("Frame")
@@ -561,8 +549,18 @@ function RainLib:Window(options)
                     if options.Callback then
                         options.Callback(slider.Value)
                     end
+                    if window.SaveConfig then
+                        window.ConfigData[frame.Name] = slider.Value
+                    end
                 end
             end)
+            
+            frame.Name = options.Name or "Slider" .. tab.ElementCount
+            if window.ConfigData[frame.Name] then
+                slider.Value = window.ConfigData[frame.Name]
+                fill.Size = UDim2.new(slider.Value / (options.Max or 100), 0, 1, 0)
+                valueLabel.Text = tostring(slider.Value)
+            end
             
             return slider
         end
@@ -628,6 +626,9 @@ function RainLib:Window(options)
                     if options.Callback then
                         options.Callback(dropdown.Value)
                     end
+                    if window.SaveConfig then
+                        window.ConfigData[frame.Name] = dropdown.Value
+                    end
                 end)
             end
             
@@ -636,6 +637,12 @@ function RainLib:Window(options)
                     list.Visible = not list.Visible
                 end
             end)
+            
+            frame.Name = options.Name or "Dropdown" .. tab.ElementCount
+            if window.ConfigData[frame.Name] then
+                dropdown.Value = window.ConfigData[frame.Name]
+                label.Text = dropdown.Value
+            end
             
             return dropdown
         end
