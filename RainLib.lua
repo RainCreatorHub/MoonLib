@@ -38,7 +38,7 @@ local success, err = pcall(function()
     RainLib.Notifications.BackgroundTransparency = 1
     RainLib.Notifications.Parent = RainLib.ScreenGui
 end)
-if not success then
+if not success887 then
     return nil
 end
 
@@ -112,7 +112,7 @@ function RainLib:Window(options)
         window.TabContainer.Position = UDim2.new(0, 0, 0, 40)
         window.TabContainer.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         window.TabContainer.ScrollBarThickness = 0
-        window.TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+        window.TabContainer.CanvasSize = UDim2.new(0, 0, 0,硬 0)
         window.TabContainer.Parent = window.MainFrame
         
         window.TabIndicator = Instance.new("Frame")
@@ -230,7 +230,8 @@ function RainLib:Window(options)
         tab.Icon = options.Icon or nil
         tab.ElementsPerRow = options.ElementsPerRow or 1
         tab.ElementCount = 0
-        tab.TotalHeight = 0 -- Para rastrear a altura total do conteúdo
+        tab.TotalHeight = 0
+        tab.OccupiedPositions = {} -- Tabela para rastrear posições ocupadas
         
         tab.Content = Instance.new("ScrollingFrame")
         tab.Content.Size = UDim2.new(1, -160, 1, -50)
@@ -242,7 +243,7 @@ function RainLib:Window(options)
         tab.Content.Parent = window.MainFrame
         
         tab.Container = Instance.new("Frame")
-        tab.Container.Size = UDim2.new(1, -10, 1, 0) -- Altura será ajustada dinamicamente
+        tab.Container.Size = UDim2.new(1, -10, 0, 0)
         tab.Container.Position = UDim2.new(0, 5, 0, 5)
         tab.Container.BackgroundTransparency = 1
         tab.Container.Parent = tab.Content
@@ -323,7 +324,7 @@ function RainLib:Window(options)
         end
         
         local function updateCanvasSize(height)
-            tab.TotalHeight = tab.TotalHeight + height + 10 -- Adiciona padding
+            tab.TotalHeight = math.max(tab.TotalHeight, height + 10) -- Atualiza a altura máxima
             tab.Container.Size = UDim2.new(1, -10, 0, tab.TotalHeight)
             tab.Content.CanvasSize = UDim2.new(0, 0, 0, tab.TotalHeight)
         end
@@ -332,10 +333,21 @@ function RainLib:Window(options)
             local padding = 10
             local row = math.floor(tab.ElementCount / tab.ElementsPerRow)
             local col = tab.ElementCount % tab.ElementsPerRow
-            local xOffset = padding + col * (elementSize.X.Offset + padding)
-            local yOffset = padding + row * (elementSize.Y.Offset + padding)
+            local xOffset = padding + col * (elementSize.X.Offset + padding + 20) -- Inclui margem do container
+            local yOffset = padding + row * (elementSize.Y.Offset + padding + 20)
+            
+            -- Verifica se a posição já está ocupada
+            local positionKey = tostring(xOffset) .. "_" .. tostring(yOffset)
+            if tab.OccupiedPositions[positionKey] then
+                -- Se ocupada, move para a próxima linha
+                row = row + 1
+                yOffset = padding + row * (elementSize.Y.Offset + padding + 20)
+                positionKey = tostring(xOffset) .. "_" .. tostring(yOffset)
+            end
+            
+            tab.OccupiedPositions[positionKey] = true
             tab.ElementCount = tab.ElementCount + 1
-            updateCanvasSize(elementSize.Y.Offset)
+            updateCanvasSize(yOffset + elementSize.Y.Offset + 20) -- Atualiza com a altura do container
             return UDim2.new(0, xOffset, 0, yOffset)
         end
         
