@@ -1,18 +1,17 @@
 local RainLib = {
-    Version = "1.0",
+    Version = "1.1.0",
     Themes = {
         Dark = {
             Background = Color3.fromRGB(30, 30, 30),
-            Accent = Color3.fromRGB(50, 150, 255),
+            Accent = Color3.fromRGB(50, 150, 255), -- Azul dos elementos e abas selecionadas
             Text = Color3.fromRGB(255, 255, 255),
             Secondary = Color3.fromRGB(50, 50, 50),
             Disabled = Color3.fromRGB(100, 100, 100)
         }
     },
-    Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLib/main/Icons.lua"))(),
+    Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLib/main/Icons.lua"))(), -- Importa os ícones
     Windows = {},
-    CurrentTheme = nil,
-    Configs = {}
+    CurrentTheme = nil
 }
 
 print("[RainLib] Carregando serviços...")
@@ -20,63 +19,11 @@ print("[RainLib] Carregando serviços...")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
-local HttpService = game:GetService("HttpService")
 
 local function tween(obj, info, properties)
     local tween = TweenService:Create(obj, info or TweenInfo.new(0.3), properties)
     tween:Play()
     return tween
-end
-
--- Função CreateFolder
-function RainLib:CreateFolder(options)
-    options = options or {}
-    local folderName = options.FolderName or "RainLibFolder" -- Nome padrão
-    local create = options.Create ~= nil and options.Create or true -- Cria por padrão, a menos que seja false
-    
-    if not create then
-        print("[RainLib] Criação da pasta '" .. folderName .. "' desativada.")
-        return folderName
-    end
-    
-    if isfolder and makefolder then
-        if not isfolder(folderName) then
-            makefolder(folderName)
-            print("[RainLib] Pasta '" .. folderName .. "' criada com sucesso!")
-        else
-            print("[RainLib] Pasta '" .. folderName .. "' já existe!")
-        end
-    else
-        warn("[RainLib] Não é possível criar a pasta '" .. folderName .. "' no jogo! Use o Roblox Studio com um executor compatível.")
-    end
-    
-    return folderName
-end
-
--- Função pra salvar configs
-local function saveConfig(configFolderName, configName, data)
-    if isfolder and writefile then
-        local filePath = configFolderName .. "/" .. configName .. ".json"
-        local encodedData = HttpService:JSONEncode(data)
-        writefile(filePath, encodedData)
-        print("[RainLib] Configuração '" .. configName .. "' salva em '" .. filePath .. "'!")
-    end
-end
-
--- Função pra carregar configs
-local function loadConfig(configFolderName, configName)
-    if isfolder and readfile then
-        local filePath = configFolderName .. "/" .. configName .. ".json"
-        if isfile(filePath) then
-            local data = HttpService:JSONDecode(readfile(filePath))
-            print("[RainLib] Configuração '" .. configName .. "' carregada de '" .. filePath .. "'!")
-            return data
-        else
-            print("[RainLib] Configuração '" .. configName .. "' não encontrada!")
-            return nil
-        end
-    end
-    return nil
 end
 
 print("[RainLib] Inicializando...")
@@ -95,7 +42,7 @@ local success, err = pcall(function()
     RainLib.Notifications.Parent = RainLib.ScreenGui
 end)
 if not success then
-    return nil
+    return nil -- Sai silenciosamente se der erro
 end
 print("[RainLib] Inicializado com sucesso!")
 
@@ -105,25 +52,13 @@ function RainLib:Window(options)
     options = options or {}
     
     window.Title = options.Title or "Rain Lib"
-    window.Subtitle = options.Subtitle or ""
+    window.Subtitle = options.Subtitle or nil -- Nova opção para subtítulo
     window.Size = options.Size or UDim2.new(0, 500, 0, 350)
     window.Position = options.Position or UDim2.new(0.5, -250, 0.5, -175)
-    window.SaveConfig = options.SaveConfig or false
-    window.ConfigFolder = options.ConfigFolder or RainLib:CreateFolder({FolderName = options.ConfigFolder, Create = window.SaveConfig})
-    window.ConfigName = options.ConfigName or "default"
     window.Minimized = false
     window.Tabs = {}
     window.CurrentTabIndex = 1
     window.MinimizeButton = nil
-    window.ConfigData = {}
-    
-    -- Carregar config existente se SaveConfig for true
-    if window.SaveConfig then
-        local loadedConfig = loadConfig(window.ConfigFolder, window.ConfigName)
-        if loadedConfig then
-            window.ConfigData = loadedConfig
-        end
-    end
     
     local success, err = pcall(function()
         window.MainFrame = Instance.new("Frame")
@@ -149,13 +84,13 @@ function RainLib:Window(options)
         shadow.Parent = window.MainFrame
         
         window.TitleBar = Instance.new("Frame")
-        window.TitleBar.Size = UDim2.new(1, 0, 0, window.Subtitle ~= "" and 60 or 40)
+        window.TitleBar.Size = UDim2.new(1, 0, 0, window.Subtitle and 60 or 40) -- Aumenta a altura se houver subtítulo
         window.TitleBar.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         window.TitleBar.Parent = window.MainFrame
         
         window.TitleLabel = Instance.new("TextLabel")
-        window.TitleLabel.Size = UDim2.new(1, -40, 0, 20)
-        window.TitleLabel.Position = UDim2.new(0, 10, 0, 10)
+        window.TitleLabel.Size = UDim2.new(1, -40, 0, 20) -- Altura fixa para o título
+        window.TitleLabel.Position = UDim2.new(0, 10, 0, 10) -- Posição ajustada
         window.TitleLabel.BackgroundTransparency = 1
         window.TitleLabel.Text = window.Title
         window.TitleLabel.TextColor3 = RainLib.CurrentTheme.Text
@@ -164,15 +99,16 @@ function RainLib:Window(options)
         window.TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
         window.TitleLabel.Parent = window.TitleBar
         
-        if window.Subtitle ~= "" then
+        -- Adicionando o subtítulo, se existir
+        if window.Subtitle then
             window.SubtitleLabel = Instance.new("TextLabel")
             window.SubtitleLabel.Size = UDim2.new(1, -40, 0, 20)
-            window.SubtitleLabel.Position = UDim2.new(0, 10, 0, 30)
+            window.SubtitleLabel.Position = UDim2.new(0, 10, 0, 30) -- Abaixo do título
             window.SubtitleLabel.BackgroundTransparency = 1
             window.SubtitleLabel.Text = window.Subtitle
             window.SubtitleLabel.TextColor3 = RainLib.CurrentTheme.Text
             window.SubtitleLabel.Font = Enum.Font.Gotham
-            window.SubtitleLabel.TextSize = 14
+            window.SubtitleLabel.TextSize = 14 -- Um pouco menor que o título
             window.SubtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
             window.SubtitleLabel.Parent = window.TitleBar
         end
@@ -192,8 +128,8 @@ function RainLib:Window(options)
         closeCorner.Parent = window.CloseButton
         
         window.TabContainer = Instance.new("ScrollingFrame")
-        window.TabContainer.Size = UDim2.new(0, 150, 1, window.Subtitle ~= "" and -60 or -40)
-        window.TabContainer.Position = UDim2.new(0, 0, 0, window.Subtitle ~= "" and 60 or 40)
+        window.TabContainer.Size = UDim2.new(0, 150, 1, -(window.Subtitle and 60 or 40)) -- Ajusta a altura
+        window.TabContainer.Position = UDim2.new(0, 0, 0, window.Subtitle and 60 or 40) -- Ajusta a posição
         window.TabContainer.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         window.TabContainer.ScrollBarThickness = 0
         window.TabContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -206,7 +142,7 @@ function RainLib:Window(options)
         window.TabIndicator.Parent = window.TabContainer
     end)
     if not success then
-        return nil
+        return nil -- Sai silenciosamente se der erro
     end
     print("[RainLib] Janela criada!")
     
@@ -215,9 +151,6 @@ function RainLib:Window(options)
             window.MinimizeButton:Destroy()
             window.MinimizeButton = nil
             print("[RainLib] Botão de minimizar destruído")
-        end
-        if window.SaveConfig then
-            saveConfig(window.ConfigFolder, window.ConfigName, window.ConfigData)
         end
         window.MainFrame:Destroy()
         print("[RainLib] Janela destruída")
@@ -234,7 +167,7 @@ function RainLib:Window(options)
     end)
     
     window.TitleBar.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+ acl       if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
             window.MainFrame.Position = UDim2.new(
                 startPos.X.Scale,
@@ -329,8 +262,8 @@ function RainLib:Window(options)
         tab.ElementCount = 0
         
         tab.Content = Instance.new("ScrollingFrame")
-        tab.Content.Size = UDim2.new(1, -160, 1, window.Subtitle ~= "" and -70 or -50)
-        tab.Content.Position = UDim2.new(0, 155, 0, window.Subtitle ~= "" and 65 or 45)
+        tab.Content.Size = UDim2.new(1, -160, 1, -50)
+        tab.Content.Position = UDim2.new(0, 155, 0, 45)
         tab.Content.BackgroundTransparency = 1
         tab.Content.ScrollBarThickness = 5
         tab.Content.CanvasPosition = Vector2.new(0, 0)
@@ -483,16 +416,8 @@ function RainLib:Window(options)
             textbox.FocusLost:Connect(function(enterPressed)
                 if enterPressed and options.Callback then
                     options.Callback(textbox.Text)
-                    if window.SaveConfig then
-                        window.ConfigData[textbox.Name] = textbox.Text
-                    end
                 end
             end)
-            
-            textbox.Name = options.Name or "Textbox" .. tab.ElementCount
-            if window.ConfigData[textbox.Name] then
-                textbox.Text = window.ConfigData[textbox.Name]
-            end
             
             return textbox
         end
@@ -536,17 +461,8 @@ function RainLib:Window(options)
                     if options.Callback then
                         options.Callback(toggle.Value)
                     end
-                    if window.SaveConfig then
-                        window.ConfigData[frame.Name] = toggle.Value
-                    end
                 end
             end)
-            
-            frame.Name = options.Name or "Toggle" .. tab.ElementCount
-            if window.ConfigData[frame.Name] ~= nil then
-                toggle.Value = window.ConfigData[frame.Name]
-                indicator.BackgroundColor3 = toggle.Value and RainLib.CurrentTheme.Accent or RainLib.CurrentTheme.Disabled
-            end
             
             return toggle
         end
@@ -625,18 +541,8 @@ function RainLib:Window(options)
                     if options.Callback then
                         options.Callback(slider.Value)
                     end
-                    if window.SaveConfig then
-                        window.ConfigData[frame.Name] = slider.Value
-                    end
                 end
             end)
-            
-            frame.Name = options.Name or "Slider" .. tab.ElementCount
-            if window.ConfigData[frame.Name] then
-                slider.Value = window.ConfigData[frame.Name]
-                fill.Size = UDim2.new(slider.Value / (options.Max or 100), 0, 1, 0)
-                valueLabel.Text = tostring(slider.Value)
-            end
             
             return slider
         end
@@ -702,9 +608,6 @@ function RainLib:Window(options)
                     if options.Callback then
                         options.Callback(dropdown.Value)
                     end
-                    if window.SaveConfig then
-                        window.ConfigData[frame.Name] = dropdown.Value
-                    end
                 end)
             end
             
@@ -713,12 +616,6 @@ function RainLib:Window(options)
                     list.Visible = not list.Visible
                 end
             end)
-            
-            frame.Name = options.Name or "Dropdown" .. tab.ElementCount
-            if window.ConfigData[frame.Name] then
-                dropdown.Value = window.ConfigData[frame.Name]
-                label.Text = dropdown.Value
-            end
             
             return dropdown
         end
@@ -781,7 +678,7 @@ function RainLib:SetTheme(theme)
             window.MainFrame.BackgroundColor3 = theme.Background
             window.TitleBar.BackgroundColor3 = theme.Secondary
             window.TitleLabel.TextColor3 = theme.Text
-            if window.SubtitleLabel then
+            if window.SubtitleLabel then -- Suporte ao subtítulo no tema
                 window.SubtitleLabel.TextColor3 = theme.Text
             end
             window.TabContainer.BackgroundColor3 = theme.Secondary
@@ -822,4 +719,3 @@ function RainLib:SetTheme(theme)
 end
 
 print("[RainLib] Biblioteca carregada!")
-return RainLib
