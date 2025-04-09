@@ -1,11 +1,11 @@
--- RainLib v1.2.1: Correção das Sections + Animações e Detalhes
+-- RainLib v1.2.2: Correção das Sections para respeitar o layout em grade
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
 local RainLib = {
-    Version = "1.2.1",
+    Version = "1.2.2",
     Themes = {
         Dark = {
             Background = Color3.fromRGB(25, 25, 25),
@@ -394,21 +394,31 @@ function RainLib:Window(options)
             selectTab(1)
         end
         
-        local function getNextPosition(elementSize)
+        local function getNextPosition(elementSize, isSection)
             local padding = 10
             local row = math.floor(tab.ElementCount / tab.ElementsPerRow)
             local col = tab.ElementCount % tab.ElementsPerRow
+            
+            -- Se for uma section, força o início de uma nova linha
+            if isSection then
+                if col ~= 0 then -- Se não estiver no início da linha, pula pra próxima
+                    tab.ElementCount = tab.ElementCount + (tab.ElementsPerRow - col)
+                end
+                row = math.floor(tab.ElementCount / tab.ElementsPerRow)
+                col = 0
+            end
+            
             local xOffset = padding + col * (elementSize.X.Offset + padding)
             local yOffset = padding + row * (elementSize.Y.Offset + padding)
-            tab.ElementCount = tab.ElementCount + 1
+            tab.ElementCount = tab.ElementCount + (isSection and tab.ElementsPerRow or 1) -- Section ocupa a linha inteira
             tab.Content.CanvasSize = UDim2.new(0, 0, 0, yOffset + elementSize.Y.Offset + padding)
             return UDim2.new(0, xOffset, 0, yOffset + 100) -- Offset inicial pra animação
         end
         
-        local function createContainer(element, size)
+        local function createContainer(element, size, isSection)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(0, size.X.Offset + 20, 0, size.Y.Offset + 20)
-            local targetPos = getNextPosition(size)
+            local targetPos = getNextPosition(size, isSection)
             container.Position = UDim2.new(targetPos.X.Scale, targetPos.X.Offset, targetPos.Y.Scale, targetPos.Y.Offset + 100)
             container.BackgroundTransparency = 1
             container.Parent = tab.Container
@@ -425,7 +435,7 @@ function RainLib:Window(options)
             sectionContainer.BackgroundTransparency = 1
             
             local section = Instance.new("TextLabel")
-            section.Size = UDim2.new(1, 0, 1, 0) -- Agora ocupa o container inteiro
+            section.Size = UDim2.new(1, 0, 1, 0) -- Ocupa o container inteiro
             section.BackgroundTransparency = 1
             section.Text = name or "Section"
             section.TextColor3 = RainLib.CurrentTheme.Text
@@ -441,7 +451,7 @@ function RainLib:Window(options)
             underline.BackgroundColor3 = RainLib.CurrentTheme.Accent
             underline.Parent = sectionContainer
             
-            createContainer(sectionContainer, sectionSize)
+            createContainer(sectionContainer, sectionSize, true) -- Passa true pra indicar que é uma section
             
             -- Animação da Section
             tween(section, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0})
