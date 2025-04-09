@@ -1,4 +1,4 @@
--- RainLib v1.2.2: Ajustado para 1 elemento por linha com largura dinâmica
+-- RainLib v1.2.2: Sections tratadas como elementos, 1 elemento por linha, largura dinâmica
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -403,7 +403,7 @@ function RainLib:Window(options)
             return UDim2.new(0, padding, 0, yOffset + 100) -- Offset inicial pra animação
         end
         
-        local function createContainer(element, size, isSection)
+        local function createContainer(element, size)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(0, size.X.Offset + 20, 0, size.Y.Offset + 20)
             local targetPos = getNextPosition(size)
@@ -415,7 +415,7 @@ function RainLib:Window(options)
             tween(container, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(targetPos.X.Scale, targetPos.X.Offset, targetPos.Y.Scale, targetPos.Y.Offset - 100)})
             
             -- Adiciona o container à lista de elementos pra ajuste dinâmico
-            table.insert(tab.Elements, {container = container, element = element, isSection = isSection})
+            table.insert(tab.Elements, {container = container, element = element})
             return container
         end
         
@@ -428,15 +428,8 @@ function RainLib:Window(options)
                 local contentWidth = tab.Content.AbsoluteSize.X - 20 -- Desconta o padding
                 for _, elem in pairs(tab.Elements) do
                     local newWidth = contentWidth - 20 -- Desconta o padding interno do container
-                    if elem.isSection then
-                        -- Sections ocupam a largura total
-                        elem.container.Size = UDim2.new(0, newWidth, 0, elem.container.Size.Y.Offset)
-                        elem.element.Size = UDim2.new(1, 0, 1, 0)
-                    else
-                        -- Outros elementos (botão, toggle, slider, etc.) ajustam a largura
-                        elem.container.Size = UDim2.new(0, newWidth, 0, elem.container.Size.Y.Offset)
-                        elem.element.Size = UDim2.new(0, newWidth - 20, 0, elem.element.Size.Y.Offset)
-                    end
+                    elem.container.Size = UDim2.new(0, newWidth, 0, elem.container.Size.Y.Offset)
+                    elem.element.Size = UDim2.new(0, newWidth - 20, 0, elem.element.Size.Y.Offset)
                 end
             end
         end)
@@ -448,7 +441,7 @@ function RainLib:Window(options)
             sectionContainer.BackgroundTransparency = 1
             
             local section = Instance.new("TextLabel")
-            section.Size = UDim2.new(1, 0, 1, 0)
+            section.Size = UDim2.new(0, 420, 0, 30) -- Tamanho inicial do elemento interno
             section.BackgroundTransparency = 1
             section.Text = name or "Section"
             section.TextColor3 = RainLib.CurrentTheme.Text
@@ -464,7 +457,7 @@ function RainLib:Window(options)
             underline.BackgroundColor3 = RainLib.CurrentTheme.Accent
             underline.Parent = sectionContainer
             
-            createContainer(sectionContainer, sectionSize, true)
+            createContainer(sectionContainer, sectionSize)
             
             tween(section, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0})
             tween(underline, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Size = UDim2.new(0.3, 0, 0, 2)})
@@ -479,7 +472,7 @@ function RainLib:Window(options)
             frame.BackgroundTransparency = 1
             
             local title = Instance.new("TextLabel")
-            title.Size = UDim2.new(1, 0, 0, 20)
+            title.Size = UDim2.new(0, 120, 0, 20)
             title.Text = options.Title or "Paragraph"
             title.BackgroundTransparency = 1
             title.TextColor3 = RainLib.CurrentTheme.Text
@@ -489,7 +482,7 @@ function RainLib:Window(options)
             title.Parent = frame
             
             local content = Instance.new("TextLabel")
-            content.Size = UDim2.new(1, 0, 0, 20)
+            content.Size = UDim2.new(0, 120, 0, 20)
             content.Position = UDim2.new(0, 0, 0, 20)
             content.Text = options.Content or "Content"
             content.BackgroundTransparency = 1
@@ -500,7 +493,7 @@ function RainLib:Window(options)
             content.TextXAlignment = Enum.TextXAlignment.Left
             content.Parent = frame
             
-            createContainer(frame, paragraphSize, false)
+            createContainer(frame, paragraphSize)
             return frame
         end
         
@@ -530,7 +523,7 @@ function RainLib:Window(options)
                 tween(button, TweenInfo.new(0.2), {BackgroundColor3 = RainLib.CurrentTheme.Accent})
             end)
             
-            createContainer(button, buttonSize, false)
+            createContainer(button, buttonSize)
             button.MouseButton1Click:Connect(options.Callback or function() end)
             return button
         end
@@ -565,7 +558,7 @@ function RainLib:Window(options)
             indicatorCorner.CornerRadius = UDim.new(0, 10)
             indicatorCorner.Parent = indicator
             
-            createContainer(frame, toggleSize, false)
+            createContainer(frame, toggleSize)
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     toggle.Value = not toggle.Value
@@ -640,7 +633,7 @@ function RainLib:Window(options)
             cornerFill.CornerRadius = UDim.new(0, 4)
             cornerFill.Parent = fill
             
-            createContainer(frame, sliderSize, false)
+            createContainer(frame, sliderSize)
             local dragging
             bar.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -772,7 +765,7 @@ function RainLib:Window(options)
                 end)
             end
             
-            createContainer(frame, dropdownSize, false)
+            createContainer(frame, dropdownSize)
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     list.Visible = true
@@ -833,7 +826,7 @@ function RainLib:Window(options)
             label.TextSize = 14
             label.Parent = frame
             
-            createContainer(frame, colorpickerSize, false)
+            createContainer(frame, colorpickerSize)
             
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -889,7 +882,7 @@ function RainLib:Window(options)
             keyLabel.TextSize = 14
             keyLabel.Parent = frame
             
-            createContainer(frame, keybindSize, false)
+            createContainer(frame, keybindSize)
             local waitingForInput = false
             
             frame.InputBegan:Connect(function(input)
@@ -982,7 +975,7 @@ function RainLib:Window(options)
                 tween(stroke, TweenInfo.new(0.2), {Transparency = 0.8})
             end)
             
-            createContainer(textbox, inputSize, false)
+            createContainer(textbox, inputSize)
             textbox.FocusLost:Connect(function(enterPressed)
                 input.Value = options.Numeric and tonumber(textbox.Text) or textbox.Text
                 if enterPressed and options.Callback then
