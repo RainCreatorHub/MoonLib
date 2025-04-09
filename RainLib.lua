@@ -1,4 +1,4 @@
--- RainLib v1.2.2: Correção das Sections para respeitar o layout em grade
+-- RainLib v1.2.2: Ajustado para 1 elemento por linha com largura dinâmica
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -302,8 +302,8 @@ function RainLib:Window(options)
         options = options or {}
         tab.Name = options.Title or "Tab"
         tab.Icon = options.Icon or nil
-        tab.ElementsPerRow = options.ElementsPerRow or 1
         tab.ElementCount = 0
+        tab.Elements = {} -- Lista pra armazenar os elementos pra ajuste dinâmico
         
         tab.Content = Instance.new("ScrollingFrame")
         tab.Content.Size = UDim2.new(1, -160, 1, -60)
@@ -394,48 +394,61 @@ function RainLib:Window(options)
             selectTab(1)
         end
         
-        local function getNextPosition(elementSize, isSection)
+        local function getNextPosition(elementSize)
             local padding = 10
-            local row = math.floor(tab.ElementCount / tab.ElementsPerRow)
-            local col = tab.ElementCount % tab.ElementsPerRow
-            
-            -- Se for uma section, força o início de uma nova linha
-            if isSection then
-                if col ~= 0 then -- Se não estiver no início da linha, pula pra próxima
-                    tab.ElementCount = tab.ElementCount + (tab.ElementsPerRow - col)
-                end
-                row = math.floor(tab.ElementCount / tab.ElementsPerRow)
-                col = 0
-            end
-            
-            local xOffset = padding + col * (elementSize.X.Offset + padding)
+            local row = tab.ElementCount
             local yOffset = padding + row * (elementSize.Y.Offset + padding)
-            tab.ElementCount = tab.ElementCount + (isSection and tab.ElementsPerRow or 1) -- Section ocupa a linha inteira
+            tab.ElementCount = tab.ElementCount + 1
             tab.Content.CanvasSize = UDim2.new(0, 0, 0, yOffset + elementSize.Y.Offset + padding)
-            return UDim2.new(0, xOffset, 0, yOffset + 100) -- Offset inicial pra animação
+            return UDim2.new(0, padding, 0, yOffset + 100) -- Offset inicial pra animação
         end
         
         local function createContainer(element, size, isSection)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(0, size.X.Offset + 20, 0, size.Y.Offset + 20)
-            local targetPos = getNextPosition(size, isSection)
+            local targetPos = getNextPosition(size)
             container.Position = UDim2.new(targetPos.X.Scale, targetPos.X.Offset, targetPos.Y.Scale, targetPos.Y.Offset + 100)
             container.BackgroundTransparency = 1
             container.Parent = tab.Container
             element.Parent = container
             element.Position = UDim2.new(0, 10, 0, 10)
             tween(container, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(targetPos.X.Scale, targetPos.X.Offset, targetPos.Y.Scale, targetPos.Y.Offset - 100)})
+            
+            -- Adiciona o container à lista de elementos pra ajuste dinâmico
+            table.insert(tab.Elements, {container = container, element = element, isSection = isSection})
             return container
         end
         
+        -- Ajuste dinâmico da largura a cada 40ms
+        local lastUpdate = 0
+        RunService.RenderStepped:Connect(function(deltaTime)
+            local currentTime = tick()
+            if currentTime - lastUpdate >= 0.04 then -- 40 milissegundos
+                lastUpdate = currentTime
+                local contentWidth = tab.Content.AbsoluteSize.X - 20 -- Desconta o padding
+                for _, elem in pairs(tab.Elements) do
+                    local newWidth = contentWidth - 20 -- Desconta o padding interno do container
+                    if elem.isSection then
+                        -- Sections ocupam a largura total
+                        elem.container.Size = UDim2.new(0, newWidth, 0, elem.container.Size.Y.Offset)
+                        elem.element.Size = UDim2.new(1, 0, 1, 0)
+                    else
+                        -- Outros elementos (botão, toggle, slider, etc.) ajustam a largura
+                        elem.container.Size = UDim2.new(0, newWidth, 0, elem.container.Size.Y.Offset)
+                        elem.element.Size = UDim2.new(0, newWidth - 20, 0, elem.element.Size.Y.Offset)
+                    end
+                end
+            end
+        end)
+        
         function tab:AddSection(name)
-            local sectionSize = UDim2.new(0, 420, 0, 30) -- Tamanho fixo pra caber no layout da aba (600 - 160 - margens)
+            local sectionSize = UDim2.new(0, 420, 0, 30) -- Tamanho inicial (será ajustado dinamicamente)
             local sectionContainer = Instance.new("Frame")
             sectionContainer.Size = sectionSize
             sectionContainer.BackgroundTransparency = 1
             
             local section = Instance.new("TextLabel")
-            section.Size = UDim2.new(1, 0, 1, 0) -- Ocupa o container inteiro
+            section.Size = UDim2.new(1, 0, 1, 0)
             section.BackgroundTransparency = 1
             section.Text = name or "Section"
             section.TextColor3 = RainLib.CurrentTheme.Text
@@ -451,9 +464,8 @@ function RainLib:Window(options)
             underline.BackgroundColor3 = RainLib.CurrentTheme.Accent
             underline.Parent = sectionContainer
             
-            createContainer(sectionContainer, sectionSize, true) -- Passa true pra indicar que é uma section
+            createContainer(sectionContainer, sectionSize, true)
             
-            -- Animação da Section
             tween(section, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0})
             tween(underline, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Size = UDim2.new(0.3, 0, 0, 2)})
             
@@ -488,7 +500,7 @@ function RainLib:Window(options)
             content.TextXAlignment = Enum.TextXAlignment.Left
             content.Parent = frame
             
-            createContainer(frame, paragraphSize)
+            createContainer(frame, paragraphSize, false)
             return frame
         end
         
@@ -518,7 +530,7 @@ function RainLib:Window(options)
                 tween(button, TweenInfo.new(0.2), {BackgroundColor3 = RainLib.CurrentTheme.Accent})
             end)
             
-            createContainer(button, buttonSize)
+            createContainer(button, buttonSize, false)
             button.MouseButton1Click:Connect(options.Callback or function() end)
             return button
         end
@@ -553,7 +565,7 @@ function RainLib:Window(options)
             indicatorCorner.CornerRadius = UDim.new(0, 10)
             indicatorCorner.Parent = indicator
             
-            createContainer(frame, toggleSize)
+            createContainer(frame, toggleSize, false)
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     toggle.Value = not toggle.Value
@@ -628,7 +640,7 @@ function RainLib:Window(options)
             cornerFill.CornerRadius = UDim.new(0, 4)
             cornerFill.Parent = fill
             
-            createContainer(frame, sliderSize)
+            createContainer(frame, sliderSize, false)
             local dragging
             bar.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -760,7 +772,7 @@ function RainLib:Window(options)
                 end)
             end
             
-            createContainer(frame, dropdownSize)
+            createContainer(frame, dropdownSize, false)
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     list.Visible = true
@@ -821,7 +833,7 @@ function RainLib:Window(options)
             label.TextSize = 14
             label.Parent = frame
             
-            createContainer(frame, colorpickerSize)
+            createContainer(frame, colorpickerSize, false)
             
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -877,7 +889,7 @@ function RainLib:Window(options)
             keyLabel.TextSize = 14
             keyLabel.Parent = frame
             
-            createContainer(frame, keybindSize)
+            createContainer(frame, keybindSize, false)
             local waitingForInput = false
             
             frame.InputBegan:Connect(function(input)
@@ -970,7 +982,7 @@ function RainLib:Window(options)
                 tween(stroke, TweenInfo.new(0.2), {Transparency = 0.8})
             end)
             
-            createContainer(textbox, inputSize)
+            createContainer(textbox, inputSize, false)
             textbox.FocusLost:Connect(function(enterPressed)
                 input.Value = options.Numeric and tonumber(textbox.Text) or textbox.Text
                 if enterPressed and options.Callback then
