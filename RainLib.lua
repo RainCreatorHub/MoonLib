@@ -1,11 +1,11 @@
--- RainLib v1.2.0: UI turbinada com animações e detalhes kkk
+-- RainLib v1.2.1: Correção das Sections + Animações e Detalhes
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 
 local RainLib = {
-    Version = "1.2.0",
+    Version = "1.2.1",
     Themes = {
         Dark = {
             Background = Color3.fromRGB(25, 25, 25),
@@ -194,7 +194,6 @@ function RainLib:Window(options)
         window.TabIndicator.Position = UDim2.new(0, 0, 0, 5)
         window.TabIndicator.Parent = window.TabContainer
         
-        -- Animação de entrada
         window.MainFrame.Position = UDim2.new(window.Options.Position.X.Scale, window.Options.Position.X.Offset, 0.5, 300)
         tween(window.MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = window.Options.Position, BackgroundTransparency = 0})
     end)
@@ -420,16 +419,34 @@ function RainLib:Window(options)
         end
         
         function tab:AddSection(name)
-            local sectionSize = UDim2.new(1, -10, 0, 20)
+            local sectionSize = UDim2.new(0, 420, 0, 30) -- Tamanho fixo pra caber no layout da aba (600 - 160 - margens)
+            local sectionContainer = Instance.new("Frame")
+            sectionContainer.Size = sectionSize
+            sectionContainer.BackgroundTransparency = 1
+            
             local section = Instance.new("TextLabel")
-            section.Size = sectionSize
+            section.Size = UDim2.new(1, 0, 1, 0) -- Agora ocupa o container inteiro
             section.BackgroundTransparency = 1
             section.Text = name or "Section"
             section.TextColor3 = RainLib.CurrentTheme.Text
             section.Font = Enum.Font.GothamBold
             section.TextSize = 18
             section.TextXAlignment = Enum.TextXAlignment.Left
-            createContainer(section, sectionSize)
+            section.TextTransparency = 1
+            section.Parent = sectionContainer
+            
+            local underline = Instance.new("Frame")
+            underline.Size = UDim2.new(0, 0, 0, 2)
+            underline.Position = UDim2.new(0, 0, 1, -2)
+            underline.BackgroundColor3 = RainLib.CurrentTheme.Accent
+            underline.Parent = sectionContainer
+            
+            createContainer(sectionContainer, sectionSize)
+            
+            -- Animação da Section
+            tween(section, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {TextTransparency = 0})
+            tween(underline, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Size = UDim2.new(0.3, 0, 0, 2)})
+            
             return section
         end
         
@@ -798,7 +815,6 @@ function RainLib:Window(options)
             
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    -- Simulação simples de colorpicker (poderia expandir com um picker completo)
                     local r = math.random(0, 255)
                     local g = math.random(0, 255)
                     local b = math.random(0, 255)
