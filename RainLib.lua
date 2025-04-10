@@ -1324,7 +1324,7 @@ function RainLib:Destroy()
 end
 
 -- Easter Egg Colossal
-RainLib.EasterEggs.Colossal = function()
+RainLib.EasterEggs.colossal = function()
     local colossal = Instance.new("Frame")
     colossal.Size = UDim2.new(0, 250, 0, 350)
     colossal.Position = UDim2.new(0.5, -125, 1, 0)
