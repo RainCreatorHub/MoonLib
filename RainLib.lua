@@ -18,7 +18,8 @@ local RainLib = {
     Icons = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLib/main/Icons.lua"))(),
     Windows = {},
     CurrentTheme = nil,
-    Connections = {}
+    Connections = {},
+    CreatedFolders = {} -- Tabela pra rastrear pastas já criadas
 }
 
 local function tween(obj, info, properties)
@@ -77,16 +78,23 @@ if not success then
 end
 print("[RainLib] Inicializado com sucesso!")
 
--- Nova função CreateFolder adicionada à RainLib
+-- Função CreateFolder modificada pra usar um único makefolder por pasta
 function RainLib:CreateFolder(folderName)
     if not folderName or folderName == "" then
         warn("[RainLib] Nome da pasta não especificado!")
         return false
     end
     
+    -- Verifica se a pasta já foi criada nesta sessão
+    if self.CreatedFolders[folderName] then
+        print("[RainLib] Pasta já registrada nesta sessão: " .. folderName)
+        return false
+    end
+    
     if makefolder then
         if not isfolder(folderName) then
             makefolder(folderName)
+            self.CreatedFolders[folderName] = true -- Marca como criada
             print("[RainLib] Pasta criada: " .. folderName)
             self:Notify({
                 Title = "Sucesso",
@@ -95,6 +103,7 @@ function RainLib:CreateFolder(folderName)
             })
             return true
         else
+            self.CreatedFolders[folderName] = true -- Marca como existente
             print("[RainLib] Pasta já existe: " .. folderName)
             self:Notify({
                 Title = "Aviso",
@@ -123,7 +132,7 @@ function RainLib:Window(options)
         Position = UDim2.new(0.5, -300, 0.5, -200),
         Theme = "Dark",
         MinimizeKey = Enum.KeyCode.LeftControl,
-        SaveSettings = false,        -- Nova opção: ativa/desativa criação de pasta
+        SaveSettings = false,        -- Opção pra ativar criação de pasta
         ConfigFolder = "RainConfig"  -- Nome padrão da pasta
     }
     window.Options = {}
@@ -347,7 +356,7 @@ function RainLib:Window(options)
         tab.Name = options.Title or "Tab"
         tab.Icon = options.Icon or nil
         tab.ElementCount = 0
-        tab.Elements = {} -- Lista pra armazenar os elementos pra ajuste dinâmico
+        tab.Elements = {}
         
         tab.Content = Instance.new("ScrollingFrame")
         tab.Content.Size = UDim2.new(1, -160, 1, -60)
@@ -444,7 +453,7 @@ function RainLib:Window(options)
             local yOffset = padding + row * (elementSize.Y.Offset + padding)
             tab.ElementCount = tab.ElementCount + 1
             tab.Content.CanvasSize = UDim2.new(0, 0, 0, yOffset + elementSize.Y.Offset + padding)
-            return UDim2.new(0, padding, 0, yOffset + 100) -- Offset inicial pra animação
+            return UDim2.new(0, padding, 0, yOffset + 100)
         end
         
         local function createContainer(element, size)
