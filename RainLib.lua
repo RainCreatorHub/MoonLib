@@ -77,6 +77,43 @@ if not success then
 end
 print("[RainLib] Inicializado com sucesso!")
 
+-- Nova função CreateFolder adicionada à RainLib
+function RainLib:CreateFolder(folderName)
+    if not folderName or folderName == "" then
+        warn("[RainLib] Nome da pasta não especificado!")
+        return false
+    end
+    
+    if makefolder then
+        if not isfolder(folderName) then
+            makefolder(folderName)
+            print("[RainLib] Pasta criada: " .. folderName)
+            self:Notify({
+                Title = "Sucesso",
+                Content = "Pasta '" .. folderName .. "' criada!",
+                Duration = 3
+            })
+            return true
+        else
+            print("[RainLib] Pasta já existe: " .. folderName)
+            self:Notify({
+                Title = "Aviso",
+                Content = "A pasta '" .. folderName .. "' já existe!",
+                Duration = 3
+            })
+            return false
+        end
+    else
+        warn("[RainLib] Este executor não suporta a função makefolder!")
+        self:Notify({
+            Title = "Erro",
+            Content = "Executor não suporta criação de pastas!",
+            Duration = 3
+        })
+        return false
+    end
+end
+
 function RainLib:Window(options)
     local window = {}
     options = options or {}
@@ -85,11 +122,18 @@ function RainLib:Window(options)
         SubTitle = "",
         Position = UDim2.new(0.5, -300, 0.5, -200),
         Theme = "Dark",
-        MinimizeKey = Enum.KeyCode.LeftControl
+        MinimizeKey = Enum.KeyCode.LeftControl,
+        SaveSettings = false,        -- Nova opção: ativa/desativa criação de pasta
+        ConfigFolder = "RainConfig"  -- Nome padrão da pasta
     }
     window.Options = {}
     for key, defaultValue in pairs(defaultOptions) do
         window.Options[key] = options[key] or defaultValue
+    end
+    
+    -- Cria a pasta automaticamente se SaveSettings for true
+    if window.Options.SaveSettings then
+        RainLib:CreateFolder(window.Options.ConfigFolder)
     end
     
     window.Minimized = false
@@ -414,20 +458,17 @@ function RainLib:Window(options)
             element.Position = UDim2.new(0, 10, 0, 10)
             tween(container, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Position = UDim2.new(targetPos.X.Scale, targetPos.X.Offset, targetPos.Y.Scale, targetPos.Y.Offset - 100)})
             
-            -- Adiciona o container à lista de elementos pra ajuste dinâmico
             table.insert(tab.Elements, {container = container, element = element})
             return container
         end
         
-        -- Ajuste dinâmico da largura a cada 40ms
-        local lastUpdate = 0
         RunService.RenderStepped:Connect(function(deltaTime)
             local currentTime = tick()
-            if currentTime - lastUpdate >= 0.04 then -- 40 milissegundos
-                lastUpdate = currentTime
-                local contentWidth = tab.Content.AbsoluteSize.X - 20 -- Desconta o padding
+            if currentTime - (tab.LastUpdate or 0) >= 0.04 then
+                tab.LastUpdate = currentTime
+                local contentWidth = tab.Content.AbsoluteSize.X - 20
                 for _, elem in pairs(tab.Elements) do
-                    local newWidth = contentWidth - 20 -- Desconta o padding interno do container
+                    local newWidth = contentWidth - 20
                     elem.container.Size = UDim2.new(0, newWidth, 0, elem.container.Size.Y.Offset)
                     elem.element.Size = UDim2.new(0, newWidth - 20, 0, elem.element.Size.Y.Offset)
                 end
@@ -435,13 +476,13 @@ function RainLib:Window(options)
         end)
         
         function tab:AddSection(name)
-            local sectionSize = UDim2.new(0, 420, 0, 30) -- Tamanho inicial (será ajustado dinamicamente)
+            local sectionSize = UDim2.new(0, 420, 0, 30)
             local sectionContainer = Instance.new("Frame")
             sectionContainer.Size = sectionSize
             sectionContainer.BackgroundTransparency = 1
             
             local section = Instance.new("TextLabel")
-            section.Size = UDim2.new(0, 420, 0, 30) -- Tamanho inicial do elemento interno
+            section.Size = UDim2.new(0, 420, 0, 30)
             section.BackgroundTransparency = 1
             section.Text = name or "Section"
             section.TextColor3 = RainLib.CurrentTheme.Text
