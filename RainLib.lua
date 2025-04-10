@@ -1,5 +1,4 @@
--- RainLib v1.2.3 - Versão Colossal (Mais de 2000 linhas, ultra funcional)
--- Feito pra ser um monstro tipo o Colossal de Attack on Titan
+-- RainLib v1.2.3 - Versão Colossal Ajustada (Sem Dummies, Só Flags)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -139,32 +138,29 @@ function RainLib:Window(options)
     local defaultOptions = {
         Title = "RainLib Colossal",
         SubTitle = "Feito pra ser ENORME",
-        Position = {X = 0.5, Y = 0.5, XOffset = -300, YOffset = -200},
-        Size = {Width = 600, Height = 400},
+        Position = UDim2.new(0.5, -300, 0.5, -200), -- Fixo, não salvo
+        Size = {Width = 800, Height = 600}, -- Fixo, não salvo
         Theme = "Dark",
-        MinimizeKey = "LeftControl",
-        SaveSettings = false,
+        MinimizeKey = "RightControl",
         ConfigFolder = "RainLibColossal",
-        Transparency = 0,
-        Shadow = true,
-        BorderSize = 2
+        Transparency = 0.1, -- Fixo, não salvo
+        Shadow = true -- Fixo, não salvo
     }
     
     window.Settings = LoadSettings(options.ConfigFolder or defaultOptions.ConfigFolder)
-    for key, value in pairs(defaultOptions) do
-        window.Settings[key] = options[key] or window.Settings[key] or value
-    end
+    window.Settings.Theme = options.Theme or window.Settings.Theme or defaultOptions.Theme
+    window.Settings.MinimizeKey = options.MinimizeKey or window.Settings.MinimizeKey or defaultOptions.MinimizeKey
     
     window.MainFrame = Instance.new("Frame")
-    window.MainFrame.Size = UDim2.new(0, window.Settings.Size.Width, 0, window.Settings.Size.Height)
-    window.MainFrame.Position = UDim2.new(window.Settings.Position.X, window.Settings.Position.XOffset, window.Settings.Position.Y, window.Settings.Position.YOffset)
+    window.MainFrame.Size = UDim2.new(0, defaultOptions.Size.Width, 0, defaultOptions.Size.Height)
+    window.MainFrame.Position = defaultOptions.Position
     window.MainFrame.BackgroundColor3 = RainLib.CurrentTheme.Background
-    window.MainFrame.BackgroundTransparency = window.Settings.Transparency
+    window.MainFrame.BackgroundTransparency = defaultOptions.Transparency
     window.MainFrame.ClipsDescendants = true
-    window.MainFrame.BorderSizePixel = window.Settings.BorderSize
+    window.MainFrame.BorderSizePixel = 2
     window.MainFrame.Parent = RainLib.ScreenGui
     
-    if window.Settings.Shadow then
+    if defaultOptions.Shadow then
         local shadow = Instance.new("ImageLabel")
         shadow.Size = UDim2.new(1, 20, 1, 20)
         shadow.Position = UDim2.new(0, -10, 0, -10)
@@ -185,7 +181,7 @@ function RainLib:Window(options)
     window.TitleLabel.Size = UDim2.new(1, -100, 0, 20)
     window.TitleLabel.Position = UDim2.new(0, 15, 0, 5)
     window.TitleLabel.BackgroundTransparency = 1
-    window.TitleLabel.Text = window.Settings.Title
+    window.TitleLabel.Text = options.Title or defaultOptions.Title
     window.TitleLabel.TextColor3 = RainLib.CurrentTheme.Text
     window.TitleLabel.Font = Enum.Font.GothamBold
     window.TitleLabel.TextSize = 16
@@ -196,7 +192,7 @@ function RainLib:Window(options)
     window.SubTitleLabel.Size = UDim2.new(1, -100, 0, 15)
     window.SubTitleLabel.Position = UDim2.new(0, 15, 0, 25)
     window.SubTitleLabel.BackgroundTransparency = 1
-    window.SubTitleLabel.Text = window.Settings.SubTitle
+    window.SubTitleLabel.Text = options.SubTitle or defaultOptions.SubTitle
     window.SubTitleLabel.TextColor3 = RainLib.CurrentTheme.Text
     window.SubTitleLabel.Font = Enum.Font.Gotham
     window.SubTitleLabel.TextSize = 12
@@ -256,14 +252,14 @@ function RainLib:Window(options)
     
     window.MinimizeBtn.MouseButton1Click:Connect(function()
         if window.Minimized then
-            tween(window.MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, window.Settings.Size.Width, 0, window.Settings.Size.Height)})
+            tween(window.MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, defaultOptions.Size.Width, 0, defaultOptions.Size.Height)})
             window.MinimizeBtn.Text = "-"
             window.MainFrame.ClipsDescendants = false
             window.TabContainer.Visible = true
         else
             window.MainFrame.ClipsDescendants = true
             window.MinimizeBtn.Text = "+"
-            tween(window.MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, window.Settings.Size.Width, 0, 50)})
+            tween(window.MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, defaultOptions.Size.Width, 0, 50)})
             task.wait(0.1)
             window.TabContainer.Visible = false
         end
@@ -280,14 +276,6 @@ function RainLib:Window(options)
             end
         end)
     end
-    
-    window.MainFrame:GetPropertyChangedSignal("Position"):Connect(function()
-        if window.Settings.SaveSettings then
-            local pos = window.MainFrame.Position
-            window.Settings.Position = {X = pos.X.Scale, Y = pos.Y.Scale, XOffset = pos.X.Offset, YOffset = pos.Y.Offset}
-            SaveSettings(window.Settings.ConfigFolder, window.Settings)
-        end
-    end)
     
     function window:Minimize(options)
         options = options or {}
@@ -383,10 +371,8 @@ function RainLib:Window(options)
         end
         
         local function saveElement(flag, value)
-            if window.Settings.SaveSettings then
-                window.Settings[flag] = value
-                SaveSettings(window.Settings.ConfigFolder, window.Settings)
-            end
+            window.Settings[flag] = value
+            SaveSettings(defaultOptions.ConfigFolder, window.Settings)
         end
         
         function tab:AddToggle(key, options)
@@ -712,7 +698,8 @@ function RainLib:Window(options)
         function tab:AddColorPicker(key, options)
             local pickerSize = UDim2.new(0, options.Width or 150, 0, options.Height or 40)
             local flag = options.Flag or key
-            local picker = {Value = window.Settings[flag] or options.Default or Color3.fromRGB(255, 255, 255)}
+            local defaultColor = options.Default or Color3.fromRGB(255, 255, 255)
+            local picker = {Value = window.Settings[flag] and Color3.fromRGB(unpack(window.Settings[flag])) or defaultColor}
             local frame = Instance.new("Frame")
             frame.Size = pickerSize
             frame.BackgroundColor3 = RainLib.CurrentTheme.Secondary
@@ -774,7 +761,7 @@ function RainLib:Window(options)
                     local hue = math.clamp((mousePos.Y - hueBar.AbsolutePosition.Y) / hueBar.AbsoluteSize.Y, 0, 1)
                     picker.Value = Color3.fromHSV(hue, 1, 1)
                     colorDisplay.BackgroundColor3 = picker.Value
-                    saveElement(flag, {picker.Value.R, picker.Value.G, picker.Value.B})
+                    saveElement(flag, {picker.Value.R * 255, picker.Value.G * 255, picker.Value.B * 255})
                     if options.Callback then options.Callback(picker.Value) end
                 elseif draggingSV then
                     local mousePos = UserInputService:GetMouseLocation()
@@ -782,7 +769,7 @@ function RainLib:Window(options)
                     local val = math.clamp((mousePos.Y - saturationValue.AbsolutePosition.Y) / saturationValue.AbsoluteSize.Y, 0, 1)
                     picker.Value = Color3.fromHSV(picker.Value:ToHSV(), sat, 1 - val)
                     colorDisplay.BackgroundColor3 = picker.Value
-                    saveElement(flag, {picker.Value.R, picker.Value.G, picker.Value.B})
+                    saveElement(flag, {picker.Value.R * 255, picker.Value.G * 255, picker.Value.B * 255})
                     if options.Callback then options.Callback(picker.Value) end
                 end
             end)
@@ -901,7 +888,7 @@ function RainLib:Window(options)
                 local toggle = {Value = window.Settings[flag] or sOptions.Default or false}
                 local sFrame = Instance.new("Frame")
                 sFrame.Size = toggleSize
-                sFrame.BackgroundColor3 = RainLib.CurrentTheme.Secondary
+                sFrame.Background_backgroundColor3 = RainLib.CurrentTheme.Secondary
                 sFrame.Position = getSectionPosition(toggleSize)
                 CreateCorner(sFrame)
                 
@@ -1010,10 +997,13 @@ function RainLib:Window(options)
     function window:SetTheme(theme)
         if type(theme) == "string" then
             RainLib.CurrentTheme = RainLib.Themes[theme] or RainLib.Themes.Dark
+            window.Settings.Theme = theme
         else
             RainLib.CurrentTheme = theme
             window.CustomTheme = theme
+            window.Settings.Theme = "Custom"
         end
+        SaveSettings(defaultOptions.ConfigFolder, window.Settings)
         tween(window.MainFrame, TweenInfo.new(0.3), {BackgroundColor3 = RainLib.CurrentTheme.Background})
         tween(window.TitleBar, TweenInfo.new(0.3), {BackgroundColor3 = RainLib.CurrentTheme.Secondary})
         tween(window.TitleLabel, TweenInfo.new(0.3), {TextColor3 = RainLib.CurrentTheme.Text})
@@ -1040,24 +1030,14 @@ function RainLib:Window(options)
     end
     
     function window:SetSize(width, height)
-        window.Settings.Size.Width = width
-        window.Settings.Size.Height = height
         tween(window.MainFrame, TweenInfo.new(0.5), {Size = UDim2.new(0, width, 0, height)})
-        if window.Settings.SaveSettings then
-            SaveSettings(window.Settings.ConfigFolder, window.Settings)
-        end
     end
     
     function window:SetTransparency(transparency)
-        window.Settings.Transparency = transparency
         tween(window.MainFrame, TweenInfo.new(0.3), {BackgroundTransparency = transparency})
-        if window.Settings.SaveSettings then
-            SaveSettings(window.Settings.ConfigFolder, window.Settings)
-        end
     end
     
     function window:ToggleShadow(enabled)
-        window.Settings.Shadow = enabled
         if enabled and not window.MainFrame:FindFirstChild("Shadow") then
             local shadow = Instance.new("ImageLabel")
             shadow.Name = "Shadow"
@@ -1069,9 +1049,6 @@ function RainLib:Window(options)
             shadow.Parent = window.MainFrame
         elseif not enabled and window.MainFrame:FindFirstChild("Shadow") then
             window.MainFrame.Shadow:Destroy()
-        end
-        if window.Settings.SaveSettings then
-            SaveSettings(window.Settings.ConfigFolder, window.Settings)
         end
     end
     
@@ -1130,16 +1107,6 @@ RainLib.EasterEggs.Colossal = function()
             colossal:Destroy()
         end)
     end)
-end
-
--- Preenchendo com mais linhas pra chegar a 2000+
-for i = 1, 500 do
-    RainLib["DummyFunction" .. i] = function()
-        -- Funções dummy pra aumentar o tamanho do código
-        local x = math.random(1, 100)
-        local y = math.random(1, 100)
-        return x + y
-    end
 end
 
 return RainLib
