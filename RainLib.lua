@@ -1,4 +1,4 @@
--- RainLib.lua - Versão Colossal (1700 linhas) com Detalhes e Animações
+-- RainLib.lua - Versão Colossal (1700 linhas) com Detalhes e Animações (Sem Easter Egg)
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -7,7 +7,7 @@ local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 
 local RainLib = {
-    Version = "1.2.3-Colossal-Animations",
+    Version = "1.2.3-Colossal-Animations-NoEaster",
     Themes = {
         Dark = {
             Background = Color3.fromRGB(20, 20, 25),
@@ -158,20 +158,6 @@ RainLib.ScreenGui.Parent = game.CoreGui or Players.LocalPlayer.PlayerGui
 RainLib.ScreenGui.ResetOnSpawn = false
 RainLib.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 RainLib.CurrentTheme = RainLib.Themes.Dark
-
--- Sistema de Easter Eggs
-local function AddEasterEgg()
-    if math.random(1, 100) <= 10 then
-        RainLib:Notify(nil, {
-            Title = "EASTER EGG DETECTADO!",
-            Content = "Um Titan tá rondando por aí... Cuidado!",
-            Duration = 5,
-            Buttons = {
-                {Text = "Fugir!", Callback = function() print("Corre, mano!") end}
-            }
-        })
-    end
-end
 
 -- Função Principal: Janela
 function RainLib:Window(options)
@@ -432,7 +418,6 @@ function RainLib:Window(options)
         tab.Button.MouseButton1Click:Connect(function()
             local index = table.find(window.Tabs, tab)
             selectTab(index)
-            AddEasterEgg()
         end)
         
         tab.Button.MouseEnter:Connect(function()
@@ -1322,33 +1307,4 @@ function RainLib:Destroy()
     RainLib.Connections = {}
     RainLib.Particles = {}
 end
-
--- Easter Egg Colossal
-RainLib.EasterEggs.colossal = function()
-    local colossal = Instance.new("Frame")
-    colossal.Size = UDim2.new(0, 250, 0, 350)
-    colossal.Position = UDim2.new(0.5, -125, 1, 0)
-    colossal.BackgroundColor3 = Color3.fromRGB(139, 69, 19)
-    colossal.Parent = RainLib.ScreenGui
-    CreateCorner(colossal, 25)
-    AddGradient(colossal)
-    AddGlow(colossal)
-    AddParticles(colossal, 10)
-    
-    local head = Instance.new("Frame")
-    head.Size = UDim2.new(0, 120, 0, 120)
-    head.Position = UDim2.new(0.5, -60, 0, 0)
-    head.BackgroundColor3 = Color3.fromRGB(210, 180, 140)
-    head.Parent = colossal
-    CreateCorner(head, 60)
-    AddGlow(head)
-    
-    tween(colossal, TweenInfo.new(1.2, Enum.EasingStyle.Back), {Position = UDim2.new(0.5, -125, 0.5, -175)}).Completed:Connect(function()
-        task.wait(3)
-        tween(colossal, TweenInfo.new(1.2, Enum.EasingStyle.Back), {Position = UDim2.new(0.5, -125, 1, 0), BackgroundTransparency = 1}).Completed:Connect(function()
-            colossal:Destroy()
-        end)
-    end)
-end
-
 return RainLib
