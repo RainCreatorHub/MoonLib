@@ -87,9 +87,31 @@ function RainLib:CreateFolder(folderName)
     if makefolder and writefile then
         if not isfolder(folderName) then
             makefolder(folderName)
+            -- Criar Settings.json
+            local defaultSettings = {
+                Theme = "Dark",
+                WindowPosition = {X = 0.5, Y = 0.5, XOffset = -300, YOffset = -200},
+                MinimizeKey = "LeftControl",
+                SaveSettings = true
+            }
+            writefile(folderName .. "/Settings.json", HttpService:JSONEncode(defaultSettings))
+            
+            -- Criar uiSettings.json
+            local defaultUISettings = {
+                Toggles = {},
+                Sliders = {},
+                Dropdowns = {},
+                Colorpickers = {},
+                Keybinds = {},
+                Inputs = {},
+                Configs = {} -- Lista de configurações
+            }
+            writefile(folderName .. "/uiSettings.json", HttpService:JSONEncode(defaultUISettings))
+            
             self.CreatedFolders[folderName] = true
             print("[RainLib] Pasta criada: " .. folderName)
-            self:Notify(nil, {Title = "Sucesso", Content = "Pasta '" .. folderName .. "' criada!", Duration = 3})
+            print("[RainLib] Arquivos criados: Settings.json, uiSettings.json")
+            self:Notify(nil, {Title = "Sucesso", Content = "Pasta '" .. folderName .. "' criada com Settings.json e uiSettings.json!", Duration = 3})
             return true
         else
             self.CreatedFolders[folderName] = true
@@ -110,6 +132,9 @@ function RainLib:LoadConfig(folderName)
         return nil
     end
     
+    local config = {}
+    
+    -- Carregar Settings.json
     local settingsPath = folderName .. "/Settings.json"
     if isfile and isfile(settingsPath) then
         local success, result = pcall(function()
@@ -117,19 +142,202 @@ function RainLib:LoadConfig(folderName)
             return HttpService:JSONDecode(json)
         end)
         if success then
-            print("[RainLib] Configuração carregada de: " .. settingsPath)
-            return result
+            print("[RainLib] Settings.json carregado de: " .. settingsPath)
+            for key, value in pairs(result) do
+                config[key] = value
+            end
         else
-            warn("[RainLib] Falha ao carregar config: " .. result)
+            warn("[RainLib] Falha ao carregar Settings.json: " .. result)
         end
     else
-        print("[RainLib] Arquivo Settings.json não encontrado em: " .. settingsPath)
+        print("[RainLib] Settings.json não encontrado em: " .. settingsPath)
     end
-    return nil
+    
+    -- Carregar uiSettings.json
+    local uiSettingsPath = folderName .. "/uiSettings.json"
+    if isfile and isfile(uiSettingsPath) then
+        local success, result = pcall(function()
+            local json = readfile(uiSettingsPath)
+            return HttpService:JSONDecode(json)
+        end)
+        if success then
+            print("[RainLib] uiSettings.json carregado de: " .. uiSettingsPath)
+            for key, value in pairs(result) do
+                config[key] = value
+            end
+        else
+            warn("[RainLib] Falha ao carregar uiSettings.json: " .. result)
+        end
+    else
+        print("[RainLib] uiSettings.json não encontrado em: " .. uiSettingsPath)
+    end
+    
+    return next(config) and config or nil
+end
+
+function RainLib:AddConfig(folderName, configName)
+    if not folderName or not configName or configName == "" then
+        warn("[RainLib] Nome da pasta ou configuração não especificado!")
+        return false
+    end
+    
+    if not isfolder(folderName) then
+        warn("[RainLib] Pasta não existe: " .. folderName)
+        return false
+    end
+    
+    local uiSettingsPath = folderName .. "/uiSettings.json"
+    local uiSettings = {}
+    
+    if isfile and isfile(uiSettingsPath) then
+        local success, result = pcall(function()
+            local json = readfile(uiSettingsPath)
+            return HttpService:JSONDecode(json)
+        end)
+        if success then
+            uiSettings = result
+        else
+            warn("[RainLib] Falha ao ler uiSettings.json: " .. result)
+            return false
+        end
+    end
+    
+    if not uiSettings.Configs then
+        uiSettings.Configs = {}
+    end
+    
+    if table.find(uiSettings.Configs, configName) then
+        print("[RainLib] Configuração já existe: " .. configName)
+        return false
+    end
+    
+    table.insert(uiSettings.Configs, configName)
+    local success, err = pcall(function()
+        writefile(uiSettingsPath, HttpService:JSONEncode(uiSettings))
+    end)
+    if success then
+        print("[RainLib] Configuração adicionada: " .. configName)
+        self:Notify(nil, {Title = "Sucesso", Content = "Configuração '" .. configName .. "' adicionada!", Duration = 3})
+        return true
+    else
+        warn("[RainLib] Falha ao salvar configuração: " .. err)
+        return false
+    end
+end
+
+function RainLib:EnableUIKit(window)
+    local tab = window:Tab({Title = "Interface", Icon = "settings"})
+    
+    -- Seção Interface
+    tab:AddSection("Interface")
+    
+    -- Dropdown Select Theme
+    local themeOptions = {}
+    for themeName, _ in pairs(RainLib.Themes) do
+        table.insert(themeOptions, themeName)
+    end
+    tab:AddDropdown("theme_select", {
+        Title = "Select Theme",
+        Values = themeOptions,
+        Default = "Dark",
+        Callback = function(value)
+            local themeKey
+            for key, _ in pairs(RainLib.Themes) do
+                if string.lower(key) == string.lower(value) then
+                    themeKey = key
+                    break
+                end
+            end
+            if themeKey then
+                RainLib:SetTheme(RainLib.Themes[themeKey])
+                print("[RainLib] Tema alterado para: " .. themeKey)
+            else
+                warn("[RainLib] Tema não encontrado: " .. value)
+            end
+        end
+    })
+    
+    -- Seção Ui Config
+    tab:AddSection("Ui Config")
+    
+    -- Inputbox Name Config
+    local configInput = tab:AddInput("config_name", {
+        Title = "Name Config",
+        Placeholder = "Name Config",
+        Callback = function(value)
+            if value and value ~= "" then
+                RainLib:AddConfig(window.Options.ConfigFolder, value)
+            end
+        end
+    })
+    
+    -- Dropdown Config
+    local configDropdown
+    local function refreshConfigDropdown()
+        local configs = {}
+        local loadedConfig = RainLib:LoadConfig(window.Options.ConfigFolder)
+        if loadedConfig and loadedConfig.Configs then
+            configs = loadedConfig.Configs
+        end
+        if #configs == 0 then
+            configs = {"Nenhuma configuração"}
+        end
+        configDropdown:SetValue(configs[1])
+        configDropdown.element:FindFirstChild("TextLabel").Text = configs[1]
+        local list = configDropdown.element:FindFirstChild("Frame")
+        list:ClearAllChildren()
+        for i, opt in ipairs(configs) do
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(1, 0, 0, 30)
+            btn.Position = UDim2.new(0, 0, 0, (i-1) * 30)
+            btn.Text = opt
+            btn.BackgroundTransparency = 0.2
+            btn.BackgroundColor3 = RainLib.CurrentTheme.Secondary
+            btn.TextColor3 = RainLib.CurrentTheme.Text
+            btn.Font = Enum.Font.SourceSans
+            btn.TextSize = 14
+            btn.Parent = list
+            
+            btn.MouseEnter:Connect(function()
+                tween(btn, TweenInfo.new(0.2), {BackgroundTransparency = 0, BackgroundColor3 = RainLib.CurrentTheme.Accent})
+            end)
+            btn.MouseLeave:Connect(function()
+                tween(btn, TweenInfo.new(0.2), {BackgroundTransparency = 0.2, BackgroundColor3 = RainLib.CurrentTheme.Secondary})
+            end)
+            
+            btn.MouseButton1Click:Connect(function()
+                configDropdown.Value = opt
+                configDropdown.element:FindFirstChild("TextLabel").Text = opt
+                tween(list, TweenInfo.new(0.3), {BackgroundTransparency = 1}).Completed:Connect(function()
+                    list.Visible = false
+                end)
+            end)
+        end
+        list.Size = UDim2.new(1, 0, 0, #configs * 30)
+    end
+    
+    configDropdown = tab:AddDropdown("config_select", {
+        Title = "Config",
+        Values = {"Nenhuma configuração"},
+        Default = "Nenhuma configuração"
+    })
+    
+    -- Botão Refresh
+    tab:AddButton({
+        Title = "Refresh",
+        Callback = function()
+            refreshConfigDropdown()
+            print("[RainLib] Dropdown Config atualizado")
+            RainLib:Notify(window, {Title = "Sucesso", Content = "Lista de configurações atualizada!", Duration = 3})
+        end
+    })
+    
+    -- Inicializar Dropdown
+    refreshConfigDropdown()
 end
 
 function RainLib:Window(options)
-    local window = { Windows = {}, Notifications = Instance.new("Frame") }
+    local window = { Windows = {}, Notifications = Instance.new("Frame"), UIState = {} }
     options = options or {}
     local defaultOptions = {
         Title = "Rain Lib",
@@ -138,10 +346,11 @@ function RainLib:Window(options)
         Theme = "Dark",
         MinimizeKey = Enum.KeyCode.LeftControl,
         SaveSettings = false,
-        ConfigFolder = "RainConfig"
+        ConfigFolder = "RainConfig",
+        EnableUIKit = false
     }
     
-    -- Carregar configurações salvas, se SaveSettings for true
+    -- Carregar configurações salvas
     local loadedConfig = options.SaveSettings and RainLib:LoadConfig(options.ConfigFolder) or nil
     window.Options = {}
     for key, defaultValue in pairs(defaultOptions) do
@@ -323,6 +532,11 @@ function RainLib:Window(options)
                 end
             end
         end)
+    end
+    
+    -- Ativar UIKit se especificado
+    if window.Options.EnableUIKit then
+        RainLib:EnableUIKit(window)
     end
     
     function window:Minimize(options)
@@ -639,6 +853,16 @@ function RainLib:Window(options)
             indicatorCorner.Parent = indicator
             
             createContainer(frame, toggleSize)
+            
+            -- Aplicar configuração de uiSettings.json
+            local loadedConfig = RainLib:LoadConfig(window.Options.ConfigFolder)
+            if loadedConfig and loadedConfig.Toggles and loadedConfig.Toggles[key] ~= nil then
+                toggle.Value = loadedConfig.Toggles[key]
+                indicator.BackgroundColor3 = toggle.Value and RainLib.CurrentTheme.Accent or RainLib.CurrentTheme.Disabled
+                indicator.Size = UDim2.new(0, toggle.Value and 24 or 20, 0, toggle.Value and 24 or 20)
+                indicator.Position = UDim2.new(1, toggle.Value and -34 or -30, 0.5, toggle.Value and -12 or -10)
+            end
+            
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     toggle.Value = not toggle.Value
@@ -661,6 +885,7 @@ function RainLib:Window(options)
                 end)
             end
             
+            window.UIState[key] = toggle
             return toggle
         end
         
@@ -714,6 +939,15 @@ function RainLib:Window(options)
             cornerFill.Parent = fill
             
             createContainer(frame, sliderSize)
+            
+            -- Aplicar configuração de uiSettings.json
+            local loadedConfig = RainLib:LoadConfig(window.Options.ConfigFolder)
+            if loadedConfig and loadedConfig.Sliders and loadedConfig.Sliders[key] ~= nil then
+                slider.Value = loadedConfig.Sliders[key]
+                valueLabel.Text = tostring(slider.Value)
+                fill.Size = UDim2.new((slider.Value - (options.Min or 0)) / ((options.Max or 100) - (options.Min or 0)), 0, 1, 0)
+            end
+            
             local dragging
             bar.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -762,6 +996,7 @@ function RainLib:Window(options)
                 valueLabel.Text = tostring(slider.Value)
             end
             
+            window.UIState[key] = slider
             return slider
         end
         
@@ -846,6 +1081,23 @@ function RainLib:Window(options)
             end
             
             createContainer(frame, dropdownSize)
+            
+            -- Aplicar configuração de uiSettings.json
+            local loadedConfig = RainLib:LoadConfig(window.Options.ConfigFolder)
+            if loadedConfig and loadedConfig.Dropdowns and loadedConfig.Dropdowns[key] ~= nil then
+                if options.Multi then
+                    dropdown.Value = loadedConfig.Dropdowns[key]
+                    local values = {}
+                    for k, v in pairs(dropdown.Value) do
+                        if v then table.insert(values, k) end
+                    end
+                    label.Text = table.concat(values, ", ")
+                else
+                    dropdown.Value = loadedConfig.Dropdowns[key]
+                    label.Text = dropdown.Value
+                end
+            end
+            
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                     list.Visible = true
@@ -883,6 +1135,7 @@ function RainLib:Window(options)
                 end
             end
             
+            window.UIState[key] = dropdown
             return dropdown
         end
         
@@ -912,7 +1165,7 @@ function RainLib:Window(options)
             preview.BackgroundColor3 = colorpicker.Value
             preview.Parent = frame
             
-            local rSlider = tab:AddSlider("R", {Min = 0, Max = 255, Default = math.floor(colorpicker.Value.R * 255), Rounding = 1})
+            local rSlider = tab:AddSlider("R_" .. key, {Min = 0, Max = 255, Default = math.floor(colorpicker.Value.R * 255), Rounding = 1})
             rSlider.element.Position = UDim2.new(0, 10, 0, 40)
             rSlider:OnChanged(function(value)
                 colorpicker.Value = Color3.fromRGB(value, math.floor(colorpicker.Value.G * 255), math.floor(colorpicker.Value.B * 255))
@@ -920,7 +1173,7 @@ function RainLib:Window(options)
                 if options.Callback then options.Callback(colorpicker.Value) end
             end)
             
-            local gSlider = tab:AddSlider("G", {Min = 0, Max = 255, Default = math.floor(colorpicker.Value.G * 255), Rounding = 1})
+            local gSlider = tab:AddSlider("G_" .. key, {Min = 0, Max = 255, Default = math.floor(colorpicker.Value.G * 255), Rounding = 1})
             gSlider.element.Position = UDim2.new(0, 10, 0, 70)
             gSlider:OnChanged(function(value)
                 colorpicker.Value = Color3.fromRGB(math.floor(colorpicker.Value.R * 255), value, math.floor(colorpicker.Value.B * 255))
@@ -928,7 +1181,7 @@ function RainLib:Window(options)
                 if options.Callback then options.Callback(colorpicker.Value) end
             end)
             
-            local bSlider = tab:AddSlider("B", {Min = 0, Max = 255, Default = math.floor(colorpicker.Value.B * 255), Rounding = 1})
+            local bSlider = tab:AddSlider("B_" .. key, {Min = 0, Max = 255, Default = math.floor(colorpicker.Value.B * 255), Rounding = 1})
             bSlider.element.Position = UDim2.new(0, 10, 0, 100)
             bSlider:OnChanged(function(value)
                 colorpicker.Value = Color3.fromRGB(math.floor(colorpicker.Value.R * 255), math.floor(colorpicker.Value.G * 255), value)
@@ -937,6 +1190,20 @@ function RainLib:Window(options)
             end)
             
             createContainer(frame, colorpickerSize)
+            
+            -- Aplicar configuração de uiSettings.json
+            local loadedConfig = RainLib:LoadConfig(window.Options.ConfigFolder)
+            if loadedConfig and loadedConfig.Colorpickers and loadedConfig.Colorpickers[key] ~= nil then
+                colorpicker.Value = Color3.fromRGB(
+                    loadedConfig.Colorpickers[key].R * 255,
+                    loadedConfig.Colorpickers[key].G * 255,
+                    loadedConfig.Colorpickers[key].B * 255
+                )
+                preview.BackgroundColor3 = colorpicker.Value
+                rSlider:SetValue(math.floor(colorpicker.Value.R * 255))
+                gSlider:SetValue(math.floor(colorpicker.Value.G * 255))
+                bSlider:SetValue(math.floor(colorpicker.Value.B * 255))
+            end
             
             function colorpicker:OnChanged(callback)
                 rSlider:OnChanged(callback)
@@ -953,6 +1220,7 @@ function RainLib:Window(options)
                 if options.Callback then options.Callback(color) end
             end
             
+            window.UIState[key] = colorpicker
             return colorpicker
         end
         
@@ -987,6 +1255,15 @@ function RainLib:Window(options)
             keyLabel.Parent = frame
             
             createContainer(frame, keybindSize)
+            
+            -- Aplicar configuração de uiSettings.json
+            local loadedConfig = RainLib:LoadConfig(window.Options.ConfigFolder)
+            if loadedConfig and loadedConfig.Keybinds and loadedConfig.Keybinds[key] ~= nil then
+                keybind.Value = loadedConfig.Keybinds[key].Value
+                keyLabel.Text = keybind.Value
+                keybind.Mode = loadedConfig.Keybinds[key].Mode or "Toggle"
+            end
+            
             local waitingForInput = false
             
             frame.InputBegan:Connect(function(input)
@@ -1046,6 +1323,7 @@ function RainLib:Window(options)
                 tween(keyLabel, TweenInfo.new(0.2), {Text = keybind.Value})
             end
             
+            window.UIState[key] = keybind
             return keybind
         end
         
@@ -1072,6 +1350,13 @@ function RainLib:Window(options)
             stroke.Transparency = 0.8
             stroke.Parent = textbox
             
+            -- Aplicar configuração de uiSettings.json
+            local loadedConfig = RainLib:LoadConfig(window.Options.ConfigFolder)
+            if loadedConfig and loadedConfig.Inputs and loadedConfig.Inputs[key] ~= nil then
+                input.Value = loadedConfig.Inputs[key]
+                textbox.Text = input.Value
+            end
+            
             textbox.Focused:Connect(function()
                 tween(stroke, TweenInfo.new(0.2), {Transparency = 0})
             end)
@@ -1094,6 +1379,7 @@ function RainLib:Window(options)
                 end)
             end
             
+            window.UIState[key] = input
             return input
         end
         
@@ -1314,5 +1600,4 @@ function RainLib:Destroy()
 end
 
 print("[RainLib] Biblioteca carregada!")
-
 return RainLib
