@@ -90,37 +90,11 @@ function RainLib:CreateFolder(folderName)
             self.CreatedFolders[folderName] = true
             print("[RainLib] Pasta criada: " .. folderName)
             self:Notify(nil, {Title = "Sucesso", Content = "Pasta '" .. folderName .. "' criada!", Duration = 3})
-            
-            local settingsPath = folderName .. "/Settings.json"
-            local defaultSettings = {
-                Theme = "Dark",
-                WindowPosition = {X = 0.5, Y = 0.5, XOffset = -300, YOffset = -200},
-                MinimizeKey = "LeftControl",
-                SaveSettings = false
-            }
-            local jsonSettings = HttpService:JSONEncode(defaultSettings)
-            writefile(settingsPath, jsonSettings)
-            print("[RainLib] Arquivo 'Settings.json' criado em: " .. settingsPath)
-            self:Notify(nil, {Title = "Sucesso", Content = "Arquivo 'Settings.json' criado em '" .. folderName .. "'!", Duration = 3})
             return true
         else
             self.CreatedFolders[folderName] = true
             print("[RainLib] Pasta já existe: " .. folderName)
             self:Notify(nil, {Title = "Aviso", Content = "A pasta '" .. folderName .. "' já existe!", Duration = 3})
-            
-            local settingsPath = folderName .. "/Settings.json"
-            if not isfile(settingsPath) then
-                local defaultSettings = {
-                    Theme = "Dark",
-                    WindowPosition = {X = 0.5, Y = 0.5, XOffset = -300, YOffset = -200},
-                    MinimizeKey = "LeftControl",
-                    SaveSettings = false
-                }
-                local jsonSettings = HttpService:JSONEncode(defaultSettings)
-                writefile(settingsPath, jsonSettings)
-                print("[RainLib] Arquivo 'Settings.json' criado em: " .. settingsPath)
-                self:Notify(nil, {Title = "Sucesso", Content = "Arquivo 'Settings.json' criado em '" .. folderName .. "'!", Duration = 3})
-            end
             return false
         end
     else
@@ -128,6 +102,30 @@ function RainLib:CreateFolder(folderName)
         self:Notify(nil, {Title = "Erro", Content = "Executor não suporta criação de pastas ou arquivos!", Duration = 3})
         return false
     end
+end
+
+function RainLib:LoadConfig(folderName)
+    if not folderName or folderName == "" then
+        warn("[RainLib] Nome da pasta não especificado para carregar config!")
+        return nil
+    end
+    
+    local settingsPath = folderName .. "/Settings.json"
+    if isfile and isfile(settingsPath) then
+        local success, result = pcall(function()
+            local json = readfile(settingsPath)
+            return HttpService:JSONDecode(json)
+        end)
+        if success then
+            print("[RainLib] Configuração carregada de: " .. settingsPath)
+            return result
+        else
+            warn("[RainLib] Falha ao carregar config: " .. result)
+        end
+    else
+        print("[RainLib] Arquivo Settings.json não encontrado em: " .. settingsPath)
+    end
+    return nil
 end
 
 function RainLib:Window(options)
@@ -142,12 +140,32 @@ function RainLib:Window(options)
         SaveSettings = false,
         ConfigFolder = "RainConfig"
     }
+    
+    -- Carregar configurações salvas, se SaveSettings for true
+    local loadedConfig = options.SaveSettings and RainLib:LoadConfig(options.ConfigFolder) or nil
     window.Options = {}
     for key, defaultValue in pairs(defaultOptions) do
-        window.Options[key] = options[key] or defaultValue
+        if loadedConfig and loadedConfig[key] ~= nil then
+            window.Options[key] = loadedConfig[key]
+        else
+            window.Options[key] = options[key] or defaultValue
+        end
     end
     
-    -- Aplicar tema especificado
+    -- Converter Position e MinimizeKey do config
+    if loadedConfig and loadedConfig.WindowPosition then
+        window.Options.Position = UDim2.new(
+            loadedConfig.WindowPosition.X or 0.5,
+            loadedConfig.WindowPosition.XOffset or -300,
+            loadedConfig.WindowPosition.Y or 0.5,
+            loadedConfig.WindowPosition.YOffset or -200
+        )
+    end
+    if loadedConfig and loadedConfig.MinimizeKey then
+        window.Options.MinimizeKey = Enum.KeyCode[loadedConfig.MinimizeKey] or Enum.KeyCode.LeftControl
+    end
+    
+    -- Aplicar tema
     RainLib.CurrentTheme = RainLib.Themes[window.Options.Theme] or RainLib.Themes.Dark
     
     window.Notifications.Size = UDim2.new(0, 300, 1, -25)
@@ -462,7 +480,6 @@ function RainLib:Window(options)
             selectTab(1)
         end
         
-        -- Função corrigida para posicionamento
         local function getNextPosition(elementSize)
             local padding = 10
             local row = tab.ElementCount
@@ -473,7 +490,6 @@ function RainLib:Window(options)
             return UDim2.new(0, padding, 0, yOffset)
         end
         
-        -- Função corrigida para criação de containers
         local function createContainer(element, size)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(0, size.X.Offset + 20, 0, size.Y.Offset + 20)
@@ -1298,4 +1314,5 @@ function RainLib:Destroy()
 end
 
 print("[RainLib] Biblioteca carregada!")
+
 return RainLib
