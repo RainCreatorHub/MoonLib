@@ -264,7 +264,7 @@ function RainLib:Window(options)
         -- Adicionando o retângulo com a foto e nome do LocalPlayer
         local playerInfoFrame = Instance.new("Frame")
         playerInfoFrame.Size = UDim2.new(1, -10, 0, 50)
-        playerInfoFrame.Position = UDim2.new(0, 5, 1, -60) -- Posicionado na parte inferior
+        playerInfoFrame.Position = UDim2.new(0, 5, 1, -60)
         playerInfoFrame.BackgroundColor3 = RainLib.CurrentTheme.Secondary
         playerInfoFrame.Parent = window.TabContainer
         
@@ -276,14 +276,26 @@ function RainLib:Window(options)
         playerAvatar.Size = UDim2.new(0, 40, 0, 40)
         playerAvatar.Position = UDim2.new(0, 5, 0, 5)
         playerAvatar.BackgroundTransparency = 1
-        playerAvatar.Image = Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+        -- Tentar carregar a thumbnail com tratamento de erro
+        local thumbnail = ""
+        if LocalPlayer and LocalPlayer.UserId then
+            local success, result = pcall(function()
+                return Players:GetUserThumbnailAsync(LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+            end)
+            if success and result then
+                thumbnail = result
+            else
+                warn("[RainLib] Falha ao carregar thumbnail do jogador: " .. (result or "Erro desconhecido"))
+            end
+        end
+        playerAvatar.Image = thumbnail ~= "" and thumbnail or "rbxassetid://0" -- Placeholder se falhar
         playerAvatar.Parent = playerInfoFrame
         
         local playerName = Instance.new("TextLabel")
         playerName.Size = UDim2.new(1, -50, 0, 40)
         playerName.Position = UDim2.new(0, 50, 0, 5)
         playerName.BackgroundTransparency = 1
-        playerName.Text = LocalPlayer.Name
+        playerName.Text = LocalPlayer and LocalPlayer.Name or "Unknown"
         playerName.TextColor3 = RainLib.CurrentTheme.Text
         playerName.Font = Enum.Font.GothamBold
         playerName.TextSize = 16
@@ -428,7 +440,7 @@ function RainLib:Window(options)
         tab.Button.TextSize = 16
         tab.Button.TextXAlignment = Enum.TextXAlignment.Left
         tab.Button.Parent = window.TabContainer
-        window.TabContainer.CanvasSize = UDim2.new(0, 0, 0, #window.Tabs * 45 + 70) -- Ajustado para o playerInfoFrame
+        window.TabContainer.CanvasSize = UDim2.new(0, 0, 0, #window.Tabs * 45 + 70)
         
         local buttonCorner = Instance.new("UICorner")
         buttonCorner.CornerRadius = UDim.new(0, 8)
