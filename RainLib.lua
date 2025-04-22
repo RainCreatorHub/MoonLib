@@ -6,7 +6,7 @@ local HttpService = game:GetService("HttpService")
 local TextService = game:GetService("TextService")
 
 local RainLib = {
-    Version = "1.1.3",
+    Version = "1.1.4", -- Updated version to reflect new features
     Themes = {
         Dark = {
             Background = Color3.fromRGB(25, 25, 25),
@@ -23,7 +23,7 @@ local RainLib = {
 
 -- Anti-Detection System
 local AntiDetection = {
-    Enabled = true, -- Always true, cannot be disabled
+    Enabled = true,
     Methods = {
         SpoofCoreGui = true,
         RandomizeNames = true,
@@ -213,7 +213,6 @@ function RainLib:Notify(window, options)
     message.TextWrapped = true
     message.Parent = notification
 
-    -- Manage notification stacking
     local activeNotifications = target:GetChildren()
     local yOffset = 10
     for _, notif in ipairs(activeNotifications) do
@@ -225,7 +224,7 @@ function RainLib:Notify(window, options)
 
     tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Position = UDim2.new(1, -260, 0, yOffset), BackgroundTransparency = 0 })
     task.spawn(function()
-        local duration = math.max(options.Duration or 3, 1) -- Minimum duration of 1 second
+        local duration = math.max(options.Duration or 3, 1)
         task.wait(duration)
         tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Position = UDim2.new(1, 260, 0, yOffset), BackgroundTransparency = 1 }).Completed:Connect(function()
             notification:Destroy()
@@ -333,14 +332,67 @@ function RainLib:Window(options)
         Theme = options.Theme or "Dark",
         MinimizeKey = options.MinimizeKey or Enum.KeyCode.LeftControl,
         SaveSettings = options.SaveSettings or false,
-        ConfigFolder = options.ConfigFolder or "RainConfig"
+        ConfigFolder = options.ConfigFolder or "RainConfig",
+        MinimizeButton = options.MinimizeButton ~= false, -- Default to true
+        IntroEnabled = options.IntroEnabled or false,
+        IntroText = options.IntroText or "Welcome",
+        IntroIcon = options.IntroIcon or "rbxassetid://7072706620"
     }
+
+    -- Convert MinimizeKey if it's a string
+    if typeof(window.Options.MinimizeKey) == "string" then
+        local keyString = window.Options.MinimizeKey:upper()
+        window.Options.MinimizeKey = Enum.KeyCode[keyString] or Enum.KeyCode.LeftControl
+    end
 
     if window.Options.SaveSettings then
         RainLib:CreateFolder(window.Options.ConfigFolder)
     end
 
     local closeDialog = RainLib:CreateCloseDialog(window, window.Options.Title)
+
+    -- Intro Screen
+    local introFrame
+    if window.Options.IntroEnabled then
+        introFrame = Instance.new("Frame")
+        introFrame.Size = UDim2.new(1, 0, 1, 0)
+        introFrame.BackgroundColor3 = RainLib.CurrentTheme.Background
+        introFrame.BackgroundTransparency = 1
+        introFrame.Parent = RainLib.ScreenGui
+        introFrame.ZIndex = 1000
+
+        local introIcon = Instance.new("ImageLabel")
+        introIcon.Size = UDim2.new(0, 100, 0, 100)
+        introIcon.Position = UDim2.new(0.5, -50, 0.4, -50)
+        introIcon.BackgroundTransparency = 1
+        introIcon.Image = window.Options.IntroIcon
+        introIcon.ImageTransparency = 1
+        introIcon.Parent = introFrame
+
+        local introText = Instance.new("TextLabel")
+        introText.Size = UDim2.new(0, 200, 0, 50)
+        introText.Position = UDim2.new(0.5, -100, 0.6, 0)
+        introText.BackgroundTransparency = 1
+        introText.Text = window.Options.IntroText
+        introText.TextColor3 = RainLib.CurrentTheme.Text
+        introText.Font = Enum.Font.GothamBold
+        introText.TextSize = 24
+        introText.TextTransparency = 1
+        introText.Parent = introFrame
+
+        -- Intro Animation
+        tween(introFrame, TweenInfo.new(0.5), { BackgroundTransparency = 0 })
+        tween(introIcon, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0.2), { ImageTransparency = 0 })
+        tween(introText, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0.4), { TextTransparency = 0 })
+        task.spawn(function()
+            task.wait(2) -- Display intro for 2 seconds
+            tween(introFrame, TweenInfo.new(0.5), { BackgroundTransparency = 1 })
+            tween(introIcon, TweenInfo.new(0.5), { ImageTransparency = 1 })
+            tween(introText, TweenInfo.new(0.5), { TextTransparency = 1 }).Completed:Connect(function()
+                introFrame:Destroy()
+            end)
+        end)
+    end
 
     window.Notifications.Size = UDim2.new(0, 260, 1, -25)
     window.Notifications.Position = UDim2.new(1, -270, 0, 0)
@@ -423,6 +475,7 @@ function RainLib:Window(options)
     window.MinimizeBtn.TextColor3 = RainLib.CurrentTheme.Text
     window.MinimizeBtn.Font = Enum.Font.SourceSansBold
     window.MinimizeBtn.TextSize = 12
+    window.MinimizeBtn.Visible = window.Options.MinimizeButton
     window.MinimizeBtn.Parent = window.TitleBar
 
     local minimizeCorner = Instance.new("UICorner")
@@ -667,12 +720,11 @@ function RainLib:Window(options)
             local contentText = options.Content or ""
             local titleText = options.Title or "Paragraph"
             
-            -- Calculate dynamic height based on content
             local contentBounds = TextService:GetTextSize(
                 contentText,
                 12,
                 Enum.Font.SourceSans,
-                Vector2.new(350, 1000) -- Max width of paragraph content
+                Vector2.new(350, 1000)
             )
             local titleBounds = TextService:GetTextSize(
                 titleText,
@@ -952,7 +1004,7 @@ function RainLib:Window(options)
                     end
                     slider.Value = math.clamp(slider.Value, minVal, maxVal)
                     tween(fill, TweenInfo.new(0.1), { Size = UDim2.new((slider.Value - minVal) / (maxVal - minVal), 0, 1, 0) })
-                    valueLabel.Text = tostring(math.round(slider.Value * 100) / 100) -- Round to 2 decimal places
+                    valueLabel.Text = tostring(math.round(slider.Value * 100) / 100)
                     if options.Callback then
                         options.Callback(slider.Value)
                     end
@@ -1013,7 +1065,7 @@ function RainLib:Window(options)
             arrow.Size = UDim2.new(0, 15, 0, 15)
             arrow.Position = UDim2.new(1, -20, 0.5, -7.5)
             arrow.BackgroundTransparency = 1
-            arrow.Image = "rbxassetid://7072706620" -- Down arrow icon
+            arrow.Image = "rbxassetid://7072706620"
             arrow.ImageColor3 = RainLib.CurrentTheme.Text
             arrow.Parent = button
 
