@@ -18,7 +18,8 @@ local RainLib = {
     CurrentTheme = nil,
     CreatedFolders = {},
     GUIState = { Windows = {} },
-    TranslatableElements = {} -- Store translatable text elements
+    TranslatableElements = {}, -- Store translatable text elements
+    CurrentLanguage = "en" -- Default language
 }
 
 -- Anti-Detection System
@@ -219,69 +220,49 @@ function RainLib:Notify(window, options)
         task.wait(options.Duration or 3)
         tween(notification, TweenInfo.new(0.5), { Position = UDim2.new(1, 260, 0, notification.Position.Y.Offset), BackgroundTransparency = 1 }).Completed:Connect(function()
             notification:Destroy()
-            -- Remove from translatable elements
-            for i, elem in ipairs(RainLib.TranslatableElements) do
+            for i = #RainLib.TranslatableElements, 1, -1 do
+                local elem = RainLib.TranslatableElements[i]
                 if elem.Element == title or elem.Element == message then
                     table.remove(RainLib.TranslatableElements, i)
                 end
             end
         end)
     end)
+
+    -- Apply current language to notification
+    RainLib:TranslateGUI(RainLib.CurrentLanguage)
+end
+
+-- Função para traduzir texto dinamicamente
+function RainLib:TranslateText(text, targetLang)
+    if not text or text == "" then return text end
+
+    -- Mock translation: In a real implementation, use a translation API (e.g., Google Translate)
+    local mockTranslations = {
+        en = text, -- English: keep original or strip (pt) marker
+        pt = text -- Portuguese: keep original or strip (en) marker
+    }
+
+    -- Remove existing language markers
+    text = text:gsub("%s*%(en%)", ""):gsub("%s*%(pt%)", "")
+
+    -- Apply new marker based on target language
+    if targetLang == "en" then
+        mockTranslations.en = text
+        mockTranslations.pt = text .. " (pt)"
+    elseif targetLang == "pt" then
+        mockTranslations.pt = text
+        mockTranslations.en = text .. " (en)"
+    end
+
+    return mockTranslations[targetLang] or text
 end
 
 -- Função para traduzir GUI
 function RainLib:TranslateGUI(language)
-    local translations = {
-        en = {
-            ["Section"] = "Section",
-            ["Paragraph"] = "Paragraph",
-            ["Button"] = "Button",
-            ["Toggle"] = "Toggle",
-            ["Slider"] = "Slider",
-            ["Dropdown"] = "Dropdown",
-            ["Keybind"] = "Keybind",
-            ["Input"] = "Input",
-            ["Dialog"] = "Dialog",
-            ["Notificação"] = "Notification",
-            ["Sucesso"] = "Success",
-            ["Pasta '.*' criada!"] = "Folder '.*' created!",
-            ["Sim"] = "Yes",
-            ["Não"] = "No",
-            ["Deseja Fechar o "] = "Do you want to close ",
-            ["Language Translator"] = "Language Translator"
-        },
-        pt = {
-            ["Section"] = "Seção",
-            ["Paragraph"] = "Parágrafo",
-            ["Button"] = "Botão",
-            ["Toggle"] = "Alternar",
-            ["Slider"] = "Deslizador",
-            ["Dropdown"] = "Menu Suspenso",
-            ["Keybind"] = "Atalho",
-            ["Input"] = "Entrada",
-            ["Dialog"] = "Diálogo",
-            ["Notificação"] = "Notificação",
-            ["Sucesso"] = "Sucesso",
-            ["Pasta '.*' criada!"] = "Pasta '.*' criada!",
-            ["Sim"] = "Sim",
-            ["Não"] = "Não",
-            ["Deseja Fechar o "] = "Deseja fechar o ",
-            ["Language Translator"] = "Tradutor de Idiomas"
-        }
-    }
-
+    RainLib.CurrentLanguage = language
     for _, elem in ipairs(RainLib.TranslatableElements) do
-        local text = elem.OriginalText
-        local translatedText = text
-
-        -- Apply translation based on language
-        for key, value in pairs(translations[language] or translations.en) do
-            if text:match(key) then
-                translatedText = text:gsub(key, value)
-                break
-            end
-        end
-
+        local translatedText = RainLib:TranslateText(elem.OriginalText, language)
         elem.Element.Text = translatedText
     end
 end
@@ -334,10 +315,6 @@ function RainLib:CreateCloseDialog(window, guiName)
     yesButton.Parent = buttonsFrame
     table.insert(RainLib.TranslatableElements, { Element = yesButton, OriginalText = "Sim" })
 
-    local yesCorner = Instance.new("UICorner")
-    yesCorner.CornerRadius = UDim.new(0, 5)
-    yesCorner.Parent = yesButton
-
     local noButton = Instance.new("TextButton")
     noButton.Size = UDim2.new(0, 70, 0, 25)
     noButton.BackgroundColor3 = RainLib.CurrentTheme.Accent
@@ -348,6 +325,10 @@ function RainLib:CreateCloseDialog(window, guiName)
     noButton.Parent = buttonsFrame
     table.insert(RainLib.TranslatableElements, { Element = noButton, OriginalText = "Não" })
 
+    local yesCorner = Instance.new("UICorner")
+    yesCorner.CornerRadius = UDim.new(0, 5)
+    yesCorner.Parent = yesButton
+
     local noCorner = Instance.new("UICorner")
     noCorner.CornerRadius = UDim.new(0, 5)
     noCorner.Parent = noButton
@@ -357,8 +338,8 @@ function RainLib:CreateCloseDialog(window, guiName)
             window.MainFrame:Destroy()
             window.Notifications:Destroy()
             dialogFrame:Destroy()
-            -- Remove dialog elements from translatable list
-            for i, elem in ipairs(RainLib.TranslatableElements) do
+            for i = #RainLib.TranslatableElements, 1, -1 do
+                local elem = RainLib.TranslatableElements[i]
                 if elem.Element == title or elem.Element == yesButton or elem.Element == noButton then
                     table.remove(RainLib.TranslatableElements, i)
                 end
@@ -373,6 +354,7 @@ function RainLib:CreateCloseDialog(window, guiName)
     function dialog:Show()
         dialogFrame.Visible = true
         tween(dialogFrame, TweenInfo.new(0.5), { BackgroundTransparency = 0 })
+        RainLib:TranslateGUI(RainLib.CurrentLanguage) -- Apply current language
     end
 
     function dialog:Hide()
@@ -528,11 +510,10 @@ function RainLib:Window(options)
             window.MainFrame.ClipsDescendants = false
             window.TabContainer.Visible = true
         end
-        -- Update translatable text for minimize button
         for _, elem in ipairs(RainLib.TranslatableElements) do
             if elem.Element == window.MinimizeBtn then
                 elem.OriginalText = window.MinimizeBtn.Text
-                RainLib:TranslateGUI(RainLib.CurrentLanguage or "en")
+                RainLib:TranslateGUI(RainLib.CurrentLanguage)
                 break
             end
         end
@@ -605,7 +586,7 @@ function RainLib:Window(options)
         RainLib.CurrentLanguage = translator.CurrentLang
 
         local dropdown = tab:AddDropdown("Translator", {
-            Title = options.Title or "Language Translator",
+            Title = "Seletor de Idioma",
             Items = {"Português", "Inglês"},
             Default = translator.CurrentLang == "pt" and "Português" or "Inglês",
             Callback = function(value)
@@ -620,21 +601,9 @@ function RainLib:Window(options)
 
         function translator:Translate(text)
             if not text or text == "" then return text end
-            local translations = {
-                en = text,
-                pt = text
-            }
-            -- Apply translations from the TranslateGUI table
-            for key, value in pairs(RainLib:TranslateGUI(translator.CurrentLang) or {}) do
-                if text:match(key) then
-                    translations[translator.CurrentLang] = text:gsub(key, value)
-                    break
-                end
-            end
-            return translations[translator.CurrentLang] or text
+            return RainLib:TranslateText(text, translator.CurrentLang)
         end
 
-        -- Initial translation
         RainLib:TranslateGUI(translator.CurrentLang)
         return translator
     end
@@ -782,6 +751,7 @@ function RainLib:Window(options)
                 Type = "Section", Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return section
         end
 
@@ -824,6 +794,7 @@ function RainLib:Window(options)
                 Type = "Paragraph", Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return paragraph
         end
 
@@ -862,6 +833,7 @@ function RainLib:Window(options)
                 Type = "Button", Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return button
         end
 
@@ -958,6 +930,7 @@ function RainLib:Window(options)
                 Type = "Toggle", Key = key, Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return toggle
         end
 
@@ -1062,6 +1035,7 @@ function RainLib:Window(options)
                 Type = "Slider", Key = key, Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return slider
         end
 
@@ -1125,6 +1099,12 @@ function RainLib:Window(options)
                 if settings and settings.Flags[options.Flag] ~= nil then
                     dropdown.Value = settings.Flags[options.Flag]
                     button.Text = dropdown.Value
+                    for _, elem in ipairs(RainLib.TranslatableElements) do
+                        if elem.Element == button then
+                            elem.OriginalText = button.Text
+                            break
+                        end
+                    end
                 end
             end
 
@@ -1154,11 +1134,10 @@ function RainLib:Window(options)
                             settings.Flags[options.Flag] = dropdown.Value
                             RainLib:SaveSettings(window.Options.ConfigFolder, settings)
                         end
-                        -- Update translatable text for button
                         for _, elem in ipairs(RainLib.TranslatableElements) do
                             if elem.Element == button then
                                 elem.OriginalText = button.Text
-                                RainLib:TranslateGUI(RainLib.CurrentLanguage or "en")
+                                RainLib:TranslateGUI(RainLib.CurrentLanguage)
                                 break
                             end
                         end
@@ -1177,6 +1156,7 @@ function RainLib:Window(options)
                 Type = "Dropdown", Key = key, Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return dropdown
         end
 
@@ -1256,7 +1236,7 @@ function RainLib:Window(options)
                     for _, elem in ipairs(RainLib.TranslatableElements) do
                         if elem.Element == button then
                             elem.OriginalText = button.Text
-                            RainLib:TranslateGUI(RainLib.CurrentLanguage or "en")
+                            RainLib:TranslateGUI(RainLib.CurrentLanguage)
                             break
                         end
                     end
@@ -1267,6 +1247,7 @@ function RainLib:Window(options)
                 Type = "Keybind", Key = key, Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return keybind
         end
 
@@ -1338,7 +1319,7 @@ function RainLib:Window(options)
                 for _, elem in ipairs(RainLib.TranslatableElements) do
                     if elem.Element == textBox then
                         elem.OriginalText = textBox.Text
-                        RainLib:TranslateGUI(RainLib.CurrentLanguage or "en")
+                        RainLib:TranslateGUI(RainLib.CurrentLanguage)
                         break
                     end
                 end
@@ -1348,6 +1329,7 @@ function RainLib:Window(options)
                 Type = "Input", Key = key, Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return input
         end
 
@@ -1433,8 +1415,8 @@ function RainLib:Window(options)
                     if btn.Callback then
                         btn.Callback()
                     end
-                    -- Remove dialog elements from translatable list
-                    for i, elem in ipairs(RainLib.TranslatableElements) do
+                    for i = #RainLib.TranslatableElements, 1, -1 do
+                        local elem = RainLib.TranslatableElements[i]
                         if elem.Element == title or elem.Element == content or elem.Element == btnFrame then
                             table.remove(RainLib.TranslatableElements, i)
                         end
@@ -1445,6 +1427,7 @@ function RainLib:Window(options)
             function dialog:Show()
                 dialogFrame.Visible = true
                 tween(dialogFrame, TweenInfo.new(0.5), { BackgroundTransparency = 0 })
+                RainLib:TranslateGUI(RainLib.CurrentLanguage)
             end
 
             function dialog:Hide()
@@ -1457,6 +1440,7 @@ function RainLib:Window(options)
                 Type = "Dialog", Options = options
             })
 
+            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return dialog
         end
 
@@ -1478,7 +1462,7 @@ function RainLib:RecreateGUI()
         RainLib:EnableAntiDetection()
     end
 
-    RainLib.TranslatableElements = {} -- Reset translatable elements
+    RainLib.TranslatableElements = {}
 
     for _, windowState in ipairs(RainLib.GUIState.Windows) do
         local window = RainLib:Window(windowState.Options)
@@ -1508,10 +1492,7 @@ function RainLib:RecreateGUI()
         end
     end
 
-    -- Reapply translation
-    if RainLib.CurrentLanguage then
-        RainLib:TranslateGUI(RainLib.CurrentLanguage)
-    end
+    RainLib:TranslateGUI(RainLib.CurrentLanguage)
 end
 
 -- Função para carregar configurações
