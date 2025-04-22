@@ -3,6 +3,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local HttpService = game:GetService("HttpService")
+local TextService = game:GetService("TextService")
 
 local RainLib = {
     Version = "1.1.3",
@@ -171,7 +172,7 @@ function RainLib:Notify(window, options)
     local target = window and window.Notifications or RainLib.ScreenGui
     local notification = Instance.new("Frame")
     notification.Size = UDim2.new(0, 250, 0, 70)
-    notification.Position = UDim2.new(1, 260, 0, (#target:GetChildren() - 1) * 80 + 10)
+    notification.Position = UDim2.new(1, 260, 0, 10)
     notification.BackgroundColor3 = RainLib.CurrentTheme.Background
     notification.Parent = target
 
@@ -198,6 +199,7 @@ function RainLib:Notify(window, options)
     title.TextColor3 = RainLib.CurrentTheme.Text
     title.Font = Enum.Font.GothamBold
     title.TextSize = 14
+    title.TextWrapped = true
     title.Parent = notification
 
     local message = Instance.new("TextLabel")
@@ -211,10 +213,21 @@ function RainLib:Notify(window, options)
     message.TextWrapped = true
     message.Parent = notification
 
-    tween(notification, TweenInfo.new(0.5), { Position = UDim2.new(1, -260, 0, notification.Position.Y.Offset), BackgroundTransparency = 0 })
+    -- Manage notification stacking
+    local activeNotifications = target:GetChildren()
+    local yOffset = 10
+    for _, notif in ipairs(activeNotifications) do
+        if notif ~= notification and notif:IsA("Frame") then
+            yOffset = yOffset + notif.Size.Y.Offset + 10
+        end
+    end
+    notification.Position = UDim2.new(1, 260, 0, yOffset)
+
+    tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Position = UDim2.new(1, -260, 0, yOffset), BackgroundTransparency = 0 })
     task.spawn(function()
-        task.wait(options.Duration or 3)
-        tween(notification, TweenInfo.new(0.5), { Position = UDim2.new(1, 260, 0, notification.Position.Y.Offset), BackgroundTransparency = 1 }).Completed:Connect(function()
+        local duration = math.max(options.Duration or 3, 1) -- Minimum duration of 1 second
+        task.wait(duration)
+        tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Position = UDim2.new(1, 260, 0, yOffset), BackgroundTransparency = 1 }).Completed:Connect(function()
             notification:Destroy()
         end)
     end)
@@ -651,7 +664,25 @@ function RainLib:Window(options)
 
         function tab:AddParagraph(options)
             options = options or {}
-            local paragraphSize = UDim2.new(1, -16, 0, 50)
+            local contentText = options.Content or ""
+            local titleText = options.Title or "Paragraph"
+            
+            -- Calculate dynamic height based on content
+            local contentBounds = TextService:GetTextSize(
+                contentText,
+                12,
+                Enum.Font.SourceSans,
+                Vector2.new(350, 1000) -- Max width of paragraph content
+            )
+            local titleBounds = TextService:GetTextSize(
+                titleText,
+                14,
+                Enum.Font.GothamBold,
+                Vector2.new(350, 1000)
+            )
+            local paragraphHeight = math.max(50, titleBounds.Y + contentBounds.Y + 16)
+            local paragraphSize = UDim2.new(1, -16, 0, paragraphHeight)
+
             local paragraph = Instance.new("Frame")
             paragraph.Size = paragraphSize
             paragraph.BackgroundColor3 = RainLib.CurrentTheme.Secondary
@@ -661,24 +692,27 @@ function RainLib:Window(options)
             corner.Parent = paragraph
 
             local title = Instance.new("TextLabel")
-            title.Size = UDim2.new(1, -8, 0, 18)
+            title.Size = UDim2.new(1, -8, 0, titleBounds.Y)
             title.Position = UDim2.new(0, 4, 0, 4)
-            title.Text = options.Title or "Paragraph"
+            title.Text = titleText
             title.BackgroundTransparency = 1
             title.TextColor3 = RainLib.CurrentTheme.Text
             title.Font = Enum.Font.GothamBold
             title.TextSize = 14
+            title.TextWrapped = true
+            title.TextScaled = true
             title.Parent = paragraph
 
             local content = Instance.new("TextLabel")
-            content.Size = UDim2.new(1, -8, 0, 26)
-            content.Position = UDim2.new(0, 4, 0, 22)
-            content.Text = options.Content or ""
+            content.Size = UDim2.new(1, -8, 0, contentBounds.Y)
+            content.Position = UDim2.new(0, 4, 0, titleBounds.Y + 8)
+            content.Text = contentText
             content.BackgroundTransparency = 1
             content.TextColor3 = RainLib.CurrentTheme.Text
             content.Font = Enum.Font.SourceSans
             content.TextSize = 12
             content.TextWrapped = true
+            content.TextScaled = true
             content.Parent = paragraph
 
             createContainer(paragraph, paragraphSize)
@@ -861,7 +895,9 @@ function RainLib:Window(options)
             bar.Parent = frame
 
             local fill = Instance.new("Frame")
-            fill.Size = UDim2.new((slider.Value - (options.Min or 0)) / ((options.Max or 100) - (options.Min or 0)), 0, 1, 0)
+            local minVal = options.Min or 0
+            local maxVal = options.Max or 100
+            fill.Size = UDim2.new((slider.Value - minVal) / (maxVal - minVal), 0, 1, 0)
             fill.BackgroundColor3 = RainLib.CurrentTheme.Accent
             fill.Parent = bar
 
@@ -877,7 +913,7 @@ function RainLib:Window(options)
                 local settings = RainLib:LoadSettings(window.Options.ConfigFolder)
                 if settings and settings.Flags[options.Flag] ~= nil then
                     slider.Value = settings.Flags[options.Flag]
-                    fill.Size = UDim2.new((slider.Value - (options.Min or 0)) / ((options.Max or 100) - (options.Min or 0)), 0, 1, 0)
+                    fill.Size = UDim2.new((slider.Value - minVal) / (maxVal - minVal), 0, 1, 0)
                     valueLabel.Text = tostring(slider.Value)
                 end
             end
@@ -896,16 +932,27 @@ function RainLib:Window(options)
                     tween(bar, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
                 end
             end)
+            bar.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    tween(bar, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled:Lerp(RainLib.CurrentTheme.Accent, 0.1) })
+                end
+            end)
+            bar.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    tween(bar, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
+                end
+            end)
             RunService.RenderStepped:Connect(function()
                 if dragging then
                     local mousePos = UserInputService:GetMouseLocation()
                     local relativeX = math.clamp((mousePos.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-                    slider.Value = math.floor((options.Min or 0) + relativeX * ((options.Max or 100) - (options.Min or 0)))
+                    slider.Value = minVal + relativeX * (maxVal - minVal)
                     if options.Rounding then
-                        slider.Value = math.floor(slider.Value / options.Rounding) * options.Rounding
+                        slider.Value = math.round(slider.Value / options.Rounding) * options.Rounding
                     end
-                    tween(fill, TweenInfo.new(0.1), { Size = UDim2.new(relativeX, 0, 1, 0) })
-                    valueLabel.Text = tostring(slider.Value)
+                    slider.Value = math.clamp(slider.Value, minVal, maxVal)
+                    tween(fill, TweenInfo.new(0.1), { Size = UDim2.new((slider.Value - minVal) / (maxVal - minVal), 0, 1, 0) })
+                    valueLabel.Text = tostring(math.round(slider.Value * 100) / 100) -- Round to 2 decimal places
                     if options.Callback then
                         options.Callback(slider.Value)
                     end
@@ -1223,6 +1270,11 @@ function RainLib:Window(options)
             textBoxCorner.CornerRadius = UDim.new(0, 5)
             textBoxCorner.Parent = textBox
 
+            local stroke = Instance.new("UIStroke")
+            stroke.Thickness = 1
+            stroke.Color = RainLib.CurrentTheme.Disabled
+            stroke.Parent = textBox
+
             if options.Flag and window.Options.SaveSettings then
                 local settings = RainLib:LoadSettings(window.Options.ConfigFolder)
                 if settings and settings.Flags[options.Flag] ~= nil then
@@ -1232,7 +1284,11 @@ function RainLib:Window(options)
             end
 
             createContainer(frame, inputSize)
+            textBox.Focused:Connect(function()
+                tween(stroke, TweenInfo.new(0.2), { Color = RainLib.CurrentTheme.Accent })
+            end)
             textBox.FocusLost:Connect(function()
+                tween(stroke, TweenInfo.new(0.2), { Color = RainLib.CurrentTheme.Disabled })
                 input.Value = textBox.Text
                 if options.Callback then
                     options.Callback(input.Value)
@@ -1241,6 +1297,29 @@ function RainLib:Window(options)
                     local settings = RainLib:LoadSettings(window.Options.ConfigFolder) or { Flags = {} }
                     settings.Flags[options.Flag] = input.Value
                     RainLib:SaveSettings(window.Options.ConfigFolder, settings)
+                end
+            end)
+            if options.LiveUpdate then
+                textBox:GetPropertyChangedSignal("Text"):Connect(function()
+                    input.Value = textBox.Text
+                    if options.Callback then
+                        options.Callback(input.Value)
+                    end
+                    if options.Flag and window.Options.SaveSettings then
+                        local settings = RainLib:LoadSettings(window.Options.ConfigFolder) or { Flags = {} }
+                        settings.Flags[options.Flag] = input.Value
+                        RainLib:SaveSettings(window.Options.ConfigFolder, settings)
+                    end
+                end)
+            end
+            frame.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    tween(textBox, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled:Lerp(RainLib.CurrentTheme.Accent, 0.1) })
+                end
+            end)
+            frame.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement then
+                    tween(textBox, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
                 end
             end)
 
