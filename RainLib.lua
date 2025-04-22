@@ -17,9 +17,7 @@ local RainLib = {
     },
     CurrentTheme = nil,
     CreatedFolders = {},
-    GUIState = { Windows = {} },
-    TranslatableElements = {}, -- Store translatable text elements
-    CurrentLanguage = "en" -- Default language
+    GUIState = { Windows = {} }
 }
 
 -- Anti-Detection System
@@ -201,7 +199,6 @@ function RainLib:Notify(window, options)
     title.Font = Enum.Font.GothamBold
     title.TextSize = 14
     title.Parent = notification
-    table.insert(RainLib.TranslatableElements, { Element = title, OriginalText = title.Text })
 
     local message = Instance.new("TextLabel")
     message.Size = UDim2.new(1, -10, 0, 40)
@@ -213,58 +210,14 @@ function RainLib:Notify(window, options)
     message.TextSize = 12
     message.TextWrapped = true
     message.Parent = notification
-    table.insert(RainLib.TranslatableElements, { Element = message, OriginalText = message.Text })
 
     tween(notification, TweenInfo.new(0.5), { Position = UDim2.new(1, -260, 0, notification.Position.Y.Offset), BackgroundTransparency = 0 })
     task.spawn(function()
         task.wait(options.Duration or 3)
         tween(notification, TweenInfo.new(0.5), { Position = UDim2.new(1, 260, 0, notification.Position.Y.Offset), BackgroundTransparency = 1 }).Completed:Connect(function()
             notification:Destroy()
-            for i = #RainLib.TranslatableElements, 1, -1 do
-                local elem = RainLib.TranslatableElements[i]
-                if elem.Element == title or elem.Element == message then
-                    table.remove(RainLib.TranslatableElements, i)
-                end
-            end
         end)
     end)
-
-    -- Apply current language to notification
-    RainLib:TranslateGUI(RainLib.CurrentLanguage)
-end
-
--- Função para traduzir texto dinamicamente
-function RainLib:TranslateText(text, targetLang)
-    if not text or text == "" then return text end
-
-    -- Mock translation: In a real implementation, use a translation API (e.g., Google Translate)
-    local mockTranslations = {
-        en = text, -- English: keep original or strip (pt) marker
-        pt = text -- Portuguese: keep original or strip (en) marker
-    }
-
-    -- Remove existing language markers
-    text = text:gsub("%s*%(en%)", ""):gsub("%s*%(pt%)", "")
-
-    -- Apply new marker based on target language
-    if targetLang == "en" then
-        mockTranslations.en = text
-        mockTranslations.pt = text .. " (pt)"
-    elseif targetLang == "pt" then
-        mockTranslations.pt = text
-        mockTranslations.en = text .. " (en)"
-    end
-
-    return mockTranslations[targetLang] or text
-end
-
--- Função para traduzir GUI
-function RainLib:TranslateGUI(language)
-    RainLib.CurrentLanguage = language
-    for _, elem in ipairs(RainLib.TranslatableElements) do
-        local translatedText = RainLib:TranslateText(elem.OriginalText, language)
-        elem.Element.Text = translatedText
-    end
 end
 
 -- Função para criar close dialog
@@ -290,7 +243,6 @@ function RainLib:CreateCloseDialog(window, guiName)
     title.Font = Enum.Font.GothamBold
     title.TextSize = 16
     title.Parent = dialogFrame
-    table.insert(RainLib.TranslatableElements, { Element = title, OriginalText = "Deseja Fechar o " })
 
     local buttonsFrame = Instance.new("Frame")
     buttonsFrame.Size = UDim2.new(1, -8, 0, 35)
@@ -313,7 +265,6 @@ function RainLib:CreateCloseDialog(window, guiName)
     yesButton.Font = Enum.Font.SourceSansBold
     yesButton.TextSize = 12
     yesButton.Parent = buttonsFrame
-    table.insert(RainLib.TranslatableElements, { Element = yesButton, OriginalText = "Sim" })
 
     local noButton = Instance.new("TextButton")
     noButton.Size = UDim2.new(0, 70, 0, 25)
@@ -323,7 +274,6 @@ function RainLib:CreateCloseDialog(window, guiName)
     noButton.Font = Enum.Font.SourceSansBold
     noButton.TextSize = 12
     noButton.Parent = buttonsFrame
-    table.insert(RainLib.TranslatableElements, { Element = noButton, OriginalText = "Não" })
 
     local yesCorner = Instance.new("UICorner")
     yesCorner.CornerRadius = UDim.new(0, 5)
@@ -338,12 +288,6 @@ function RainLib:CreateCloseDialog(window, guiName)
             window.MainFrame:Destroy()
             window.Notifications:Destroy()
             dialogFrame:Destroy()
-            for i = #RainLib.TranslatableElements, 1, -1 do
-                local elem = RainLib.TranslatableElements[i]
-                if elem.Element == title or elem.Element == yesButton or elem.Element == noButton then
-                    table.remove(RainLib.TranslatableElements, i)
-                end
-            end
         end)
     end)
 
@@ -354,7 +298,6 @@ function RainLib:CreateCloseDialog(window, guiName)
     function dialog:Show()
         dialogFrame.Visible = true
         tween(dialogFrame, TweenInfo.new(0.5), { BackgroundTransparency = 0 })
-        RainLib:TranslateGUI(RainLib.CurrentLanguage) -- Apply current language
     end
 
     function dialog:Hide()
@@ -468,7 +411,6 @@ function RainLib:Window(options)
     window.MinimizeBtn.Font = Enum.Font.SourceSansBold
     window.MinimizeBtn.TextSize = 12
     window.MinimizeBtn.Parent = window.TitleBar
-    table.insert(RainLib.TranslatableElements, { Element = window.MinimizeBtn, OriginalText = "-" })
 
     local minimizeCorner = Instance.new("UICorner")
     minimizeCorner.CornerRadius = UDim.new(0, 6)
@@ -510,13 +452,6 @@ function RainLib:Window(options)
             window.MainFrame.ClipsDescendants = false
             window.TabContainer.Visible = true
         end
-        for _, elem in ipairs(RainLib.TranslatableElements) do
-            if elem.Element == window.MinimizeBtn then
-                elem.OriginalText = window.MinimizeBtn.Text
-                RainLib:TranslateGUI(RainLib.CurrentLanguage)
-                break
-            end
-        end
     end)
 
     UserInputService.InputBegan:Connect(function(input)
@@ -555,7 +490,6 @@ function RainLib:Window(options)
     playerName.TextSize = 14
     playerName.TextXAlignment = Enum.TextXAlignment.Left
     playerName.Parent = playerFrame
-    table.insert(RainLib.TranslatableElements, { Element = playerName, OriginalText = LocalPlayer.Name })
 
     playerFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
@@ -571,42 +505,6 @@ function RainLib:Window(options)
     end)
 
     table.insert(RainLib.GUIState.Windows, { Options = window.Options, Tabs = {} })
-
-    -- Dropdown Translator
-    function window:AddTranslatorDropdown(tab, options)
-        options = options or {}
-        local translator = {
-            Languages = {
-                {"Português", "pt"},
-                {"Inglês", "en"}
-            },
-            CurrentLang = options.DefaultLang or "en",
-            TranslateCallback = options.Callback
-        }
-        RainLib.CurrentLanguage = translator.CurrentLang
-
-        local dropdown = tab:AddDropdown("Translator", {
-            Title = "Seletor de Idioma",
-            Items = {"Português", "Inglês"},
-            Default = translator.CurrentLang == "pt" and "Português" or "Inglês",
-            Callback = function(value)
-                translator.CurrentLang = value == "Português" and "pt" or "en"
-                RainLib.CurrentLanguage = translator.CurrentLang
-                RainLib:TranslateGUI(translator.CurrentLang)
-                if translator.TranslateCallback then
-                    translator.TranslateCallback(translator.CurrentLang)
-                end
-            end
-        })
-
-        function translator:Translate(text)
-            if not text or text == "" then return text end
-            return RainLib:TranslateText(text, translator.CurrentLang)
-        end
-
-        RainLib:TranslateGUI(translator.CurrentLang)
-        return translator
-    end
 
     function window:Tab(options)
         local tab = { Elements = {} }
@@ -641,7 +539,6 @@ function RainLib:Window(options)
         tab.Button.TextXAlignment = Enum.TextXAlignment.Left
         tab.Button.Parent = window.TabContainer
         window.TabContainer.CanvasSize = UDim2.new(0, 0, 0, #window.Tabs * 40 + 50)
-        table.insert(RainLib.TranslatableElements, { Element = tab.Button, OriginalText = tab.Button.Text })
 
         local buttonCorner = Instance.new("UICorner")
         buttonCorner.CornerRadius = UDim.new(0, 6)
@@ -665,7 +562,6 @@ function RainLib:Window(options)
             text.TextSize = 14
             text.TextXAlignment = Enum.TextXAlignment.Left
             text.Parent = tab.Button
-            table.insert(RainLib.TranslatableElements, { Element = text, OriginalText = text.Text })
         end
 
         table.insert(window.Tabs, tab)
@@ -744,14 +640,12 @@ function RainLib:Window(options)
             label.Font = Enum.Font.GothamBold
             label.TextSize = 14
             label.Parent = section
-            table.insert(RainLib.TranslatableElements, { Element = label, OriginalText = label.Text })
 
             createContainer(section, sectionSize)
             table.insert(RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs[#RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs].Elements, {
                 Type = "Section", Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return section
         end
 
@@ -775,7 +669,6 @@ function RainLib:Window(options)
             title.Font = Enum.Font.GothamBold
             title.TextSize = 14
             title.Parent = paragraph
-            table.insert(RainLib.TranslatableElements, { Element = title, OriginalText = title.Text })
 
             local content = Instance.new("TextLabel")
             content.Size = UDim2.new(1, -8, 0, 26)
@@ -787,14 +680,12 @@ function RainLib:Window(options)
             content.TextSize = 12
             content.TextWrapped = true
             content.Parent = paragraph
-            table.insert(RainLib.TranslatableElements, { Element = content, OriginalText = content.Text })
 
             createContainer(paragraph, paragraphSize)
             table.insert(RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs[#RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs].Elements, {
                 Type = "Paragraph", Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return paragraph
         end
 
@@ -809,7 +700,6 @@ function RainLib:Window(options)
             button.Font = Enum.Font.SourceSansBold
             button.TextSize = 14
             button.TextWrapped = true
-            table.insert(RainLib.TranslatableElements, { Element = button, OriginalText = button.Text })
 
             local corner = Instance.new("UICorner")
             corner.CornerRadius = UDim.new(0, 6)
@@ -833,7 +723,6 @@ function RainLib:Window(options)
                 Type = "Button", Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return button
         end
 
@@ -859,7 +748,6 @@ function RainLib:Window(options)
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.TextWrapped = true
             label.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = label, OriginalText = label.Text })
 
             local switchContainer = Instance.new("Frame")
             switchContainer.Size = UDim2.new(0, 40, 0, 20)
@@ -930,7 +818,6 @@ function RainLib:Window(options)
                 Type = "Toggle", Key = key, Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return toggle
         end
 
@@ -956,7 +843,6 @@ function RainLib:Window(options)
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.TextWrapped = true
             label.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = label, OriginalText = label.Text })
 
             local valueLabel = Instance.new("TextLabel")
             valueLabel.Size = UDim2.new(0, 30, 0, 18)
@@ -1035,7 +921,6 @@ function RainLib:Window(options)
                 Type = "Slider", Key = key, Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return slider
         end
 
@@ -1061,7 +946,6 @@ function RainLib:Window(options)
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.TextWrapped = true
             label.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = label, OriginalText = label.Text })
 
             local button = Instance.new("TextButton")
             button.Size = UDim2.new(0, 90, 0, 25)
@@ -1073,22 +957,41 @@ function RainLib:Window(options)
             button.TextSize = 12
             button.TextWrapped = true
             button.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = button, OriginalText = button.Text })
 
             local buttonCorner = Instance.new("UICorner")
             buttonCorner.CornerRadius = UDim.new(0, 5)
             buttonCorner.Parent = button
+
+            local arrow = Instance.new("ImageLabel")
+            arrow.Size = UDim2.new(0, 15, 0, 15)
+            arrow.Position = UDim2.new(1, -20, 0.5, -7.5)
+            arrow.BackgroundTransparency = 1
+            arrow.Image = "rbxassetid://7072706620" -- Down arrow icon
+            arrow.ImageColor3 = RainLib.CurrentTheme.Text
+            arrow.Parent = button
 
             local listFrame = Instance.new("Frame")
             listFrame.Size = UDim2.new(0, 90, 0, 0)
             listFrame.Position = UDim2.new(1, -95, 0, 35)
             listFrame.BackgroundColor3 = RainLib.CurrentTheme.Secondary
             listFrame.Visible = false
+            listFrame.ClipsDescendants = true
             listFrame.Parent = frame
 
             local listCorner = Instance.new("UICorner")
             listCorner.CornerRadius = UDim.new(0, 5)
             listCorner.Parent = listFrame
+
+            local listShadow = Instance.new("ImageLabel")
+            listShadow.Size = UDim2.new(1, 20, 1, 20)
+            listShadow.Position = UDim2.new(0, -10, 0, -10)
+            listShadow.BackgroundTransparency = 1
+            listShadow.Image = "rbxassetid://1316045217"
+            listShadow.ImageTransparency = 0.7
+            listShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+            listShadow.ScaleType = Enum.ScaleType.Slice
+            listShadow.SliceCenter = Rect.new(10, 10, 118, 118)
+            listShadow.Parent = listFrame
 
             local listLayout = Instance.new("UIListLayout")
             listLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1099,18 +1002,18 @@ function RainLib:Window(options)
                 if settings and settings.Flags[options.Flag] ~= nil then
                     dropdown.Value = settings.Flags[options.Flag]
                     button.Text = dropdown.Value
-                    for _, elem in ipairs(RainLib.TranslatableElements) do
-                        if elem.Element == button then
-                            elem.OriginalText = button.Text
-                            break
-                        end
-                    end
                 end
             end
 
             local function updateList()
-                listFrame.Size = UDim2.new(0, 90, 0, math.min(#options.Items * 25, 100))
-                for _, item in ipairs(options.Items or {}) do
+                listFrame.Size = UDim2.new(0, 90, 0, 0)
+                for _, child in ipairs(listFrame:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child:Destroy()
+                    end
+                end
+
+                for i, item in ipairs(options.Items or {}) do
                     local itemButton = Instance.new("TextButton")
                     itemButton.Size = UDim2.new(1, 0, 0, 25)
                     itemButton.BackgroundColor3 = RainLib.CurrentTheme.Secondary
@@ -1119,13 +1022,39 @@ function RainLib:Window(options)
                     itemButton.Font = Enum.Font.SourceSans
                     itemButton.TextSize = 12
                     itemButton.TextWrapped = true
+                    itemButton.TextTransparency = 1
                     itemButton.Parent = listFrame
-                    table.insert(RainLib.TranslatableElements, { Element = itemButton, OriginalText = itemButton.Text })
+
+                    local itemCorner = Instance.new("UICorner")
+                    itemCorner.CornerRadius = UDim.new(0, 3)
+                    itemCorner.Parent = itemButton
+
+                    itemButton.MouseEnter:Connect(function()
+                        tween(itemButton, TweenInfo.new(0.2), {
+                            BackgroundColor3 = RainLib.CurrentTheme.Accent:Lerp(RainLib.CurrentTheme.Secondary, 0.7),
+                            Size = UDim2.new(1, 0, 0, 27)
+                        })
+                    end)
+                    itemButton.MouseLeave:Connect(function()
+                        tween(itemButton, TweenInfo.new(0.2), {
+                            BackgroundColor3 = RainLib.CurrentTheme.Secondary,
+                            Size = UDim2.new(1, 0, 0, 25)
+                        })
+                    end)
 
                     itemButton.MouseButton1Click:Connect(function()
                         dropdown.Value = item
                         button.Text = tostring(item)
                         listFrame.Visible = false
+                        tween(arrow, TweenInfo.new(0.2), { Rotation = 0 })
+                        tween(listFrame, TweenInfo.new(0.2), { Size = UDim2.new(0, 90, 0, 0) }).Completed:Connect(function()
+                            listFrame.Visible = false
+                        end)
+                        for _, child in ipairs(listFrame:GetChildren()) do
+                            if child:IsA("TextButton") then
+                                tween(child, TweenInfo.new(0.2), { TextTransparency = 1 })
+                            end
+                        end
                         if options.Callback then
                             options.Callback(dropdown.Value)
                         end
@@ -1134,14 +1063,9 @@ function RainLib:Window(options)
                             settings.Flags[options.Flag] = dropdown.Value
                             RainLib:SaveSettings(window.Options.ConfigFolder, settings)
                         end
-                        for _, elem in ipairs(RainLib.TranslatableElements) do
-                            if elem.Element == button then
-                                elem.OriginalText = button.Text
-                                RainLib:TranslateGUI(RainLib.CurrentLanguage)
-                                break
-                            end
-                        end
                     end)
+
+                    tween(itemButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, (i - 1) * 0.05), { TextTransparency = 0 })
                 end
             end
             updateList()
@@ -1149,14 +1073,40 @@ function RainLib:Window(options)
             createContainer(frame, dropdownSize)
             button.MouseButton1Click:Connect(function()
                 listFrame.Visible = not listFrame.Visible
-                tween(listFrame, TweenInfo.new(0.2), { Size = listFrame.Visible and UDim2.new(0, 90, 0, math.min(#options.Items * 25, 100)) or UDim2.new(0, 90, 0, 0) })
+                if listFrame.Visible then
+                    tween(arrow, TweenInfo.new(0.2), { Rotation = 180 })
+                    tween(listFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 90, 0, math.min(#options.Items * 25, 100)) })
+                    tween(button, TweenInfo.new(0.2), { Size = UDim2.new(0, 92, 0, 27) })
+                    for i, child in ipairs(listFrame:GetChildren()) do
+                        if child:IsA("TextButton") then
+                            tween(child, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, (i - 1) * 0.05), { TextTransparency = 0 })
+                        end
+                    end
+                else
+                    tween(arrow, TweenInfo.new(0.2), { Rotation = 0 })
+                    tween(listFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 90, 0, 0) }).Completed:Connect(function()
+                        listFrame.Visible = false
+                    end)
+                    tween(button, TweenInfo.new(0.2), { Size = UDim2.new(0, 90, 0, 25) })
+                    for _, child in ipairs(listFrame:GetChildren()) do
+                        if child:IsA("TextButton") then
+                            tween(child, TweenInfo.new(0.2), { TextTransparency = 1 })
+                        end
+                    end
+                end
+            end)
+
+            button.MouseEnter:Connect(function()
+                tween(button, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled:Lerp(RainLib.CurrentTheme.Accent, 0.2) })
+            end)
+            button.MouseLeave:Connect(function()
+                tween(button, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
             end)
 
             table.insert(RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs[#RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs].Elements, {
                 Type = "Dropdown", Key = key, Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return dropdown
         end
 
@@ -1182,7 +1132,6 @@ function RainLib:Window(options)
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.TextWrapped = true
             label.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = label, OriginalText = label.Text })
 
             local button = Instance.new("TextButton")
             button.Size = UDim2.new(0, 90, 0, 25)
@@ -1194,7 +1143,6 @@ function RainLib:Window(options)
             button.TextSize = 12
             button.TextWrapped = true
             button.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = button, OriginalText = button.Text })
 
             local buttonCorner = Instance.new("UICorner")
             buttonCorner.CornerRadius = UDim.new(0, 5)
@@ -1205,12 +1153,6 @@ function RainLib:Window(options)
                 if settings and settings.Flags[options.Flag] ~= nil then
                     keybind.Value = Enum.KeyCode[settings.Flags[options.Flag]] or keybind.Value
                     button.Text = keybind.Value.Name or "None"
-                    for _, elem in ipairs(RainLib.TranslatableElements) do
-                        if elem.Element == button then
-                            elem.OriginalText = button.Text
-                            break
-                        end
-                    end
                 end
             end
 
@@ -1233,13 +1175,6 @@ function RainLib:Window(options)
                         settings.Flags[options.Flag] = keybind.Value.Name
                         RainLib:SaveSettings(window.Options.ConfigFolder, settings)
                     end
-                    for _, elem in ipairs(RainLib.TranslatableElements) do
-                        if elem.Element == button then
-                            elem.OriginalText = button.Text
-                            RainLib:TranslateGUI(RainLib.CurrentLanguage)
-                            break
-                        end
-                    end
                 end
             end)
 
@@ -1247,7 +1182,6 @@ function RainLib:Window(options)
                 Type = "Keybind", Key = key, Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return keybind
         end
 
@@ -1273,7 +1207,6 @@ function RainLib:Window(options)
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.TextWrapped = true
             label.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = label, OriginalText = label.Text })
 
             local textBox = Instance.new("TextBox")
             textBox.Size = UDim2.new(0, 90, 0, 25)
@@ -1285,7 +1218,6 @@ function RainLib:Window(options)
             textBox.TextSize = 12
             textBox.TextWrapped = true
             textBox.Parent = frame
-            table.insert(RainLib.TranslatableElements, { Element = textBox, OriginalText = textBox.Text })
 
             local textBoxCorner = Instance.new("UICorner")
             textBoxCorner.CornerRadius = UDim.new(0, 5)
@@ -1296,12 +1228,6 @@ function RainLib:Window(options)
                 if settings and settings.Flags[options.Flag] ~= nil then
                     input.Value = settings.Flags[options.Flag]
                     textBox.Text = input.Value
-                    for _, elem in ipairs(RainLib.TranslatableElements) do
-                        if elem.Element == textBox then
-                            elem.OriginalText = textBox.Text
-                            break
-                        end
-                    end
                 end
             end
 
@@ -1316,20 +1242,12 @@ function RainLib:Window(options)
                     settings.Flags[options.Flag] = input.Value
                     RainLib:SaveSettings(window.Options.ConfigFolder, settings)
                 end
-                for _, elem in ipairs(RainLib.TranslatableElements) do
-                    if elem.Element == textBox then
-                        elem.OriginalText = textBox.Text
-                        RainLib:TranslateGUI(RainLib.CurrentLanguage)
-                        break
-                    end
-                end
             end)
 
             table.insert(RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs[#RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs].Elements, {
                 Type = "Input", Key = key, Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return input
         end
 
@@ -1367,7 +1285,6 @@ function RainLib:Window(options)
             title.Font = Enum.Font.GothamBold
             title.TextSize = 16
             title.Parent = dialogFrame
-            table.insert(RainLib.TranslatableElements, { Element = title, OriginalText = title.Text })
 
             local content = Instance.new("TextLabel")
             content.Size = UDim2.new(1, -8, 0, 45)
@@ -1379,7 +1296,6 @@ function RainLib:Window(options)
             content.TextSize = 12
             content.TextWrapped = true
             content.Parent = dialogFrame
-            table.insert(RainLib.TranslatableElements, { Element = content, OriginalText = content.Text })
 
             local buttonsFrame = Instance.new("Frame")
             buttonsFrame.Size = UDim2.new(1, -8, 0, 35)
@@ -1404,7 +1320,6 @@ function RainLib:Window(options)
                 btnFrame.TextSize = 12
                 btnFrame.TextWrapped = true
                 btnFrame.Parent = buttonsFrame
-                table.insert(RainLib.TranslatableElements, { Element = btnFrame, OriginalText = btnFrame.Text })
 
                 local btnCorner = Instance.new("UICorner")
                 btnCorner.CornerRadius = UDim.new(0, 5)
@@ -1415,19 +1330,12 @@ function RainLib:Window(options)
                     if btn.Callback then
                         btn.Callback()
                     end
-                    for i = #RainLib.TranslatableElements, 1, -1 do
-                        local elem = RainLib.TranslatableElements[i]
-                        if elem.Element == title or elem.Element == content or elem.Element == btnFrame then
-                            table.remove(RainLib.TranslatableElements, i)
-                        end
-                    end
                 end)
             end
 
             function dialog:Show()
                 dialogFrame.Visible = true
                 tween(dialogFrame, TweenInfo.new(0.5), { BackgroundTransparency = 0 })
-                RainLib:TranslateGUI(RainLib.CurrentLanguage)
             end
 
             function dialog:Hide()
@@ -1440,7 +1348,6 @@ function RainLib:Window(options)
                 Type = "Dialog", Options = options
             })
 
-            RainLib:TranslateGUI(RainLib.CurrentLanguage)
             return dialog
         end
 
@@ -1461,8 +1368,6 @@ function RainLib:RecreateGUI()
         RainLib.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
         RainLib:EnableAntiDetection()
     end
-
-    RainLib.TranslatableElements = {}
 
     for _, windowState in ipairs(RainLib.GUIState.Windows) do
         local window = RainLib:Window(windowState.Options)
@@ -1491,8 +1396,6 @@ function RainLib:RecreateGUI()
             end
         end
     end
-
-    RainLib:TranslateGUI(RainLib.CurrentLanguage)
 end
 
 -- Função para carregar configurações
@@ -1518,7 +1421,6 @@ function RainLib:Destroy()
     if RainLib.ScreenGui then
         tween(RainLib.ScreenGui, TweenInfo.new(0.5), { BackgroundTransparency = 1 }).Completed:Connect(function()
             RainLib.ScreenGui:Destroy()
-            RainLib.TranslatableElements = {}
         end)
     end
 end
