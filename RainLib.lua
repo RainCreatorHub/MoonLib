@@ -3,13 +3,32 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
 local HttpService = game:GetService("HttpService")
-local TextService = game:GetService("TextService")
 
 local RainLib = {
-    Version = "1.1.4", -- Updated version to reflect new features
+    Version = "1.1.3",
     Themes = {
         Dark = {
             Background = Color3.fromRGB(25, 25, 25),
+            Accent = Color3.fromRGB(60, 160, 255),
+            Text = Color3.fromRGB(240, 240, 240),
+            Secondary = Color3.fromRGB(45, 45, 45),
+            Disabled = Color3.fromRGB(90, 90, 90)
+        },
+        Light = {
+            Background = Color3.fromRGB(240, 240, 240),
+            Accent = Color3.fromRGB(60, 120, 255),
+            Text = Color3.fromRGB(30, 30, 30),
+            Secondary = Color3.fromRGB(220, 220, 220),
+            Disabled = Color3.fromRGB(180, 180, 180)
+        },
+        BlueWave = {
+            Background = Color3.fromRGB(20, 20, 40),
+            Accent = Color3.fromRGB(0, 170, 255),
+            Text = Color3.fromRGB(255, 255, 255),
+            Secondary = Color3.fromRGB(35, 35, 60),
+            Disabled = Color3.fromRGB(100, 100, 120)
+        }
+    },
             Accent = Color3.fromRGB(60, 160, 255),
             Text = Color3.fromRGB(240, 240, 240),
             Secondary = Color3.fromRGB(45, 45, 45),
@@ -23,7 +42,7 @@ local RainLib = {
 
 -- Anti-Detection System
 local AntiDetection = {
-    Enabled = true,
+    Enabled = true, -- Always true, cannot be disabled
     Methods = {
         SpoofCoreGui = true,
         RandomizeNames = true,
@@ -33,20 +52,25 @@ local AntiDetection = {
 
 function RainLib:EnableAntiDetection(options)
     options = options or {}
+    -- Force anti-detection to always be enabled
     AntiDetection.Enabled = true
     
+    -- Allow configuration of individual methods
     AntiDetection.Methods = {
         SpoofCoreGui = options.SpoofCoreGui ~= false,
         RandomizeNames = options.RandomizeNames ~= false,
         AntiScreenshot = options.AntiScreenshot ~= false
     }
     
+    -- Always apply anti-detection measures
+    -- Spoof CoreGui
     if AntiDetection.Methods.SpoofCoreGui then
         local randomName = HttpService:GenerateGUID(false)
         self.ScreenGui.Name = "Core_" .. randomName
         self.ScreenGui.Parent = game:GetService("CoreGui")
     end
     
+    -- Randomize instance names
     if AntiDetection.Methods.RandomizeNames then
         local function randomizeInstance(instance)
             if instance:IsA("GuiObject") then
@@ -59,6 +83,7 @@ function RainLib:EnableAntiDetection(options)
         randomizeInstance(self.ScreenGui)
     end
     
+    -- Anti-screenshot protection
     if AntiDetection.Methods.AntiScreenshot then
         local screenshotProtection = Instance.new("Frame")
         screenshotProtection.Size = UDim2.new(1, 0, 1, 0)
@@ -123,7 +148,7 @@ local success, err = pcall(function()
     RainLib.ScreenGui.ResetOnSpawn = false
     RainLib.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     RainLib.CurrentTheme = RainLib.Themes.Dark
-    RainLib:EnableAntiDetection()
+    RainLib:EnableAntiDetection() -- Enable anti-detection by default
 end)
 if not success then
     warn("[RainLib] Falha na inicialização: " .. err)
@@ -172,7 +197,7 @@ function RainLib:Notify(window, options)
     local target = window and window.Notifications or RainLib.ScreenGui
     local notification = Instance.new("Frame")
     notification.Size = UDim2.new(0, 250, 0, 70)
-    notification.Position = UDim2.new(1, 260, 0, 10)
+    notification.Position = UDim2.new(1, 260, 0, (#target:GetChildren() - 1) * 80 + 10)
     notification.BackgroundColor3 = RainLib.CurrentTheme.Background
     notification.Parent = target
 
@@ -199,7 +224,6 @@ function RainLib:Notify(window, options)
     title.TextColor3 = RainLib.CurrentTheme.Text
     title.Font = Enum.Font.GothamBold
     title.TextSize = 14
-    title.TextWrapped = true
     title.Parent = notification
 
     local message = Instance.new("TextLabel")
@@ -213,20 +237,10 @@ function RainLib:Notify(window, options)
     message.TextWrapped = true
     message.Parent = notification
 
-    local activeNotifications = target:GetChildren()
-    local yOffset = 10
-    for _, notif in ipairs(activeNotifications) do
-        if notif ~= notification and notif:IsA("Frame") then
-            yOffset = yOffset + notif.Size.Y.Offset + 10
-        end
-    end
-    notification.Position = UDim2.new(1, 260, 0, yOffset)
-
-    tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Position = UDim2.new(1, -260, 0, yOffset), BackgroundTransparency = 0 })
+    tween(notification, TweenInfo.new(0.5), { Position = UDim2.new(1, -260, 0, notification.Position.Y.Offset), BackgroundTransparency = 0 })
     task.spawn(function()
-        local duration = math.max(options.Duration or 3, 1)
-        task.wait(duration)
-        tween(notification, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Position = UDim2.new(1, 260, 0, yOffset), BackgroundTransparency = 1 }).Completed:Connect(function()
+        task.wait(options.Duration or 3)
+        tween(notification, TweenInfo.new(0.5), { Position = UDim2.new(1, 260, 0, notification.Position.Y.Offset), BackgroundTransparency = 1 }).Completed:Connect(function()
             notification:Destroy()
         end)
     end)
@@ -278,6 +292,10 @@ function RainLib:CreateCloseDialog(window, guiName)
     yesButton.TextSize = 12
     yesButton.Parent = buttonsFrame
 
+    local yesCorner = Instance.new("UICorner")
+    yesCorner.CornerRadius = UDim.new(0, 5)
+    yesCorner.Parent = yesButton
+
     local noButton = Instance.new("TextButton")
     noButton.Size = UDim2.new(0, 70, 0, 25)
     noButton.BackgroundColor3 = RainLib.CurrentTheme.Accent
@@ -286,10 +304,6 @@ function RainLib:CreateCloseDialog(window, guiName)
     noButton.Font = Enum.Font.SourceSansBold
     noButton.TextSize = 12
     noButton.Parent = buttonsFrame
-
-    local yesCorner = Instance.new("UICorner")
-    yesCorner.CornerRadius = UDim.new(0, 5)
-    yesCorner.Parent = yesButton
 
     local noCorner = Instance.new("UICorner")
     noCorner.CornerRadius = UDim.new(0, 5)
@@ -332,67 +346,15 @@ function RainLib:Window(options)
         Theme = options.Theme or "Dark",
         MinimizeKey = options.MinimizeKey or Enum.KeyCode.LeftControl,
         SaveSettings = options.SaveSettings or false,
-        ConfigFolder = options.ConfigFolder or "RainConfig",
-        MinimizeButton = options.MinimizeButton ~= false, -- Default to true
-        IntroEnabled = options.IntroEnabled or false,
-        IntroText = options.IntroText or "Welcome",
-        IntroIcon = options.IntroIcon or "rbxassetid://7072706620"
+        ConfigFolder = options.ConfigFolder or "RainConfig"
     }
-
-    -- Convert MinimizeKey if it's a string
-    if typeof(window.Options.MinimizeKey) == "string" then
-        local keyString = window.Options.MinimizeKey:upper()
-        window.Options.MinimizeKey = Enum.KeyCode[keyString] or Enum.KeyCode.LeftControl
-    end
 
     if window.Options.SaveSettings then
         RainLib:CreateFolder(window.Options.ConfigFolder)
     end
 
+    -- Create close confirmation dialog
     local closeDialog = RainLib:CreateCloseDialog(window, window.Options.Title)
-
-    -- Intro Screen
-    local introFrame
-    if window.Options.IntroEnabled then
-        introFrame = Instance.new("Frame")
-        introFrame.Size = UDim2.new(1, 0, 1, 0)
-        introFrame.BackgroundColor3 = RainLib.CurrentTheme.Background
-        introFrame.BackgroundTransparency = 1
-        introFrame.Parent = RainLib.ScreenGui
-        introFrame.ZIndex = 1000
-
-        local introIcon = Instance.new("ImageLabel")
-        introIcon.Size = UDim2.new(0, 100, 0, 100)
-        introIcon.Position = UDim2.new(0.5, -50, 0.4, -50)
-        introIcon.BackgroundTransparency = 1
-        introIcon.Image = window.Options.IntroIcon
-        introIcon.ImageTransparency = 1
-        introIcon.Parent = introFrame
-
-        local introText = Instance.new("TextLabel")
-        introText.Size = UDim2.new(0, 200, 0, 50)
-        introText.Position = UDim2.new(0.5, -100, 0.6, 0)
-        introText.BackgroundTransparency = 1
-        introText.Text = window.Options.IntroText
-        introText.TextColor3 = RainLib.CurrentTheme.Text
-        introText.Font = Enum.Font.GothamBold
-        introText.TextSize = 24
-        introText.TextTransparency = 1
-        introText.Parent = introFrame
-
-        -- Intro Animation
-        tween(introFrame, TweenInfo.new(0.5), { BackgroundTransparency = 0 })
-        tween(introIcon, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0.2), { ImageTransparency = 0 })
-        tween(introText, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, 0.4), { TextTransparency = 0 })
-        task.spawn(function()
-            task.wait(2) -- Display intro for 2 seconds
-            tween(introFrame, TweenInfo.new(0.5), { BackgroundTransparency = 1 })
-            tween(introIcon, TweenInfo.new(0.5), { ImageTransparency = 1 })
-            tween(introText, TweenInfo.new(0.5), { TextTransparency = 1 }).Completed:Connect(function()
-                introFrame:Destroy()
-            end)
-        end)
-    end
 
     window.Notifications.Size = UDim2.new(0, 260, 1, -25)
     window.Notifications.Position = UDim2.new(1, -270, 0, 0)
@@ -475,7 +437,6 @@ function RainLib:Window(options)
     window.MinimizeBtn.TextColor3 = RainLib.CurrentTheme.Text
     window.MinimizeBtn.Font = Enum.Font.SourceSansBold
     window.MinimizeBtn.TextSize = 12
-    window.MinimizeBtn.Visible = window.Options.MinimizeButton
     window.MinimizeBtn.Parent = window.TitleBar
 
     local minimizeCorner = Instance.new("UICorner")
@@ -496,6 +457,7 @@ function RainLib:Window(options)
     window.TabIndicator.Position = UDim2.new(0, 0, 0, 5)
     window.TabIndicator.Parent = window.TabContainer
 
+    -- Animação inicial
     tween(window.MainFrame, TweenInfo.new(0.5), { Position = window.Options.Position, BackgroundTransparency = 0 })
 
     MakeDraggable(window.TitleBar, window.MainFrame)
@@ -526,6 +488,7 @@ function RainLib:Window(options)
         end
     end)
 
+    -- Retângulo com foto e nome do jogador
     local playerFrame = Instance.new("Frame")
     playerFrame.Size = UDim2.new(1, -10, 0, 40)
     playerFrame.Position = UDim2.new(0, 5, 1, -45)
@@ -557,6 +520,7 @@ function RainLib:Window(options)
     playerName.TextXAlignment = Enum.TextXAlignment.Left
     playerName.Parent = playerFrame
 
+    -- Animações no retângulo
     playerFrame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement then
             tween(playerFrame, TweenInfo.new(0.2), { Size = UDim2.new(1, -10, 0, 42) })
@@ -570,7 +534,53 @@ function RainLib:Window(options)
         end
     end)
 
+    -- Salvar estado
     table.insert(RainLib.GUIState.Windows, { Options = window.Options, Tabs = {} })
+
+    -- Dropdown Translator
+    function window:AddTranslatorDropdown(tab, options)
+        options = options or {}
+        local translator = {
+            Languages = {
+                {"English", "en"},
+                {"Spanish", "es"},
+                {"French", "fr"},
+                {"German", "de"},
+                {"Portuguese", "pt"},
+                {"Russian", "ru"}
+            },
+            CurrentLang = options.DefaultLang or "en",
+            TranslateCallback = options.Callback
+        }
+
+        local dropdown = tab:AddDropdown("Translator", {
+            Title = options.Title or "Language Translator",
+            Items = {unpack(translator.Languages, 1, #translator.Languages, 1)},
+            Default = translator.CurrentLang,
+            Callback = function(value)
+                translator.CurrentLang = value
+                if translator.TranslateCallback then
+                    translator.TranslateCallback(value)
+                end
+            end
+        })
+
+        function translator:Translate(text)
+            if not text or text == "" then return text end
+            -- Mock translation (in a real implementation, this would use an API)
+            local mockTranslations = {
+                en = text,
+                es = text .. " (es)",
+                fr = text .. " (fr)",
+                de = text .. " (de)",
+                pt = text .. " (pt)",
+                ru = text .. " (ru)"
+            }
+            return mockTranslations[translator.CurrentLang] or text
+        end
+
+        return translator
+    end
 
     function window:Tab(options)
         local tab = { Elements = {} }
@@ -717,24 +727,7 @@ function RainLib:Window(options)
 
         function tab:AddParagraph(options)
             options = options or {}
-            local contentText = options.Content or ""
-            local titleText = options.Title or "Paragraph"
-            
-            local contentBounds = TextService:GetTextSize(
-                contentText,
-                12,
-                Enum.Font.SourceSans,
-                Vector2.new(350, 1000)
-            )
-            local titleBounds = TextService:GetTextSize(
-                titleText,
-                14,
-                Enum.Font.GothamBold,
-                Vector2.new(350, 1000)
-            )
-            local paragraphHeight = math.max(50, titleBounds.Y + contentBounds.Y + 16)
-            local paragraphSize = UDim2.new(1, -16, 0, paragraphHeight)
-
+            local paragraphSize = UDim2.new(1, -16, 0, 50)
             local paragraph = Instance.new("Frame")
             paragraph.Size = paragraphSize
             paragraph.BackgroundColor3 = RainLib.CurrentTheme.Secondary
@@ -744,27 +737,24 @@ function RainLib:Window(options)
             corner.Parent = paragraph
 
             local title = Instance.new("TextLabel")
-            title.Size = UDim2.new(1, -8, 0, titleBounds.Y)
+            title.Size = UDim2.new(1, -8, 0, 18)
             title.Position = UDim2.new(0, 4, 0, 4)
-            title.Text = titleText
+            title.Text = options.Title or "Paragraph"
             title.BackgroundTransparency = 1
             title.TextColor3 = RainLib.CurrentTheme.Text
             title.Font = Enum.Font.GothamBold
             title.TextSize = 14
-            title.TextWrapped = true
-            title.TextScaled = true
             title.Parent = paragraph
 
             local content = Instance.new("TextLabel")
-            content.Size = UDim2.new(1, -8, 0, contentBounds.Y)
-            content.Position = UDim2.new(0, 4, 0, titleBounds.Y + 8)
-            content.Text = contentText
+            content.Size = UDim2.new(1, -8, 0, 26)
+            content.Position = UDim2.new(0, 4, 0, 22)
+            content.Text = options.Content or ""
             content.BackgroundTransparency = 1
             content.TextColor3 = RainLib.CurrentTheme.Text
             content.Font = Enum.Font.SourceSans
             content.TextSize = 12
             content.TextWrapped = true
-            content.TextScaled = true
             content.Parent = paragraph
 
             createContainer(paragraph, paragraphSize)
@@ -835,6 +825,7 @@ function RainLib:Window(options)
             label.TextWrapped = true
             label.Parent = frame
 
+            -- Switch container
             local switchContainer = Instance.new("Frame")
             switchContainer.Size = UDim2.new(0, 40, 0, 20)
             switchContainer.Position = UDim2.new(1, -48, 0.5, -10)
@@ -845,6 +836,7 @@ function RainLib:Window(options)
             switchCorner.CornerRadius = UDim.new(0, 10)
             switchCorner.Parent = switchContainer
 
+            -- Switch knob (o círculo que desliza)
             local switchKnob = Instance.new("Frame")
             switchKnob.Size = UDim2.new(0, 16, 0, 16)
             switchKnob.Position = toggle.Value and UDim2.new(1, -20, 0, 2) or UDim2.new(0, 4, 0, 2)
@@ -885,6 +877,7 @@ function RainLib:Window(options)
                 end
             end)
 
+            -- Animação de hover
             frame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseMovement then
                     tween(switchContainer, TweenInfo.new(0.2), {
@@ -947,9 +940,7 @@ function RainLib:Window(options)
             bar.Parent = frame
 
             local fill = Instance.new("Frame")
-            local minVal = options.Min or 0
-            local maxVal = options.Max or 100
-            fill.Size = UDim2.new((slider.Value - minVal) / (maxVal - minVal), 0, 1, 0)
+            fill.Size = UDim2.new((slider.Value - (options.Min or 0)) / ((options.Max or 100) - (options.Min or 0)), 0, 1, 0)
             fill.BackgroundColor3 = RainLib.CurrentTheme.Accent
             fill.Parent = bar
 
@@ -965,7 +956,7 @@ function RainLib:Window(options)
                 local settings = RainLib:LoadSettings(window.Options.ConfigFolder)
                 if settings and settings.Flags[options.Flag] ~= nil then
                     slider.Value = settings.Flags[options.Flag]
-                    fill.Size = UDim2.new((slider.Value - minVal) / (maxVal - minVal), 0, 1, 0)
+                    fill.Size = UDim2.new((slider.Value - (options.Min or 0)) / ((options.Max or 100) - (options.Min or 0)), 0, 1, 0)
                     valueLabel.Text = tostring(slider.Value)
                 end
             end
@@ -984,27 +975,16 @@ function RainLib:Window(options)
                     tween(bar, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
                 end
             end)
-            bar.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    tween(bar, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled:Lerp(RainLib.CurrentTheme.Accent, 0.1) })
-                end
-            end)
-            bar.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    tween(bar, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
-                end
-            end)
             RunService.RenderStepped:Connect(function()
                 if dragging then
                     local mousePos = UserInputService:GetMouseLocation()
                     local relativeX = math.clamp((mousePos.X - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
-                    slider.Value = minVal + relativeX * (maxVal - minVal)
+                    slider.Value = math.floor((options.Min or 0) + relativeX * ((options.Max or 100) - (options.Min or 0)))
                     if options.Rounding then
-                        slider.Value = math.round(slider.Value / options.Rounding) * options.Rounding
+                        slider.Value = math.floor(slider.Value / options.Rounding) * options.Rounding
                     end
-                    slider.Value = math.clamp(slider.Value, minVal, maxVal)
-                    tween(fill, TweenInfo.new(0.1), { Size = UDim2.new((slider.Value - minVal) / (maxVal - minVal), 0, 1, 0) })
-                    valueLabel.Text = tostring(math.round(slider.Value * 100) / 100)
+                    tween(fill, TweenInfo.new(0.1), { Size = UDim2.new(relativeX, 0, 1, 0) })
+                    valueLabel.Text = tostring(slider.Value)
                     if options.Callback then
                         options.Callback(slider.Value)
                     end
@@ -1061,36 +1041,16 @@ function RainLib:Window(options)
             buttonCorner.CornerRadius = UDim.new(0, 5)
             buttonCorner.Parent = button
 
-            local arrow = Instance.new("ImageLabel")
-            arrow.Size = UDim2.new(0, 15, 0, 15)
-            arrow.Position = UDim2.new(1, -20, 0.5, -7.5)
-            arrow.BackgroundTransparency = 1
-            arrow.Image = "rbxassetid://7072706620"
-            arrow.ImageColor3 = RainLib.CurrentTheme.Text
-            arrow.Parent = button
-
             local listFrame = Instance.new("Frame")
             listFrame.Size = UDim2.new(0, 90, 0, 0)
             listFrame.Position = UDim2.new(1, -95, 0, 35)
             listFrame.BackgroundColor3 = RainLib.CurrentTheme.Secondary
             listFrame.Visible = false
-            listFrame.ClipsDescendants = true
             listFrame.Parent = frame
 
             local listCorner = Instance.new("UICorner")
             listCorner.CornerRadius = UDim.new(0, 5)
             listCorner.Parent = listFrame
-
-            local listShadow = Instance.new("ImageLabel")
-            listShadow.Size = UDim2.new(1, 20, 1, 20)
-            listShadow.Position = UDim2.new(0, -10, 0, -10)
-            listShadow.BackgroundTransparency = 1
-            listShadow.Image = "rbxassetid://1316045217"
-            listShadow.ImageTransparency = 0.7
-            listShadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-            listShadow.ScaleType = Enum.ScaleType.Slice
-            listShadow.SliceCenter = Rect.new(10, 10, 118, 118)
-            listShadow.Parent = listFrame
 
             local listLayout = Instance.new("UIListLayout")
             listLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1100,19 +1060,13 @@ function RainLib:Window(options)
                 local settings = RainLib:LoadSettings(window.Options.ConfigFolder)
                 if settings and settings.Flags[options.Flag] ~= nil then
                     dropdown.Value = settings.Flags[options.Flag]
-                    button.Text = dropdown.Value
+                    button.Text = dropdown.Export
                 end
             end
 
             local function updateList()
-                listFrame.Size = UDim2.new(0, 90, 0, 0)
-                for _, child in ipairs(listFrame:GetChildren()) do
-                    if child:IsA("TextButton") then
-                        child:Destroy()
-                    end
-                end
-
-                for i, item in ipairs(options.Items or {}) do
+                listFrame.Size = UDim2.new(0, 90, 0, math.min(#options.Items * 25, 100))
+                for _, item in ipairs(options.Items or {}) do
                     local itemButton = Instance.new("TextButton")
                     itemButton.Size = UDim2.new(1, 0, 0, 25)
                     itemButton.BackgroundColor3 = RainLib.CurrentTheme.Secondary
@@ -1121,39 +1075,12 @@ function RainLib:Window(options)
                     itemButton.Font = Enum.Font.SourceSans
                     itemButton.TextSize = 12
                     itemButton.TextWrapped = true
-                    itemButton.TextTransparency = 1
                     itemButton.Parent = listFrame
-
-                    local itemCorner = Instance.new("UICorner")
-                    itemCorner.CornerRadius = UDim.new(0, 3)
-                    itemCorner.Parent = itemButton
-
-                    itemButton.MouseEnter:Connect(function()
-                        tween(itemButton, TweenInfo.new(0.2), {
-                            BackgroundColor3 = RainLib.CurrentTheme.Accent:Lerp(RainLib.CurrentTheme.Secondary, 0.7),
-                            Size = UDim2.new(1, 0, 0, 27)
-                        })
-                    end)
-                    itemButton.MouseLeave:Connect(function()
-                        tween(itemButton, TweenInfo.new(0.2), {
-                            BackgroundColor3 = RainLib.CurrentTheme.Secondary,
-                            Size = UDim2.new(1, 0, 0, 25)
-                        })
-                    end)
 
                     itemButton.MouseButton1Click:Connect(function()
                         dropdown.Value = item
                         button.Text = tostring(item)
                         listFrame.Visible = false
-                        tween(arrow, TweenInfo.new(0.2), { Rotation = 0 })
-                        tween(listFrame, TweenInfo.new(0.2), { Size = UDim2.new(0, 90, 0, 0) }).Completed:Connect(function()
-                            listFrame.Visible = false
-                        end)
-                        for _, child in ipairs(listFrame:GetChildren()) do
-                            if child:IsA("TextButton") then
-                                tween(child, TweenInfo.new(0.2), { TextTransparency = 1 })
-                            end
-                        end
                         if options.Callback then
                             options.Callback(dropdown.Value)
                         end
@@ -1163,8 +1090,6 @@ function RainLib:Window(options)
                             RainLib:SaveSettings(window.Options.ConfigFolder, settings)
                         end
                     end)
-
-                    tween(itemButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, (i - 1) * 0.05), { TextTransparency = 0 })
                 end
             end
             updateList()
@@ -1172,34 +1097,7 @@ function RainLib:Window(options)
             createContainer(frame, dropdownSize)
             button.MouseButton1Click:Connect(function()
                 listFrame.Visible = not listFrame.Visible
-                if listFrame.Visible then
-                    tween(arrow, TweenInfo.new(0.2), { Rotation = 180 })
-                    tween(listFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 90, 0, math.min(#options.Items * 25, 100)) })
-                    tween(button, TweenInfo.new(0.2), { Size = UDim2.new(0, 92, 0, 27) })
-                    for i, child in ipairs(listFrame:GetChildren()) do
-                        if child:IsA("TextButton") then
-                            tween(child, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.In, 0, false, (i - 1) * 0.05), { TextTransparency = 0 })
-                        end
-                    end
-                else
-                    tween(arrow, TweenInfo.new(0.2), { Rotation = 0 })
-                    tween(listFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 90, 0, 0) }).Completed:Connect(function()
-                        listFrame.Visible = false
-                    end)
-                    tween(button, TweenInfo.new(0.2), { Size = UDim2.new(0, 90, 0, 25) })
-                    for _, child in ipairs(listFrame:GetChildren()) do
-                        if child:IsA("TextButton") then
-                            tween(child, TweenInfo.new(0.2), { TextTransparency = 1 })
-                        end
-                    end
-                end
-            end)
-
-            button.MouseEnter:Connect(function()
-                tween(button, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled:Lerp(RainLib.CurrentTheme.Accent, 0.2) })
-            end)
-            button.MouseLeave:Connect(function()
-                tween(button, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
+                tween(listFrame, TweenInfo.new(0.2), { Size = listFrame.Visible and UDim2.new(0, 90, 0, math.min(#options.Items * 25, 100)) or UDim2.new(0, 90, 0, 0) })
             end)
 
             table.insert(RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs[#RainLib.GUIState.Windows[#RainLib.GUIState.Windows].Tabs].Elements, {
@@ -1283,7 +1181,7 @@ function RainLib:Window(options)
 
             return keybind
         end
-
+        
         function tab:AddInput(key, options)
             options = options or {}
             local inputSize = UDim2.new(1, -16, 0, 35)
@@ -1322,11 +1220,6 @@ function RainLib:Window(options)
             textBoxCorner.CornerRadius = UDim.new(0, 5)
             textBoxCorner.Parent = textBox
 
-            local stroke = Instance.new("UIStroke")
-            stroke.Thickness = 1
-            stroke.Color = RainLib.CurrentTheme.Disabled
-            stroke.Parent = textBox
-
             if options.Flag and window.Options.SaveSettings then
                 local settings = RainLib:LoadSettings(window.Options.ConfigFolder)
                 if settings and settings.Flags[options.Flag] ~= nil then
@@ -1336,11 +1229,7 @@ function RainLib:Window(options)
             end
 
             createContainer(frame, inputSize)
-            textBox.Focused:Connect(function()
-                tween(stroke, TweenInfo.new(0.2), { Color = RainLib.CurrentTheme.Accent })
-            end)
             textBox.FocusLost:Connect(function()
-                tween(stroke, TweenInfo.new(0.2), { Color = RainLib.CurrentTheme.Disabled })
                 input.Value = textBox.Text
                 if options.Callback then
                     options.Callback(input.Value)
@@ -1349,29 +1238,6 @@ function RainLib:Window(options)
                     local settings = RainLib:LoadSettings(window.Options.ConfigFolder) or { Flags = {} }
                     settings.Flags[options.Flag] = input.Value
                     RainLib:SaveSettings(window.Options.ConfigFolder, settings)
-                end
-            end)
-            if options.LiveUpdate then
-                textBox:GetPropertyChangedSignal("Text"):Connect(function()
-                    input.Value = textBox.Text
-                    if options.Callback then
-                        options.Callback(input.Value)
-                    end
-                    if options.Flag and window.Options.SaveSettings then
-                        local settings = RainLib:LoadSettings(window.Options.ConfigFolder) or { Flags = {} }
-                        settings.Flags[options.Flag] = input.Value
-                        RainLib:SaveSettings(window.Options.ConfigFolder, settings)
-                    end
-                end)
-            end
-            frame.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    tween(textBox, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled:Lerp(RainLib.CurrentTheme.Accent, 0.1) })
-                end
-            end)
-            frame.InputEnded:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseMovement then
-                    tween(textBox, TweenInfo.new(0.2), { BackgroundColor3 = RainLib.CurrentTheme.Disabled })
                 end
             end)
 
@@ -1497,7 +1363,7 @@ function RainLib:RecreateGUI()
         RainLib.ScreenGui.Parent = game.CoreGui or LocalPlayer:WaitForChild("PlayerGui", 5)
         RainLib.ScreenGui.ResetOnSpawn = false
         RainLib.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-        RainLib:EnableAntiDetection()
+        RainLib:EnableAntiDetection() -- Re-enable anti-detection after recreation
     end
 
     for _, windowState in ipairs(RainLib.GUIState.Windows) do
@@ -1558,3 +1424,11 @@ end
 
 print("[RainLib] Biblioteca carregada!")
 return RainLib
+
+
+function RainLib:ApplyTheme(themeName)
+    local theme = self.Themes[themeName]
+    if not theme then return end
+    self.CurrentTheme = theme
+    self:RecreateGUI()
+end
