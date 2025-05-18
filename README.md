@@ -6,7 +6,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLi
 ```
 
 ## window
-``` lia
+``` lua
 local Window = OrionLib:MakeWindow({
     Title = "My Cheat GUI",
     SubTitle = "wow"
