@@ -2,7 +2,7 @@
 
 ### Load
 ``` lua
-local OrionLibV2 = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/RainLibV2/refs/heads/main/OrionLibV2.lua"))()
+local OrionLibV2 = loadstring(game:HttpGet("https://github.com/RainCreatorHub/RainLibV2/tree/127db2d329682c12d18f90ab2c16c3104bf249fb"))()
 ```
 
 ### window
