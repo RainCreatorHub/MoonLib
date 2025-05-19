@@ -141,59 +141,91 @@ function OrionLibV2:MakeWindow(Info)
             return container  
         end  
 
-        function TabFunctions:AddLabel(info)  
-            local container = Instance.new("Frame", TabContent)  
-            container.Size = UDim2.new(1, -20, 0, 50)  
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)  
-            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)  
-            container.BackgroundTransparency = 1  
-            container.BorderSizePixel = 0  
+        function TabFunctions:AddLabel(info)
+    local container = Instance.new("Frame", TabContent)
+    container.Size = UDim2.new(1, -20, 0, 50) -- Altura inicial, será ajustada depois
+    container.Position = UDim2.new(0, 10, 0, elementY + 20)
+    container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    container.BackgroundTransparency = 1
+    container.BorderSizePixel = 0
 
-            local stroke = Instance.new("UIStroke", container)  
-            stroke.Color = Color3.fromRGB(80, 80, 80)  
-            stroke.Thickness = 1.5  
+    local stroke = Instance.new("UIStroke", container)
+    stroke.Color = Color3.fromRGB(80, 80, 80)
+    stroke.Thickness = 1.5
 
-            local corner = Instance.new("UICorner", container)  
-            corner.CornerRadius = UDim.new(0, 6)  
+    local corner = Instance.new("UICorner", container)
+    corner.CornerRadius = UDim.new(0, 6)
 
-            local title = Instance.new("TextLabel", container)  
-            title.Text = info.Name or "Label"  
-            title.Size = UDim2.new(1, -10, 0, 18)  
-            title.Position = UDim2.new(0, 5, 0, 5)  
-            title.BackgroundTransparency = 1  
-            title.TextColor3 = Color3.fromRGB(255, 255, 255)  
-            title.Font = Enum.Font.GothamBold  
-            title.TextSize = 14  
-            title.TextXAlignment = Enum.TextXAlignment.Left  
-            title.TextTransparency = 1  
+    -- Título
+    local title = Instance.new("TextLabel", container)
+    title.Text = info.Name or "Label"
+    title.Size = UDim2.new(1, -10, 0, 18)
+    title.Position = UDim2.new(0, 5, 0, 5)
+    title.BackgroundTransparency = 1
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 14
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.TextTransparency = 1
+    title.TextScaled = true -- Ajusta o texto automaticamente
+    title.TextWrapped = true -- Permite quebra de linha
 
-            local content = Instance.new("TextLabel", container)  
-            content.Text = info.Content or "Texto"  
-            content.Size = UDim2.new(1, -10, 0, 18)  
-            content.Position = UDim2.new(0, 5, 0, 25)  
-            content.BackgroundTransparency = 1  
-            content.TextColor3 = Color3.fromRGB(180, 180, 180)  
-            content.Font = Enum.Font.Gotham  
-            content.TextSize = 13  
-            content.TextXAlignment = Enum.TextXAlignment.Left  
-            content.TextTransparency = 1  
+    -- Conteúdo
+    local content = Instance.new("TextLabel", container)
+    content.Text = info.Content or "Texto"
+    content.Size = UDim2.new(1, -10, 0, 18)
+    content.Position = UDim2.new(0, 5, 0, 25)
+    content.BackgroundTransparency = 1
+    content.TextColor3 = Color3.fromRGB(180, 180, 180)
+    content.Font = Enum.Font.Gotham
+    content.TextSize = 13
+    content.TextXAlignment = Enum.TextXAlignment.Left
+    content.TextTransparency = 1
+    content.TextScaled = true -- Ajusta o texto automaticamente
+    content.TextWrapped = true -- Permite quebra de linha
 
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                BackgroundTransparency = 0  
-            }):Play()  
-            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                TextTransparency = 0  
-            }):Play()  
-            TweenService:Create(content, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                TextTransparency = 0  
-            }):Play()  
+    -- Calcular altura dinâmica
+    local TextService = game:GetService("TextService")
+    local titleSize = TextService:GetTextSize(
+        title.Text,
+        title.TextSize,
+        title.Font,
+        Vector2.new(container.AbsoluteSize.X - 10, math.huge)
+    )
+    local contentSize = TextService:GetTextSize(
+        content.Text,
+        content.TextSize,
+        content.Font,
+        Vector2.new(container.AbsoluteSize.X - 10, math.huge)
+    )
 
-            elementY = elementY + 60  
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)  
+    -- Ajustar tamanhos
+    title.Size = UDim2.new(1, -10, 0, titleSize.Y)
+    content.Size = UDim2.new(1, -10, 0, contentSize.Y)
+    content.Position = UDim2.new(0, 5, 0, 5 + titleSize.Y + 5)
 
-            return container  
-        end  
+    -- Ajustar altura do container
+    local containerHeight = titleSize.Y + contentSize.Y + 15 -- Margem extra
+    container.Size = UDim2.new(1, -20, 0, containerHeight)
 
+    -- Animações
+    TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+        BackgroundTransparency = 0
+    }):Play()
+    TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+        TextTransparency = 0
+    }):Play()
+    TweenService:Create(content, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+        TextTransparency = 0
+    }):Play()
+
+    -- Atualizar posição Y e CanvasSize
+    elementY = elementY + containerHeight + 20
+    TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+
+    return container
+        end
+        
         function TabFunctions:AddButton(info)  
             local container = Instance.new("Frame", TabContent)  
             container.Size = UDim2.new(1, -20, 0, 50)  
