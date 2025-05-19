@@ -168,7 +168,7 @@ function OrionLibV2:MakeWindow(Info)
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.TextTransparency = 1
     title.TextScaled = true -- Ajusta o texto automaticamente
-    title.TextWrapped = true -- Permite quebra de linha
+    title.TextWrapped = false -- Permite quebra de linha
 
     -- Conteúdo
     local content = Instance.new("TextLabel", container)
@@ -182,7 +182,7 @@ function OrionLibV2:MakeWindow(Info)
     content.TextXAlignment = Enum.TextXAlignment.Left
     content.TextTransparency = 1
     content.TextScaled = true -- Ajusta o texto automaticamente
-    content.TextWrapped = true -- Permite quebra de linha
+    content.TextWrapped = false -- Permite quebra de linha
 
     -- Calcular altura dinâmica
     local TextService = game:GetService("TextService")
