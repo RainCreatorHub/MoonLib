@@ -1,6 +1,100 @@
-local OrionLibV2 = {}
+local RainLib = {}
 local Icons = {
-	["hi"] = "hi"
+	["hi"] = "hii"
+}
+local Themes = {
+    Dark = {
+        WindowBackground = Color3.fromRGB(30, 30, 30),
+        WindowGradientStart = Color3.fromRGB(40, 40, 40),
+        WindowGradientEnd = Color3.fromRGB(20, 20, 20),
+        TitleTextColor = Color3.fromRGB(255, 255, 255),
+        SubTitleTextColor = Color3.fromRGB(180, 180, 180),
+        SeparatorColor = Color3.fromRGB(80, 80, 80),
+        VerticalLineColor = Color3.fromRGB(80, 80, 80),
+        TabButtonBackground = Color3.fromRGB(50, 50, 50),
+        TabButtonSelected = Color3.fromRGB(70, 70, 70),
+        TabButtonTextColor = Color3.fromRGB(255, 255, 255),
+        ElementBackground = Color3.fromRGB(40, 40, 40),
+        ElementStrokeColor = Color3.fromRGB(80, 80, 80),
+        DropdownBackground = Color3.fromRGB(45, 45, 45),
+        DropdownGradientStart = Color3.fromRGB(60, 60, 60),
+        DropdownGradientEnd = Color3.fromRGB(30, 30, 30),
+        DropdownTextColor = Color3.fromRGB(220, 220, 220),
+        DropdownListBackground = Color3.fromRGB(35, 35, 35),
+        DropdownListItemBackground = Color3.fromRGB(50, 50, 50),
+        DropdownListItemTextColor = Color3.fromRGB(200, 200, 200),
+        ToggleOffBackground = Color3.fromRGB(50, 50, 50),
+        ToggleOnBackground = Color3.fromRGB(0, 170, 0),
+    },
+    Light = {
+        WindowBackground = Color3.fromRGB(200, 200, 200),
+        WindowGradientStart = Color3.fromRGB(220, 220, 220),
+        WindowGradientEnd = Color3.fromRGB(180, 180, 180),
+        TitleTextColor = Color3.fromRGB(50, 50, 50),
+        SubTitleTextColor = Color3.fromRGB(100, 100, 100),
+        SeparatorColor = Color3.fromRGB(150, 150, 150),
+        VerticalLineColor = Color3.fromRGB(150, 150, 150),
+        TabButtonBackground = Color3.fromRGB(180, 180, 180),
+        TabButtonSelected = Color3.fromRGB(160, 160, 160),
+        TabButtonTextColor = Color3.fromRGB(50, 50, 50),
+        ElementBackground = Color3.fromRGB(190, 190, 190),
+        ElementStrokeColor = Color3.fromRGB(150, 150, 150),
+        DropdownBackground = Color3.fromRGB(180, 180, 180),
+        DropdownGradientStart = Color3.fromRGB(200, 200, 200),
+        DropdownGradientEnd = Color3.fromRGB(160, 160, 160),
+        DropdownTextColor = Color3.fromRGB(50, 50, 50),
+        DropdownListBackground = Color3.fromRGB(170, 170, 170),
+        DropdownListItemBackground = Color3.fromRGB(160, 160, 160),
+        DropdownListItemTextColor = Color3.fromRGB(50, 50, 50),
+        ToggleOffBackground = Color3.fromRGB(150, 150, 150),
+        ToggleOnBackground = Color3.fromRGB(0, 120, 0),
+    },
+    Blue = {
+        WindowBackground = Color3.fromRGB(30, 40, 60),
+        WindowGradientStart = Color3.fromRGB(40, 50, 80),
+        WindowGradientEnd = Color3.fromRGB(20, 30, 50),
+        TitleTextColor = Color3.fromRGB(200, 220, 255),
+        SubTitleTextColor = Color3.fromRGB(150, 170, 200),
+        SeparatorColor = Color3.fromRGB(80, 100, 120),
+        VerticalLineColor = Color3.fromRGB(80, 100, 120),
+        TabButtonBackground = Color3.fromRGB(50, 60, 80),
+        TabButtonSelected = Color3.fromRGB(70, 80, 100),
+        TabButtonTextColor = Color3.fromRGB(200, 220, 255),
+        ElementBackground = Color3.fromRGB(40, 50, 70),
+        ElementStrokeColor = Color3.fromRGB(80, 100, 120),
+        DropdownBackground = Color3.fromRGB(45, 55, 75),
+        DropdownGradientStart = Color3.fromRGB(60, 70, 90),
+        DropdownGradientEnd = Color3.fromRGB(30, 40, 60),
+        DropdownTextColor = Color3.fromRGB(200, 220, 255),
+        DropdownListBackground = Color3.fromRGB(35, 45, 65),
+        DropdownListItemBackground = Color3.fromRGB(50, 60, 80),
+        DropdownListItemTextColor = Color3.fromRGB(200, 220, 255),
+        ToggleOffBackground = Color3.fromRGB(50, 60, 80),
+        ToggleOnBackground = Color3.fromRGB(0, 120, 180),
+    },
+    Yellow = {
+        WindowBackground = Color3.fromRGB(60, 50, 30),
+        WindowGradientStart = Color3.fromRGB(80, 70, 40),
+        WindowGradientEnd = Color3.fromRGB(50, 40, 20),
+        TitleTextColor = Color3.fromRGB(255, 240, 200),
+        SubTitleTextColor = Color3.fromRGB(200, 180, 150),
+        SeparatorColor = Color3.fromRGB(120, 100, 80),
+        VerticalLineColor = Color3.fromRGB(120, 100, 80),
+        TabButtonBackground = Color3.fromRGB(80, 70, 50),
+        TabButtonSelected = Color3.fromRGB(100, 90, 70),
+        TabButtonTextColor = Color3.fromRGB(255, 240, 200),
+        ElementBackground = Color3.fromRGB(70, 60, 40),
+        ElementStrokeColor = Color3.fromRGB(120, 100, 80),
+        DropdownBackground = Color3.fromRGB(75, 65, 45),
+        DropdownGradientStart = Color3.fromRGB(90, 80, 60),
+        DropdownGradientEnd = Color3.fromRGB(60, 50, 30),
+        DropdownTextColor = Color3.fromRGB(255, 240, 200),
+        DropdownListBackground = Color3.fromRGB(65, 55, 35),
+        DropdownListItemBackground = Color3.fromRGB(80, 70, 50),
+        DropdownListItemTextColor = Color3.fromRGB(255, 240, 200),
+        ToggleOffBackground = Color3.fromRGB(80, 70, 50),
+        ToggleOnBackground = Color3.fromRGB(180, 120, 0),
+    }
 }
 
 local RunService = game:GetService("RunService")
@@ -8,7 +102,12 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
 
-function OrionLibV2:MakeWindow(Info)
+function RainLib:MakeWindow(Info)
+    local themeName = Info.Theme or "Dark"
+    -- Normalize theme name (accept "dark" as "Dark")
+    themeName = (themeName:lower() == "dark" and "Dark") or themeName
+    local theme = Themes[themeName] or Themes.Dark -- Default to Dark if theme not found
+
     local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
     ScreenGui.Name = "CheatGUI"
 
@@ -17,7 +116,7 @@ function OrionLibV2:MakeWindow(Info)
     window.Parent = ScreenGui
     window.Size = UDim2.new(0, 500, 0, 350)
     window.Position = UDim2.new(0.5, -250, 0.5, -175)
-    window.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    window.BackgroundColor3 = theme.WindowBackground
     window.Active = true
     window.Draggable = true
     Instance.new("UICorner", window).CornerRadius = UDim.new(0, 12)
@@ -29,27 +128,27 @@ function OrionLibV2:MakeWindow(Info)
 
     local gradient = Instance.new("UIGradient", window)
     gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+        ColorSequenceKeypoint.new(0, theme.WindowGradientStart),
+        ColorSequenceKeypoint.new(1, theme.WindowGradientEnd)
     }
     gradient.Rotation = 90
 
     local Title = Instance.new("TextLabel", window)
-    Title.Text = Info.Title or "Orion"
+    Title.Text = Info.Title or "RainLib"
     Title.Size = UDim2.new(0, 300, 0, 30)
     Title.Position = UDim2.new(0, 10, 0, 5)
     Title.BackgroundTransparency = 1
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextColor3 = theme.TitleTextColor
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.Font = Enum.Font.GothamBold
     Title.TextSize = 20
 
     local SubTitle = Instance.new("TextLabel", window)
-    SubTitle.Text = Info.SubTitle or "Orion Subtitle"
+    SubTitle.Text = Info.SubTitle or "RainLib Subtitle"
     SubTitle.Size = UDim2.new(0, 300, 0, 20)
     SubTitle.Position = UDim2.new(0, 10, 0, 35)
     SubTitle.BackgroundTransparency = 1
-    SubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+    SubTitle.TextColor3 = theme.SubTitleTextColor
     SubTitle.TextXAlignment = Enum.TextXAlignment.Left
     SubTitle.Font = Enum.Font.Gotham
     SubTitle.TextSize = 14
@@ -57,12 +156,12 @@ function OrionLibV2:MakeWindow(Info)
     local Separator = Instance.new("Frame", window)
     Separator.Size = UDim2.new(1, -20, 0, 1)
     Separator.Position = UDim2.new(0, 10, 0, 60)
-    Separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    Separator.BackgroundColor3 = theme.SeparatorColor
 
     local VerticalLine = Instance.new("Frame", window)
     VerticalLine.Size = UDim2.new(0, 1, 1, -80)
     VerticalLine.Position = UDim2.new(0, 135, 0, 70)
-    VerticalLine.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    VerticalLine.BackgroundColor3 = theme.VerticalLineColor
     VerticalLine.BorderSizePixel = 0
 
     local TabScrollFrame = Instance.new("ScrollingFrame", window)
@@ -84,8 +183,8 @@ function OrionLibV2:MakeWindow(Info)
         Button.Size = UDim2.new(0, 120, 0, 30)
         Button.Position = UDim2.new(0, 0, 0, ButtonY)
         Button.Text = ""
-        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Button.BackgroundColor3 = theme.TabButtonBackground
+        Button.TextColor3 = theme.TabButtonTextColor
         Button.Font = Enum.Font.Gotham
         Button.TextSize = 14
         Button.AutoButtonColor = false
@@ -118,7 +217,7 @@ function OrionLibV2:MakeWindow(Info)
         TextLabel.Size = UDim2.new(1, -30, 1, 0)
         TextLabel.Position = UDim2.new(0, 30, 0, 0)
         TextLabel.BackgroundTransparency = 1
-        TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TextLabel.TextColor3 = theme.TabButtonTextColor
         TextLabel.Font = Enum.Font.Gotham
         TextLabel.TextSize = 14
         TextLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -146,10 +245,10 @@ function OrionLibV2:MakeWindow(Info)
             TabContent.Visible = true
             for _, btn in ipairs(TabScrollFrame:GetChildren()) do
                 if btn:IsA("TextButton") then
-                    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                    btn.BackgroundColor3 = theme.TabButtonBackground
                 end
             end
-            Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+            Button.BackgroundColor3 = theme.TabButtonSelected
         end)
 
         local elementY = 0
@@ -166,7 +265,7 @@ function OrionLibV2:MakeWindow(Info)
             sectionLabel.Text = info.Name or "Section"
             sectionLabel.Size = UDim2.new(1, 0, 1, 0)
             sectionLabel.BackgroundTransparency = 1
-            sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+            sectionLabel.TextColor3 = theme.TitleTextColor
             sectionLabel.Font = Enum.Font.GothamBold
             sectionLabel.TextSize = 16
             sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -185,12 +284,12 @@ function OrionLibV2:MakeWindow(Info)
             local container = Instance.new("Frame", TabContent)
             container.Size = UDim2.new(1, -20, 0, 50)
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            container.BackgroundColor3 = theme.ElementBackground
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
 
             local stroke = Instance.new("UIStroke", container)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Color = theme.ElementStrokeColor
             stroke.Thickness = 1.5
 
             local corner = Instance.new("UICorner", container)
@@ -201,7 +300,7 @@ function OrionLibV2:MakeWindow(Info)
             title.Size = UDim2.new(1, -10, 0, 18)
             title.Position = UDim2.new(0, 5, 0, 5)
             title.BackgroundTransparency = 1
-            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            title.TextColor3 = theme.TitleTextColor
             title.Font = Enum.Font.GothamBold
             title.TextSize = 14
             title.TextXAlignment = Enum.TextXAlignment.Left
@@ -214,7 +313,7 @@ function OrionLibV2:MakeWindow(Info)
             content.Size = UDim2.new(1, -10, 0, 18)
             content.Position = UDim2.new(0, 5, 0, 25)
             content.BackgroundTransparency = 1
-            content.TextColor3 = Color3.fromRGB(180, 180, 180)
+            content.TextColor3 = theme.SubTitleTextColor
             content.Font = Enum.Font.Gotham
             content.TextSize = 13
             content.TextXAlignment = Enum.TextXAlignment.Left
@@ -263,12 +362,12 @@ function OrionLibV2:MakeWindow(Info)
             local container = Instance.new("Frame", TabContent)
             container.Size = UDim2.new(1, -20, 0, 50)
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            container.BackgroundColor3 = theme.ElementBackground
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
 
             local stroke = Instance.new("UIStroke", container)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Color = theme.ElementStrokeColor
             stroke.Transparency = 0.5
             stroke.Thickness = 1.5
 
@@ -278,8 +377,8 @@ function OrionLibV2:MakeWindow(Info)
             local button = Instance.new("TextButton", container)
             button.Size = UDim2.new(1, -10, 1, -10)
             button.Position = UDim2.new(0, 5, 0, 5)
-            button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            button.BackgroundColor3 = theme.ElementBackground
+            button.TextColor3 = theme.TitleTextColor
             button.Font = Enum.Font.GothamBold
             button.TextSize = 14
             button.Text = info.Name or "Button"
@@ -302,10 +401,10 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
 
             button.MouseEnter:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = theme.ElementBackground:Lerp(Color3.fromRGB(255, 255, 255), 0.1)}):Play()
             end)
             button.MouseLeave:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = theme.ElementBackground}):Play()
             end)
 
             if info.Callback and typeof(info.Callback) == "function" then
@@ -324,12 +423,12 @@ function OrionLibV2:MakeWindow(Info)
             local container = Instance.new("Frame", TabContent)
             container.Size = UDim2.new(1, -20, 0, 50)
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            container.BackgroundColor3 = theme.ElementBackground
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
 
             local stroke = Instance.new("UIStroke", container)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Color = theme.ElementStrokeColor
             stroke.Transparency = 0.5
             stroke.Thickness = 1.5
 
@@ -341,7 +440,7 @@ function OrionLibV2:MakeWindow(Info)
             toggleText.Size = UDim2.new(1, -60, 0, 20)
             toggleText.Position = UDim2.new(0, 10, 0, 5)
             toggleText.BackgroundTransparency = 1
-            toggleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+            toggleText.TextColor3 = theme.TitleTextColor
             toggleText.Font = Enum.Font.GothamBold
             toggleText.TextSize = 14
             toggleText.TextXAlignment = Enum.TextXAlignment.Left
@@ -352,7 +451,7 @@ function OrionLibV2:MakeWindow(Info)
             toggleDescription.Size = UDim2.new(1, -60, 0, 15)
             toggleDescription.Position = UDim2.new(0, 10, 0, 25)
             toggleDescription.BackgroundTransparency = 1
-            toggleDescription.TextColor3 = Color3.fromRGB(180, 180, 180)
+            toggleDescription.TextColor3 = theme.SubTitleTextColor
             toggleDescription.Font = Enum.Font.Gotham
             toggleDescription.TextSize = 11
             toggleDescription.TextXAlignment = Enum.TextXAlignment.Left
@@ -362,7 +461,7 @@ function OrionLibV2:MakeWindow(Info)
             local toggleButton = Instance.new("TextButton", container)
             toggleButton.Size = UDim2.new(0, 50, 0, 24)
             toggleButton.Position = UDim2.new(1, -60, 0.5, -12)
-            toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            toggleButton.BackgroundColor3 = theme.ToggleOffBackground
             toggleButton.BorderSizePixel = 0
             toggleButton.AutoButtonColor = false
             toggleButton.Text = ""
@@ -381,7 +480,7 @@ function OrionLibV2:MakeWindow(Info)
             indicatorCorner.CornerRadius = UDim.new(0, 10)
 
             local isOn = info.Default or false
-            local toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
+            local toggleBackgroundColor = isOn and theme.ToggleOnBackground or theme.ToggleOffBackground
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
@@ -401,7 +500,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local function updateToggle()
                 isOn = (isOn == nil) and false or isOn
-                toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
+                toggleBackgroundColor = isOn and theme.ToggleOnBackground or theme.ToggleOffBackground
                 local targetPosition = isOn and UDim2.new(0, 28, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
                 TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     BackgroundColor3 = toggleBackgroundColor
@@ -421,12 +520,12 @@ function OrionLibV2:MakeWindow(Info)
 
             toggleButton.MouseEnter:Connect(function()
                 if not isOn then
-                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
+                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = theme.ToggleOffBackground:Lerp(Color3.fromRGB(255, 255, 255), 0.1)}):Play()
                 end
             end)
             toggleButton.MouseLeave:Connect(function()
                 if not isOn then
-                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = theme.ToggleOffBackground}):Play()
                 end
             end)
 
@@ -442,12 +541,12 @@ function OrionLibV2:MakeWindow(Info)
             local container = Instance.new("Frame", TabContent)
             container.Size = UDim2.new(1, -20, 0, 50)
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            container.BackgroundColor3 = theme.ElementBackground
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
 
             local stroke = Instance.new("UIStroke", container)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Color = theme.ElementStrokeColor
             stroke.Transparency = 0.5
             stroke.Thickness = 1
 
@@ -459,7 +558,7 @@ function OrionLibV2:MakeWindow(Info)
             title.Size = UDim2.new(0.6, -100, 0, 20)
             title.Position = UDim2.new(0, 10, 0, 1)
             title.BackgroundTransparency = 1
-            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            title.TextColor3 = theme.TitleTextColor
             title.Font = Enum.Font.GothamBold
             title.TextSize = 14
             title.TextXAlignment = Enum.TextXAlignment.Left
@@ -470,7 +569,7 @@ function OrionLibV2:MakeWindow(Info)
             description.Size = UDim2.new(0.6, -100, 0, 20)
             description.Position = UDim2.new(0, 10, 0, 20)
             description.BackgroundTransparency = 1
-            description.TextColor3 = Color3.fromRGB(180, 180, 180)
+            description.TextColor3 = theme.SubTitleTextColor
             description.Font = Enum.Font.Gotham
             description.TextSize = 11
             description.TextXAlignment = Enum.TextXAlignment.Left
@@ -490,7 +589,7 @@ function OrionLibV2:MakeWindow(Info)
             DropdownInner.Size = UDim2.new(0, 160, 0, 30)
             DropdownInner.Position = UDim2.new(1, -10, 0.5, 0)
             DropdownInner.AnchorPoint = Vector2.new(1, 0.5)
-            DropdownInner.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            DropdownInner.BackgroundColor3 = theme.DropdownBackground
             DropdownInner.BackgroundTransparency = 0
             DropdownInner.AutoButtonColor = false
             DropdownInner.Text = ""
@@ -501,8 +600,8 @@ function OrionLibV2:MakeWindow(Info)
             innerStroke.Color = Color3.fromRGB(100, 100, 100)
             local innerGradient = Instance.new("UIGradient", DropdownInner)
             innerGradient.Color = ColorSequence.new{
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 60)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+                ColorSequenceKeypoint.new(0, theme.DropdownGradientStart),
+                ColorSequenceKeypoint.new(1, theme.DropdownGradientEnd)
             }
             innerGradient.Rotation = 90
 
@@ -512,7 +611,7 @@ function OrionLibV2:MakeWindow(Info)
             DropdownDisplay.Position = UDim2.new(0, 12, 0.5, 0)
             DropdownDisplay.AnchorPoint = Vector2.new(0, 0.5)
             DropdownDisplay.BackgroundTransparency = 1
-            DropdownDisplay.TextColor3 = Color3.fromRGB(220, 220, 220)
+            DropdownDisplay.TextColor3 = theme.DropdownTextColor
             DropdownDisplay.Font = Enum.Font.Gotham
             DropdownDisplay.TextSize = 13
             DropdownDisplay.TextXAlignment = Enum.TextXAlignment.Left
@@ -546,7 +645,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local DropdownHolderFrame = Instance.new("Frame")
             DropdownHolderFrame.Size = UDim2.fromScale(1, 0)
-            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            DropdownHolderFrame.BackgroundColor3 = theme.DropdownListBackground
             DropdownHolderFrame.BackgroundTransparency = 0.1
             Instance.new("UICorner", DropdownHolderFrame).CornerRadius = UDim.new(0, 8)
             local holderStroke = Instance.new("UIStroke", DropdownHolderFrame)
@@ -573,6 +672,19 @@ function OrionLibV2:MakeWindow(Info)
             local sizeConstraint = Instance.new("UISizeConstraint", DropdownHolderCanvas)
             sizeConstraint.MinSize = Vector2.new(170, 0)
 
+            local ListSizeX = 0
+            local OriginalListHeight = 0
+
+            local function RecalculateListSize()
+                local contentHeight = DropdownListLayout.AbsoluteContentSize.Y + 10
+                if #Dropdown.Values > 10 then
+                    contentHeight = 390
+                end
+                OriginalListHeight = contentHeight
+                DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, contentHeight)
+                RecalculateListPosition()
+            end
+
             local function RecalculateListPosition()
                 if not DropdownInner or not window then
                     print("Warning: DropdownInner or window is nil")
@@ -581,48 +693,90 @@ function OrionLibV2:MakeWindow(Info)
 
                 local buttonAbsPos = DropdownInner.AbsolutePosition
                 local windowAbsPos = window.AbsolutePosition
+                local windowSize = window.AbsoluteSize
 
-                if not buttonAbsPos or not windowAbsPos then
-                    print("Warning: Absolute positions are not available")
+                if not buttonAbsPos or not windowAbsPos or not windowSize then
+                    print("Warning: Absolute positions or window size are not available")
                     return
                 end
 
                 local buttonY = buttonAbsPos.Y
-                DropdownHolderCanvas.Position = UDim2.fromOffset(
-                    buttonAbsPos.X - windowAbsPos.X,
-                    buttonY - windowAbsPos.Y
-                )
-            end
+                local relativeButtonY = buttonY - windowAbsPos.Y
 
-            local ListSizeX = 0
-            local function RecalculateListSize()
-                local contentHeight = DropdownListLayout.AbsoluteContentSize.Y + 10
-                if #Dropdown.Values > 10 then
-                    contentHeight = 390
+                local windowTop = windowAbsPos.Y
+                local windowBottom = windowAbsPos.Y + windowSize.Y
+
+                local listHeight = DropdownHolderCanvas.Size.Y.Offset
+
+                local listTopIfDown = buttonY
+                local listBottomIfDown = listTopIfDown + listHeight
+
+                local listBottomIfUp = buttonY
+                local listTopIfUp = listBottomIfUp - listHeight
+
+                local listY
+                local opensUpward = false
+
+                if listBottomIfDown > windowBottom then
+                    if listTopIfUp >= windowTop then
+                        listY = (listTopIfUp - windowAbsPos.Y) - 5 -- Small offset for better visuals
+                        opensUpward = true
+                    else
+                        listY = 0
+                        opensUpward = true
+                    end
+                else
+                    listY = relativeButtonY + 5 -- Small offset for better visuals
                 end
-                DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, contentHeight)
-                RecalculateListPosition()
+
+                local buttonX = buttonAbsPos.X
+                local relativeButtonX = buttonX - windowAbsPos.X
+                local listWidth = DropdownHolderCanvas.Size.X.Offset
+                local windowLeft = windowAbsPos.X
+                local windowRight = windowAbsPos.X + windowSize.X
+
+                local listX = relativeButtonX
+                if buttonX + listWidth > windowRight then
+                    listX = windowSize.X - listWidth
+                elseif buttonX < windowLeft then
+                    listX = 0
+                end
+
+                local targetPosition = UDim2.fromOffset(listX, listY)
+                TweenService:Create(DropdownHolderCanvas, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                    Position = targetPosition
+                }):Play()
+
+                local availableHeight
+                if opensUpward then
+                    availableHeight = (buttonY - windowTop)
+                else
+                    availableHeight = (windowBottom - buttonY)
+                end
+
+                if listHeight > availableHeight then
+                    DropdownHolderCanvas.Size = UDim2.fromOffset(DropdownHolderCanvas.Size.X.Offset, math.max(availableHeight, 50))
+                else
+                    DropdownHolderCanvas.Size = UDim2.fromOffset(DropdownHolderCanvas.Size.X.Offset, OriginalListHeight)
+                end
             end
 
             local function RecalculateCanvasSize()
                 DropdownScrollFrame.CanvasSize = UDim2.fromOffset(0, DropdownListLayout.AbsoluteContentSize.Y)
             end
 
-            -- Inicializar a lista e esperar que os elementos estejam prontos
             spawn(function()
-                wait(0.1) -- Pequeno atraso para garantir que a GUI esteja renderizada
+                wait(0.1)
                 RecalculateListSize()
                 RecalculateCanvasSize()
             end)
 
-            -- Sincronizar posição com a GUI ao arrastar
             window.Changed:Connect(function(property)
                 if property == "Position" then
                     RecalculateListPosition()
                 end
             end)
 
-            -- Conexão para arrastar e atualização dinâmica (somente quando aberto)
             local isDragging = false
             local connection
             local function StartPositionUpdate()
@@ -768,7 +922,7 @@ function OrionLibV2:MakeWindow(Info)
                     button.BackgroundTransparency = 1
                     button.ZIndex = 23
                     button.Text = ""
-                    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                    button.BackgroundColor3 = theme.DropdownListItemBackground
                     Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
 
                     local checkmark = Instance.new("ImageLabel", button)
@@ -784,7 +938,7 @@ function OrionLibV2:MakeWindow(Info)
                     buttonLabel.Size = UDim2.new(1, -30, 1, 0)
                     buttonLabel.Position = UDim2.fromOffset(30, 0)
                     buttonLabel.BackgroundTransparency = 1
-                    buttonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    buttonLabel.TextColor3 = theme.DropdownListItemTextColor
                     buttonLabel.Font = Enum.Font.Gotham
                     buttonLabel.TextSize = 13
                     buttonLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -950,5 +1104,3 @@ function OrionLibV2:MakeWindow(Info)
 
     return Tabs
 end
-
-return OrionLibV2
