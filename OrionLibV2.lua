@@ -1,5 +1,4 @@
 local OrionLibV2 = {}
-
 local Icons = {
     ["activity"] = "rbxassetid://10709791437",
     ["airvent"] = "rbxassetid://10709791532",
@@ -518,33 +517,29 @@ function OrionLibV2:MakeWindow(Info)
         ContentFrame.BackgroundTransparency = 1
         ContentFrame.ClipsDescendants = true
 
-        -- Add icon if provided
+        -- Add icon if provided and valid
         local Icon
-        if TabInfo.Icon then
+        if TabInfo.Icon and type(TabInfo.Icon) == "string" then
             Icon = Instance.new("ImageLabel", ContentFrame)
             Icon.Size = UDim2.new(0, 20, 0, 20)
             Icon.Position = UDim2.new(0, 5, 0.5, -10)
             Icon.BackgroundTransparency = 1
-            -- Check if Icon is a keyword or direct asset ID
-            if type(TabInfo.Icon) == "string" then
-                local iconKey = string.lower(TabInfo.Icon) -- Convert to lowercase for case-insensitive matching
-                if Icons[iconKey] then
-                    Icon.Image = Icons[iconKey]
-                elseif string.match(TabInfo.Icon, "^rbxassetid://%d+$") then
-                    Icon.Image = TabInfo.Icon
-                else
-                    Icon.Image = "rbxassetid://10709791437" -- Fallback icon
-                end
+            local iconKey = string.lower(TabInfo.Icon) -- Convert to lowercase for case-insensitive matching
+            if Icons[iconKey] then
+                Icon.Image = Icons[iconKey]
+            elseif string.match(TabInfo.Icon, "^rbxassetid://%d+$") then
+                Icon.Image = TabInfo.Icon
             else
-                Icon.Image = "rbxassetid://10709791437" -- Fallback icon for invalid input
+                Icon:Destroy() -- Remove icon if invalid
+                Icon = nil
             end
         end
 
-        -- Add text label
+        -- Add text label, always offset as if an icon is present
         local TextLabel = Instance.new("TextLabel", ContentFrame)
         TextLabel.Text = TabInfo.Name or "Tab"
-        TextLabel.Size = UDim2.new(1, Icon and -30 or -10, 1, 0)
-        TextLabel.Position = UDim2.new(0, Icon and 30 or 10, 0, 0)
+        TextLabel.Size = UDim2.new(1, -30, 1, 0)
+        TextLabel.Position = UDim2.new(0, 30, 0, 0)
         TextLabel.BackgroundTransparency = 1
         TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         TextLabel.Font = Enum.Font.Gotham
@@ -692,8 +687,7 @@ function OrionLibV2:MakeWindow(Info)
             container.Size = UDim2.new(1, -20, 0, 50)
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            container.BackgroundTransparency = 1
-            container.BorderSizePixel = 0
+            container.BackgroundTransparency = 1 container.BorderSizePixel = 0
 
             local stroke = Instance.new("UIStroke", container)
             stroke.Color = Color3.fromRGB(80, 80, 80)
