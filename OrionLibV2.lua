@@ -1,7 +1,8 @@
 local OrionLibV2 = {}
 local Icons = {
-	["ola"] = "hi"
+	["hi"] = "ola"
 }
+
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -578,7 +579,7 @@ function OrionLibV2:MakeWindow(Info)
                 local buttonY = DropdownInner.AbsolutePosition.Y
                 DropdownHolderCanvas.Position = UDim2.fromOffset(
                     DropdownInner.AbsolutePosition.X - window.AbsolutePosition.X,
-                    buttonY - canvasHeight + 20 -- 10 studs abaixo + mais 10 studs abaixo
+                    buttonY - canvasHeight - 10 -- Posiciona a parte superior da lista 10 studs acima do botão
                 )
             end
 
@@ -600,7 +601,14 @@ function OrionLibV2:MakeWindow(Info)
             RecalculateListPosition()
             RecalculateListSize()
 
-            -- Conexão para arrastar e atualização dinâmica
+            -- Sincronizar posição com a GUI ao arrastar
+            window.Changed:Connect(function(property)
+                if property == "Position" then
+                    RecalculateListPosition() -- Atualiza a posição do dropdown mesmo quando fechado
+                end
+            end)
+
+            -- Conexão para arrastar e atualização dinâmica (somente quando aberto)
             local isDragging = false
             local connection
             local function StartPositionUpdate()
