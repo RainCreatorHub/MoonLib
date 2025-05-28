@@ -1,4 +1,5 @@
 local OrionLibV2 = {}
+
 local Icons = {
     ["activity"] = "rbxassetid://10709791437",
     ["airvent"] = "rbxassetid://10709791532",
@@ -426,6 +427,8 @@ local Icons = {
     ["zoomout"] = "rbxassetid://10747385061"
 }
 
+local Icons = {}
+
 function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
 
@@ -525,12 +528,17 @@ function OrionLibV2:MakeWindow(Info)
             Icon.Position = UDim2.new(0, 5, 0.5, -10)
             Icon.BackgroundTransparency = 1
             -- Check if Icon is a keyword or direct asset ID
-            if Icons[TabInfo.Icon] then
-                Icon.Image = Icons[TabInfo.Icon]
-            elseif string.match(TabInfo.Icon, "^rbxassetid://%d+$") then
-                Icon.Image = TabInfo.Icon
+            if type(TabInfo.Icon) == "string" then
+                local iconKey = string.lower(TabInfo.Icon) -- Convert to lowercase for case-insensitive matching
+                if Icons[iconKey] then
+                    Icon.Image = Icons[iconKey]
+                elseif string.match(TabInfo.Icon, "^rbxassetid://%d+$") then
+                    Icon.Image = TabInfo.Icon
+                else
+                    Icon.Image = "rbxassetid://10709791437" -- Fallback icon
+                end
             else
-                Icon.Image = "rbxassetid://1" -- Fallback icon
+                Icon.Image = "rbxassetid://1" -- Fallback icon for invalid input
             end
         end
 
