@@ -1393,10 +1393,10 @@ function OrionLibV2:MakeWindow(Info)
 
             local function RecalculateListPosition()
                 local canvasHeight = DropdownHolderCanvas.Size.Y.Offset
-                local buttonY = DropdownInner.Position.Y.Offset + TabContent.AbsolutePosition.Y - window.AbsolutePosition.Y
+                local buttonY = DropdownInner.AbsolutePosition.Y
                 DropdownHolderCanvas.Position = UDim2.fromOffset(
                     DropdownInner.AbsolutePosition.X - window.AbsolutePosition.X,
-                    buttonY - canvasHeight - 35
+                    buttonY - canvasHeight - 5 -- 5 studs acima do botão
                 )
             end
 
