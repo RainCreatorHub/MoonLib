@@ -1143,7 +1143,7 @@ function OrionLibV2:MakeWindow(Info)
 
                     local checkmark = Instance.new("ImageLabel", button)
                     checkmark.Size = UDim2.fromOffset(14, 14)
-                    checkmark.Position = UDim2.new(0, 8, 0.5, 1)
+                    checkmark.Position = UDim2.new(0, 8, 0.5, 0)
                     checkmark.BackgroundTransparency = 1
                     checkmark.Image = "rbxassetid://1070976000"
                     checkmark.ImageTransparency = 1
@@ -1192,12 +1192,12 @@ function OrionLibV2:MakeWindow(Info)
                             Size = UDim2.new(1, -5, 0, 34)
                         }):Play()
                     end)
-                    button.MouseButton1:Connect(function()
+                    button.MouseButton1Down:Connect(function()
                         TweenService:Create(button, TweenInfo.new(0.1), {
                             BackgroundTransparency = 0.5
                         }):Play()
                     end)
-                    button.MouseButton1:Connect(function()
+                    button.MouseButton1Up:Connect(function()
                         TweenService:Create(button, TweenInfo.new(0.2), {
                             BackgroundTransparency = Selected and 0.6 or 0.85
                         }):Play()
