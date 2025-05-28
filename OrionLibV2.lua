@@ -821,12 +821,11 @@ local OrionLibV2 = {}
                        }
 
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
-    local UserInputService = game:GetService("UserInputService")
     local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
-    local Camera = game:GetService("Workspace").CurrentCamera
 
     local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
     ScreenGui.Name = "CheatGUI"
@@ -1394,11 +1393,10 @@ function OrionLibV2:MakeWindow(Info)
 
             local function RecalculateListPosition()
                 local canvasHeight = DropdownHolderCanvas.Size.Y.Offset
-                local relativeY = DropdownInner.Position.Y.Offset
-                local guiY = window.AbsolutePosition.Y + TabContent.Position.Y.Offset + relativeY
+                local buttonY = DropdownInner.Position.Y.Offset + TabContent.AbsolutePosition.Y - window.AbsolutePosition.Y
                 DropdownHolderCanvas.Position = UDim2.fromOffset(
-                    DropdownInner.AbsolutePosition.X,
-                    guiY - canvasHeight - 35
+                    DropdownInner.AbsolutePosition.X - window.AbsolutePosition.X,
+                    buttonY - canvasHeight - 35
                 )
             end
 
@@ -1420,12 +1418,13 @@ function OrionLibV2:MakeWindow(Info)
             RecalculateListPosition()
             RecalculateListSize()
 
-            -- Usar RunService para atualizar a posição da lista em cada frame enquanto ela estiver aberta
+            -- Conexão para arrastar e atualização dinâmica
+            local isDragging = false
             local connection
             local function StartPositionUpdate()
                 if not connection then
                     connection = RunService.RenderStepped:Connect(function()
-                        if Dropdown.Opened then
+                        if Dropdown.Opened and isDragging then
                             RecalculateListPosition()
                         end
                     end)
@@ -1439,8 +1438,18 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end
 
-            -- Atualizar a posição inicial
-            RecalculateListPosition()
+            window.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    isDragging = true
+                    StartPositionUpdate()
+                end
+            end)
+
+            window.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    isDragging = false
+                end
+            end)
 
             DropdownInner.MouseButton1Click:Connect(function()
                 if Dropdown.Opened then
@@ -1464,11 +1473,11 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end)
 
-            UserInputService.InputBegan:Connect(function(Input)
-                if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
-                    local AbsPos, AbsSize = DropdownHolderFrame.AbsolutePosition, DropdownHolderFrame.AbsoluteSize
-                    if not (Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X and
-                            Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y) then
+            UserInputService.InputBegan:Connect(function(input)
+                if Dropdown.Opened and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                    local absPos, absSize = DropdownHolderFrame.AbsolutePosition, DropdownHolderFrame.AbsoluteSize
+                    if not (Mouse.X >= absPos.X and Mouse.X <= absPos.X + absSize.X and
+                            Mouse.Y >= absPos.Y and Mouse.Y <= absPos.Y + absSize.Y) then
                         Dropdown:Close()
                     end
                 end
@@ -1487,7 +1496,7 @@ function OrionLibV2:MakeWindow(Info)
                 TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {
                     Position = UDim2.new(0, 0, 0, -5)
                 }):Play()
-                StartPositionUpdate() -- Inicia a atualização da posição
+                RecalculateListPosition() -- Atualiza a posição inicial
             end
 
             function Dropdown:Close()
@@ -1504,7 +1513,7 @@ function OrionLibV2:MakeWindow(Info)
                 }):Play()
                 wait(0.3)
                 DropdownHolderCanvas.Visible = false
-                StopPositionUpdate() -- Para a atualização da posição
+                StopPositionUpdate()
             end
 
             function Dropdown:Display()
