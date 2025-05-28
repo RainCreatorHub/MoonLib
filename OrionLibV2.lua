@@ -536,7 +536,7 @@ function OrionLibV2:MakeWindow(Info)
                     Icon.Image = "rbxassetid://10709791437" -- Fallback icon
                 end
             else
-                Icon.Image = "rbxassetid://1" -- Fallback icon for invalid input
+                Icon.Image = "rbxassetid://10709791437" -- Fallback icon for invalid input
             end
         end
 
