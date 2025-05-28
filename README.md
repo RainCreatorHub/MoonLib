@@ -75,10 +75,10 @@ local Dropdown = Tab:AddDropdown({
 ## example of use
 ``` lua
 -- Load
-local OrionLibV2 = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua"))()
+local RainLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua"))()
 
 -- window
-local window = OrionLibV2:MakeWindow({
+local window = RainLib:MakeWindow({
     Title = "My Cheat GUI",
     SubTitle = "wow"
 })
