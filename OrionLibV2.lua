@@ -427,8 +427,6 @@ local Icons = {
     ["zoomout"] = "rbxassetid://10747385061"
 }
 
-local Icons = {}
-
 function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
 
