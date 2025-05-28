@@ -1,4 +1,4 @@
-local RainLib = {}
+local RainLibV2 = {}
 local Icons = {
 	["hi"] = "hii"
 }
@@ -102,13 +102,16 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
 
-function RainLib:MakeWindow(Info)
+function RainLibV2:MakeWindow(Info)
     local themeName = Info.Theme or "Dark"
-    -- Normalize theme name (accept "dark" as "Dark")
     themeName = (themeName:lower() == "dark" and "Dark") or themeName
-    local theme = Themes[themeName] or Themes.Dark -- Default to Dark if theme not found
+    local theme = Themes[themeName] or Themes.Dark
 
-    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+    local ScreenGui = Instance.new("ScreenGui")
+    if not pcall(function() ScreenGui.Parent = game.CoreGui end) then
+        warn("Failed to set ScreenGui parent to CoreGui, using PlayerGui instead.")
+        ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    end
     ScreenGui.Name = "CheatGUI"
 
     local window = Instance.new("Frame")
@@ -119,7 +122,8 @@ function RainLib:MakeWindow(Info)
     window.BackgroundColor3 = theme.WindowBackground
     window.Active = true
     window.Draggable = true
-    Instance.new("UICorner", window).CornerRadius = UDim.new(0, 12)
+    local windowCorner = Instance.new("UICorner", window)
+    windowCorner.CornerRadius = UDim.new(0, 12)
 
     local stroke = Instance.new("UIStroke", window)
     stroke.Thickness = 1.5
@@ -134,7 +138,7 @@ function RainLib:MakeWindow(Info)
     gradient.Rotation = 90
 
     local Title = Instance.new("TextLabel", window)
-    Title.Text = Info.Title or "RainLib"
+    Title.Text = Info.Title or "RainLibV2"
     Title.Size = UDim2.new(0, 300, 0, 30)
     Title.Position = UDim2.new(0, 10, 0, 5)
     Title.BackgroundTransparency = 1
@@ -144,7 +148,7 @@ function RainLib:MakeWindow(Info)
     Title.TextSize = 20
 
     local SubTitle = Instance.new("TextLabel", window)
-    SubTitle.Text = Info.SubTitle or "RainLib Subtitle"
+    SubTitle.Text = Info.SubTitle or "RainLibV2 Subtitle"
     SubTitle.Size = UDim2.new(0, 300, 0, 20)
     SubTitle.Position = UDim2.new(0, 10, 0, 35)
     SubTitle.BackgroundTransparency = 1
@@ -188,7 +192,8 @@ function RainLib:MakeWindow(Info)
         Button.Font = Enum.Font.Gotham
         Button.TextSize = 14
         Button.AutoButtonColor = false
-        Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+        local buttonCorner = Instance.new("UICorner", Button)
+        buttonCorner.CornerRadius = UDim.new(0, 6)
 
         local ContentFrame = Instance.new("Frame", Button)
         ContentFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -594,7 +599,8 @@ function RainLib:MakeWindow(Info)
             DropdownInner.AutoButtonColor = false
             DropdownInner.Text = ""
             DropdownInner.BorderSizePixel = 0
-            Instance.new("UICorner", DropdownInner).CornerRadius = UDim.new(0, 8)
+            local dropdownCorner = Instance.new("UICorner", DropdownInner)
+            dropdownCorner.CornerRadius = UDim.new(0, 8)
             local innerStroke = Instance.new("UIStroke", DropdownInner)
             innerStroke.Transparency = 0.5
             innerStroke.Color = Color3.fromRGB(100, 100, 100)
@@ -647,7 +653,8 @@ function RainLib:MakeWindow(Info)
             DropdownHolderFrame.Size = UDim2.fromScale(1, 0)
             DropdownHolderFrame.BackgroundColor3 = theme.DropdownListBackground
             DropdownHolderFrame.BackgroundTransparency = 0.1
-            Instance.new("UICorner", DropdownHolderFrame).CornerRadius = UDim.new(0, 8)
+            local holderCorner = Instance.new("UICorner", DropdownHolderFrame)
+            holderCorner.CornerRadius = UDim.new(0, 8)
             local holderStroke = Instance.new("UIStroke", DropdownHolderFrame)
             holderStroke.Color = Color3.fromRGB(100, 100, 100)
             holderStroke.Transparency = 1
@@ -686,19 +693,11 @@ function RainLib:MakeWindow(Info)
             end
 
             local function RecalculateListPosition()
-                if not DropdownInner or not window then
-                    print("Warning: DropdownInner or window is nil")
-                    return
-                end
+                if not DropdownInner or not window then return end
 
                 local buttonAbsPos = DropdownInner.AbsolutePosition
                 local windowAbsPos = window.AbsolutePosition
                 local windowSize = window.AbsoluteSize
-
-                if not buttonAbsPos or not windowAbsPos or not windowSize then
-                    print("Warning: Absolute positions or window size are not available")
-                    return
-                end
 
                 local buttonY = buttonAbsPos.Y
                 local relativeButtonY = buttonY - windowAbsPos.Y
@@ -719,14 +718,14 @@ function RainLib:MakeWindow(Info)
 
                 if listBottomIfDown > windowBottom then
                     if listTopIfUp >= windowTop then
-                        listY = (listTopIfUp - windowAbsPos.Y) - 5 -- Small offset for better visuals
+                        listY = (listTopIfUp - windowAbsPos.Y) - 5
                         opensUpward = true
                     else
                         listY = 0
                         opensUpward = true
                     end
                 else
-                    listY = relativeButtonY + 5 -- Small offset for better visuals
+                    listY = relativeButtonY + 5
                 end
 
                 local buttonX = buttonAbsPos.X
@@ -923,7 +922,8 @@ function RainLib:MakeWindow(Info)
                     button.ZIndex = 23
                     button.Text = ""
                     button.BackgroundColor3 = theme.DropdownListItemBackground
-                    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+                    local itemCorner = Instance.new("UICorner", button)
+                    itemCorner.CornerRadius = UDim.new(0, 6)
 
                     local checkmark = Instance.new("ImageLabel", button)
                     checkmark.Size = UDim2.fromOffset(14, 14)
@@ -1105,4 +1105,4 @@ function RainLib:MakeWindow(Info)
     return Tabs
 end
 
-return RainLib
+return RainLibV2
