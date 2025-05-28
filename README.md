@@ -16,7 +16,8 @@ local window = OrionLibV2:MakeWindow({
 ### tab
 ``` lua
 local Tab = window:MakeTab({
-    Name = "Tab 1"
+    Name = "Tab 1",
+    Icon = "User"
 })
 ```
 
