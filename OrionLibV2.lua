@@ -1104,3 +1104,5 @@ function RainLib:MakeWindow(Info)
 
     return Tabs
 end
+
+return RainLib
