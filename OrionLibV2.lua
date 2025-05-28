@@ -1002,30 +1002,10 @@ function OrionLibV2:MakeWindow(Info)
 
             local function RecalculateListPosition()
                 local canvasHeight = DropdownHolderCanvas.Size.Y.Offset
-                local buttonY = DropdownInner.AbsolutePosition.Y
-                local viewportHeight = Camera.ViewportSize.Y
-                local padding = 35 -- Space between button and list
-
-                -- Check available space above the button
-                local spaceAbove = buttonY
-                local spaceBelow = viewportHeight - (buttonY + DropdownInner.AbsoluteSize.Y)
-
-                -- Prefer opening above, but open below if there's not enough space above
-                if spaceAbove >= canvasHeight + padding then
-                    -- Open above
-                    DropdownHolderCanvas.Position = UDim2.fromOffset(
-                        DropdownInner.AbsolutePosition.X,
-                        buttonY - canvasHeight - padding
-                    )
-                    DropdownIco.Rotation = 0 -- Arrow points down (default for opening above)
-                else
-                    -- Open below
-                    DropdownHolderCanvas.Position = UDim2.fromOffset(
-                        DropdownInner.AbsolutePosition.X,
-                        buttonY + DropdownInner.AbsoluteSize.Y + padding - 30
-                    )
-                    DropdownIco.Rotation = 180 -- Arrow points up (indicating opening below)
-                end
+                DropdownHolderCanvas.Position = UDim2.fromOffset(
+                    DropdownInner.AbsolutePosition.X,
+                    DropdownInner.AbsolutePosition.Y - canvasHeight - 35
+                )
             end
 
             local ListSizeX = 0
@@ -1083,9 +1063,7 @@ function OrionLibV2:MakeWindow(Info)
                 Dropdown.Opened = true
                 TabScrollFrame.ScrollingEnabled = false
                 DropdownHolderCanvas.Visible = true
-                -- Recalculate position to ensure correct arrow direction
-                RecalculateListPosition()
-                -- Animation for opening (same as before)
+                TweenService:Create(DropdownIco, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
                 TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
                     Size = UDim2.fromScale(1, 1),
                     BackgroundTransparency = 0
@@ -1099,8 +1077,7 @@ function OrionLibV2:MakeWindow(Info)
             function Dropdown:Close()
                 Dropdown.Opened = false
                 TabScrollFrame.ScrollingEnabled = true
-                -- Reset arrow rotation to match the next opening direction
-                RecalculateListPosition()
+                TweenService:Create(DropdownIco, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
                 TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                     Size = UDim2.fromScale(1, 0),
                     BackgroundTransparency = 0.1
