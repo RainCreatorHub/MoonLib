@@ -530,7 +530,7 @@ function OrionLibV2:MakeWindow(Info)
             elseif string.match(TabInfo.Icon, "^rbxassetid://%d+$") then
                 Icon.Image = TabInfo.Icon
             else
-                Icon.Image = "rbxassetid://10709791437" -- Fallback icon
+                Icon.Image = "rbxassetid://1" -- Fallback icon
             end
         end
 
