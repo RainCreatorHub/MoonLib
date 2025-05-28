@@ -1,5 +1,5 @@
 local OrionLibV2 = {}
-local Icons = {
+         local Icons = {
 			["accessibility"] = "rbxassetid://10709751939",
 			["activity"] = "rbxassetid://10709752035",
 			["airvent"] = "rbxassetid://10709752131",
@@ -818,7 +818,9 @@ local Icons = {
 			["xsquare"] = "rbxassetid://10747384217",
 			["zoomin"] = "rbxassetid://10747384552",
 			["zoomout"] = "rbxassetid://10747384679"
-}
+                       }
+
+local RunService = game:GetService("RunService")
 
 function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
@@ -1414,11 +1416,31 @@ function OrionLibV2:MakeWindow(Info)
                 DropdownScrollFrame.CanvasSize = UDim2.fromOffset(0, DropdownListLayout.AbsoluteContentSize.Y)
             end
 
+            -- Inicializar a posição da lista
             RecalculateListPosition()
             RecalculateListSize()
 
-            DropdownInner:GetPropertyChangedSignal("AbsolutePosition"):Connect(RecalculateListPosition)
-            window:GetPropertyChangedSignal("AbsolutePosition"):Connect(RecalculateListPosition)
+            -- Usar RunService para atualizar a posição da lista em cada frame enquanto ela estiver aberta
+            local connection
+            local function StartPositionUpdate()
+                if not connection then
+                    connection = RunService.RenderStepped:Connect(function()
+                        if Dropdown.Opened then
+                            RecalculateListPosition()
+                        end
+                    end)
+                end
+            end
+
+            local function StopPositionUpdate()
+                if connection then
+                    connection:Disconnect()
+                    connection = nil
+                end
+            end
+
+            -- Atualizar a posição inicial
+            RecalculateListPosition()
 
             DropdownInner.MouseButton1Click:Connect(function()
                 if Dropdown.Opened then
@@ -1465,6 +1487,7 @@ function OrionLibV2:MakeWindow(Info)
                 TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {
                     Position = UDim2.new(0, 0, 0, -5)
                 }):Play()
+                StartPositionUpdate() -- Inicia a atualização da posição
             end
 
             function Dropdown:Close()
@@ -1481,6 +1504,7 @@ function OrionLibV2:MakeWindow(Info)
                 }):Play()
                 wait(0.3)
                 DropdownHolderCanvas.Visible = false
+                StopPositionUpdate() -- Para a atualização da posição
             end
 
             function Dropdown:Display()
