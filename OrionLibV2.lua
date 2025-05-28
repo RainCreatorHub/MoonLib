@@ -1396,7 +1396,7 @@ function OrionLibV2:MakeWindow(Info)
                 local buttonY = DropdownInner.AbsolutePosition.Y
                 DropdownHolderCanvas.Position = UDim2.fromOffset(
                     DropdownInner.AbsolutePosition.X - window.AbsolutePosition.X,
-                    buttonY - canvasHeight + 10 -- 5 studs acima + 10 studs para baixo
+                    buttonY - canvasHeight + 20 -- 10 studs abaixo + mais 10 studs abaixo
                 )
             end
 
