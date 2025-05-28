@@ -518,31 +518,28 @@ function OrionLibV2:MakeWindow(Info)
         Button.AutoButtonColor = false
         Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
-        -- Create a frame to hold icon and text
         local ContentFrame = Instance.new("Frame", Button)
         ContentFrame.Size = UDim2.new(1, 0, 1, 0)
         ContentFrame.BackgroundTransparency = 1
         ContentFrame.ClipsDescendants = true
 
-        -- Add icon if provided and valid
         local Icon
         if TabInfo.Icon and type(TabInfo.Icon) == "string" then
             Icon = Instance.new("ImageLabel", ContentFrame)
             Icon.Size = UDim2.new(0, 20, 0, 20)
             Icon.Position = UDim2.new(0, 5, 0.5, -10)
             Icon.BackgroundTransparency = 1
-            local iconKey = string.lower(TabInfo.Icon) -- Convert to lowercase for case-insensitive matching
+            local iconKey = string.lower(TabInfo.Icon)
             if Icons[iconKey] then
                 Icon.Image = Icons[iconKey]
             elseif string.match(TabInfo.Icon, "^rbxassetid://%d+$") then
                 Icon.Image = TabInfo.Icon
             else
-                Icon:Destroy() -- Remove icon if invalid
+                Icon:Destroy()
                 Icon = nil
             end
         end
 
-        -- Add text label, always offset as if an icon is present
         local TextLabel = Instance.new("TextLabel", ContentFrame)
         TextLabel.Text = TabInfo.Name or "Tab"
         TextLabel.Size = UDim2.new(1, -30, 1, 0)
@@ -879,15 +876,15 @@ function OrionLibV2:MakeWindow(Info)
             local stroke = Instance.new("UIStroke", container)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Transparency = 0.5
-            stroke.Thickness = 1.5
+            stroke.Thickness = 1
 
             local corner = Instance.new("UICorner", container)
-            corner.CornerRadius = UDim.new(0, 6)
+            corner.CornerRadius = UDim.new(0, 10)
 
             local title = Instance.new("TextLabel", container)
             title.Text = info.Name or "Dropdown"
-            title.Size = UDim2.new(1, -170, 0, 20)
-            title.Position = UDim2.new(0, 10, 0, 5)
+            title.Size = UDim2.new(0.6, -100, 0, 20)
+            title.Position = UDim2.new(0, 10, 0, 1)
             title.BackgroundTransparency = 1
             title.TextColor3 = Color3.fromRGB(255, 255, 255)
             title.Font = Enum.Font.GothamBold
@@ -897,8 +894,8 @@ function OrionLibV2:MakeWindow(Info)
 
             local description = Instance.new("TextLabel", container)
             description.Text = info.Description or ""
-            description.Size = UDim2.new(1, -170, 0, 15)
-            description.Position = UDim2.new(0, 10, 0, 25)
+            description.Size = UDim2.new(0.6, -100, 0, 20)
+            description.Position = UDim2.new(0, 10, 0, 20)
             description.BackgroundTransparency = 1
             description.TextColor3 = Color3.fromRGB(180, 180, 180)
             description.Font = Enum.Font.Gotham
@@ -920,23 +917,29 @@ function OrionLibV2:MakeWindow(Info)
             DropdownInner.Size = UDim2.new(0, 160, 0, 30)
             DropdownInner.Position = UDim2.new(1, -10, 0.5, 0)
             DropdownInner.AnchorPoint = Vector2.new(1, 0.5)
-            DropdownInner.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            DropdownInner.BackgroundTransparency = 0.9
+            DropdownInner.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            DropdownInner.BackgroundTransparency = 0
             DropdownInner.AutoButtonColor = false
             DropdownInner.Text = ""
             DropdownInner.BorderSizePixel = 0
-            Instance.new("UICorner", DropdownInner).CornerRadius = UDim.new(0, 5)
+            Instance.new("UICorner", DropdownInner).CornerRadius = UDim.new(0, 8)
             local innerStroke = Instance.new("UIStroke", DropdownInner)
             innerStroke.Transparency = 0.5
-            innerStroke.Color = Color3.fromRGB(80, 80, 80)
+            innerStroke.Color = Color3.fromRGB(100, 100, 100)
+            local innerGradient = Instance.new("UIGradient", DropdownInner)
+            innerGradient.Color = ColorSequence.new{
+                ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 60)),
+                ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+            }
+            innerGradient.Rotation = 90
 
             local DropdownDisplay = Instance.new("TextLabel", DropdownInner)
-            DropdownDisplay.Text = "Value"
-            DropdownDisplay.Size = UDim2.new(1, -30, 0, 14)
-            DropdownDisplay.Position = UDim2.new(0, 8, 0.5, 0)
+            DropdownDisplay.Text = ""
+            DropdownDisplay.Size = UDim2.new(1, -40, 0, 14)
+            DropdownDisplay.Position = UDim2.new(0, 12, 0.5, 0)
             DropdownDisplay.AnchorPoint = Vector2.new(0, 0.5)
             DropdownDisplay.BackgroundTransparency = 1
-            DropdownDisplay.TextColor3 = Color3.fromRGB(240, 240, 240)
+            DropdownDisplay.TextColor3 = Color3.fromRGB(220, 220, 220)
             DropdownDisplay.Font = Enum.Font.Gotham
             DropdownDisplay.TextSize = 13
             DropdownDisplay.TextXAlignment = Enum.TextXAlignment.Left
@@ -944,22 +947,24 @@ function OrionLibV2:MakeWindow(Info)
 
             local DropdownIco = Instance.new("ImageLabel", DropdownInner)
             DropdownIco.Image = "rbxassetid://10709790948"
-            DropdownIco.Size = UDim2.fromOffset(16, 16)
-            DropdownIco.Position = UDim2.new(1, -8, 0.5, 0)
+            DropdownIco.Size = UDim2.fromOffset(14, 14)
+            DropdownIco.Position = UDim2.new(1, -10, 0.5, 0)
             DropdownIco.AnchorPoint = Vector2.new(1, 0.5)
             DropdownIco.BackgroundTransparency = 1
-            DropdownIco.ImageColor3 = Color3.fromRGB(180, 180, 180)
+            DropdownIco.ImageColor3 = Color3.fromRGB(150, 150, 150)
+            DropdownIco.Rotation = 0
 
             local DropdownListLayout = Instance.new("UIListLayout")
-            DropdownListLayout.Padding = UDim.new(0, 3)
+            DropdownListLayout.Padding = UDim.new(0, 4)
+            DropdownListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
             local DropdownScrollFrame = Instance.new("ScrollingFrame")
-            DropdownScrollFrame.Size = UDim2.new(1, -5, 1, -10)
+            DropdownScrollFrame.Size = UDim2.new(1, -10, 1, -10)
             DropdownScrollFrame.Position = UDim2.fromOffset(5, 5)
             DropdownScrollFrame.BackgroundTransparency = 1
-            DropdownScrollFrame.ScrollBarThickness = 4
-            DropdownScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
-            DropdownScrollFrame.ScrollBarImageTransparency = 0.95
+            DropdownScrollFrame.ScrollBarThickness = 3
+            DropdownScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
+            DropdownScrollFrame.ScrollBarImageTransparency = 0.7
             DropdownScrollFrame.BorderSizePixel = 0
             DropdownScrollFrame.CanvasSize = UDim2.fromScale(0, 0)
             DropdownScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
@@ -967,12 +972,14 @@ function OrionLibV2:MakeWindow(Info)
             DropdownListLayout.Parent = DropdownScrollFrame
 
             local DropdownHolderFrame = Instance.new("Frame")
-            DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
-            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            Instance.new("UICorner", DropdownHolderFrame).CornerRadius = UDim.new(0, 7)
+            DropdownHolderFrame.Size = UDim2.fromScale(1, 0)
+            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            DropdownHolderFrame.BackgroundTransparency = 0.1
+            Instance.new("UICorner", DropdownHolderFrame).CornerRadius = UDim.new(0, 8)
             local holderStroke = Instance.new("UIStroke", DropdownHolderFrame)
-            holderStroke.Color = Color3.fromRGB(80, 80, 80)
-            holderStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+            holderStroke.Color = Color3.fromRGB(100, 100, 100)
+            holderStroke.Transparency = 1
+            holderStroke.Thickness = 1
             DropdownScrollFrame.Parent = DropdownHolderFrame
 
             local shadow = Instance.new("ImageLabel", DropdownHolderFrame)
@@ -980,34 +987,35 @@ function OrionLibV2:MakeWindow(Info)
             shadow.Image = "http://www.roblox.com/asset/?id=5554236805"
             shadow.ScaleType = Enum.ScaleType.Slice
             shadow.SliceCenter = Rect.new(23, 23, 277, 277)
-            shadow.Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30)
-            shadow.Position = UDim2.fromOffset(-15, -15)
+            shadow.Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(40, 40)
+            shadow.Position = UDim2.fromOffset(-20, -20)
             shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-            shadow.ImageTransparency = 0.1
+            shadow.ImageTransparency = 0.3
 
             local DropdownHolderCanvas = Instance.new("Frame", window)
             DropdownHolderCanvas.BackgroundTransparency = 1
-            DropdownHolderCanvas.Size = UDim2.fromOffset(170, 300)
+            DropdownHolderCanvas.Size = UDim2.fromOffset(170, 0)
             DropdownHolderCanvas.Visible = false
             DropdownHolderFrame.Parent = DropdownHolderCanvas
             local sizeConstraint = Instance.new("UISizeConstraint", DropdownHolderCanvas)
             sizeConstraint.MinSize = Vector2.new(170, 0)
 
             local function RecalculateListPosition()
-                local Add = 0
-                if Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y < DropdownHolderCanvas.AbsoluteSize.Y - 5 then
-                    Add = DropdownHolderCanvas.AbsoluteSize.Y - 5 - (Camera.ViewportSize.Y - DropdownInner.AbsolutePosition.Y) + 40
-                end
-                DropdownHolderCanvas.Position = UDim2.fromOffset(DropdownInner.AbsolutePosition.X - 1, DropdownInner.AbsolutePosition.Y - 5 - Add)
+                local canvasHeight = DropdownHolderCanvas.Size.Y.Offset
+                DropdownHolderCanvas.Position = UDim2.fromOffset(
+                    DropdownInner.AbsolutePosition.X,
+                    DropdownInner.AbsolutePosition.Y - canvasHeight - 35
+                )
             end
 
             local ListSizeX = 0
             local function RecalculateListSize()
+                local contentHeight = DropdownListLayout.AbsoluteContentSize.Y + 10
                 if #Dropdown.Values > 10 then
-                    DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, 392)
-                else
-                    DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, DropdownListLayout.AbsoluteContentSize.Y + 10)
+                    contentHeight = 390
                 end
+                DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, contentHeight)
+                RecalculateListPosition()
             end
 
             local function RecalculateCanvasSize()
@@ -1025,12 +1033,27 @@ function OrionLibV2:MakeWindow(Info)
                 else
                     Dropdown:Open()
                 end
+                TweenService:Create(DropdownInner, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = Dropdown.Opened and 0.2 or 0
+                }):Play()
+            end)
+
+            DropdownInner.MouseEnter:Connect(function()
+                TweenService:Create(innerStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(120, 120, 120)}):Play()
+                TweenService:Create(DropdownInner, TweenInfo.new(0.2), {BackgroundTransparency = 0.1}):Play()
+            end)
+            DropdownInner.MouseLeave:Connect(function()
+                if not Dropdown.Opened then
+                    TweenService:Create(innerStroke, TweenInfo.new(0.2), {Color = Color3.fromRGB(100, 100, 100)}):Play()
+                    TweenService:Create(DropdownInner, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play()
+                end
             end)
 
             UserInputService.InputBegan:Connect(function(Input)
                 if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
                     local AbsPos, AbsSize = DropdownHolderFrame.AbsolutePosition, DropdownHolderFrame.AbsoluteSize
-                    if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
+                    if not (Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X and
+                            Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y) then
                         Dropdown:Close()
                     end
                 end
@@ -1038,46 +1061,61 @@ function OrionLibV2:MakeWindow(Info)
 
             function Dropdown:Open()
                 Dropdown.Opened = true
-                TabContent.ScrollingEnabled = false
+                TabScrollFrame.ScrollingEnabled = false
                 DropdownHolderCanvas.Visible = true
-                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    Size = UDim2.fromScale(1, 1)
+                TweenService:Create(DropdownIco, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Rotation = 180}):Play()
+                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                    Size = UDim2.fromScale(1, 1),
+                    BackgroundTransparency = 0
+                }):Play()
+                TweenService:Create(holderStroke, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {Transparency = 0.5}):Play()
+                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quint), {
+                    Position = UDim2.new(0, 0, 0, -5)
                 }):Play()
             end
 
             function Dropdown:Close()
                 Dropdown.Opened = false
-                TabContent.ScrollingEnabled = true
-                DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
+                TabScrollFrame.ScrollingEnabled = true
+                TweenService:Create(DropdownIco, TweenInfo.new(0.3, Enum.EasingStyle.Quint), {Rotation = 0}):Play()
+                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    Size = UDim2.fromScale(1, 0),
+                    BackgroundTransparency = 0.1
+                }):Play()
+                TweenService:Create(holderStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Transparency = 1}):Play()
+                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    Position = UDim2.new(0, 0, 0, 10)
+                }):Play()
+                wait(0.3)
                 DropdownHolderCanvas.Visible = false
             end
 
             function Dropdown:Display()
                 local Str = ""
                 if Dropdown.Multi then
-                    for Value, Bool in next, Dropdown.Value do
+                    for Value, Bool in pairs(Dropdown.Value) do
                         if Bool then
                             Str = Str .. Value .. ", "
                         end
                     end
-                    Str = Str:sub(1, #Str - 2)
+                    Str = Str:sub(1, #Str - 1)
                 else
                     Str = Dropdown.Value or ""
                 end
-                DropdownDisplay.Text = (Str == "" and "--" or Str)
+                DropdownDisplay.Text = (Str == "" and "" or Str)
             end
 
             function Dropdown:GetActiveValues()
                 if Dropdown.Multi then
                     local T = {}
-                    for Value, Bool in next, Dropdown.Value do
+                    for Value, Bool in pairs(Dropdown.Value) do
                         if Bool then
                             table.insert(T, Value)
                         end
                     end
                     return T
                 else
-                    return Dropdown.Value and 1 or 0
+                    return Dropdown.Value and 1 or nil
                 end
             end
 
@@ -1089,36 +1127,37 @@ function OrionLibV2:MakeWindow(Info)
                 end
 
                 local Count = 0
-                local Buttons = {}
+                local DropdownList = {}
 
-                for _, Value in next, Dropdown.Values do
+                for _, Value in ipairs(Dropdown.Values) do
                     local Table = {}
                     Count = Count + 1
 
-                    local Button = Instance.new("TextButton", DropdownScrollFrame)
-                    Button.Size = UDim2.new(1, -5, 0, 32)
-                    Button.BackgroundTransparency = 1
-                    Button.ZIndex = 23
-                    Button.Text = ""
-                    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                    Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+                    local button = Instance.new("TextButton", DropdownScrollFrame)
+                    button.Size = UDim2.new(1, -5, 0, 34)
+                    button.BackgroundTransparency = 1
+                    button.ZIndex = 23
+                    button.Text = ""
+                    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
 
-                    local ButtonSelector = Instance.new("Frame", Button)
-                    ButtonSelector.Size = UDim2.fromOffset(4, 6)
-                    ButtonSelector.Position = UDim2.fromOffset(-1, 16)
-                    ButtonSelector.AnchorPoint = Vector2.new(0, 0.5)
-                    ButtonSelector.BackgroundColor3 = Color3.fromRGB(76, 194, 255)
-                    Instance.new("UICorner", ButtonSelector).CornerRadius = UDim.new(0, 2)
+                    local checkmark = Instance.new("ImageLabel", button)
+                    checkmark.Size = UDim2.fromOffset(14, 14)
+                    checkmark.Position = UDim2.new(0, 8, 0.5, 1)
+                    checkmark.BackgroundTransparency = 1
+                    checkmark.Image = "rbxassetid://1070976000"
+                    checkmark.ImageTransparency = 1
+                    checkmark.ImageColor3 = Color3.fromRGB(76, 194, 255)
 
-                    local ButtonLabel = Instance.new("TextLabel", Button)
-                    ButtonLabel.Text = Value
-                    ButtonLabel.Size = UDim2.fromScale(1, 1)
-                    ButtonLabel.Position = UDim2.fromOffset(10, 0)
-                    ButtonLabel.BackgroundTransparency = 1
-                    ButtonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-                    ButtonLabel.Font = Enum.Font.Gotham
-                    ButtonLabel.TextSize = 13
-                    ButtonLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    local buttonLabel = Instance.new("TextLabel", button)
+                    buttonLabel.Text = Value
+                    buttonLabel.Size = UDim2.new(1, -30, 1, 0)
+                    buttonLabel.Position = UDim2.fromOffset(30, 0)
+                    buttonLabel.BackgroundTransparency = 1
+                    buttonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    buttonLabel.Font = Enum.Font.Gotham
+                    buttonLabel.TextSize = 13
+                    buttonLabel.TextXAlignment = Enum.TextXAlignment.Left
 
                     local Selected
                     if Dropdown.Multi then
@@ -1127,81 +1166,80 @@ function OrionLibV2:MakeWindow(Info)
                         Selected = Dropdown.Value == Value
                     end
 
-                    local function UpdateButton()
+                    local function updateButton()
                         if Dropdown.Multi then
                             Selected = Dropdown.Value[Value]
                         else
                             Selected = Dropdown.Value == Value
                         end
-                        TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            BackgroundTransparency = Selected and 0.89 or 1
+                        TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                            BackgroundTransparency = Selected and 0.7 or 1
                         }):Play()
-                        TweenService:Create(ButtonSelector, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            BackgroundTransparency = Selected and 0 or 1,
-                            Size = UDim2.fromOffset(4, Selected and 14 or 6)
+                        TweenService:Create(checkmark, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                            ImageTransparency = (Dropdown.Multi and Selected) and 0 or 1
                         }):Play()
                     end
 
-                    Button.MouseEnter:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.85 or 0.89
+                    button.MouseEnter:Connect(function()
+                        TweenService:Create(button, TweenInfo.new(0.2), {
+                            BackgroundTransparency = Selected and 0.6 or 0.85,
+                            Size = UDim2.new(1, -5, 0, 35)
                         }):Play()
                     end)
-                    Button.MouseLeave:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.89 or 1
+                    button.MouseLeave:Connect(function()
+                        TweenService:Create(button, TweenInfo.new(0.2), {
+                            BackgroundTransparency = Selected and 0.7 or 1,
+                            Size = UDim2.new(1, -5, 0, 34)
                         }):Play()
                     end)
-                    Button.MouseButton1Down:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = 0.92
+                    button.MouseButton1:Connect(function()
+                        TweenService:Create(button, TweenInfo.new(0.1), {
+                            BackgroundTransparency = 0.5
                         }):Play()
                     end)
-                    Button.MouseButton1Up:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.85 or 0.89
+                    button.MouseButton1:Connect(function()
+                        TweenService:Create(button, TweenInfo.new(0.2), {
+                            BackgroundTransparency = Selected and 0.6 or 0.85
                         }):Play()
                     end)
 
-                    ButtonLabel.InputBegan:Connect(function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                            local Try = not Selected
-                            if Dropdown:GetActiveValues() == 1 and not Try and not info.AllowNull then
-                                -- Do nothing if AllowNull is false and trying to deselect the only selected value
+                    button.MouseButton1Click:Connect(function()
+                        local Try = not Selected
+                        if Dropdown:GetActiveValues() == 1 and not Try and not info.Multi then
+                            -- Do nothing if single selection and trying to deselect
+                        else
+                            if Dropdown.Multi then
+                                Selected = Try
+                                Dropdown.Value[Value] = Selected and true or nil
                             else
-                                if Dropdown.Multi then
-                                    Selected = Try
-                                    Dropdown.Value[Value] = Selected and true or nil
-                                else
-                                    Selected = Try
-                                    Dropdown.Value = Selected and Value or nil
-                                    for _, OtherButton in next, Buttons do
-                                        OtherButton:UpdateButton()
-                                    end
+                                Selected = Try
+                                Dropdown.Value = Selected and Value or nil
+                                for _, OtherButton in next, DropdownList do
+                                    OtherButton:UpdateButton()
                                 end
-                                Table:UpdateButton()
-                                Dropdown:Display()
-                                if Dropdown.Callback then
-                                    Dropdown.Callback(Dropdown.Value)
-                                end
+                            end
+                            Table:UpdateButton()
+                            Dropdown:Display()
+                            if Dropdown.Callback then
+                                Dropdown.Callback(Dropdown.Value)
                             end
                         end
                     end)
 
-                    Table.UpdateButton = UpdateButton
-                    Buttons[Button] = Table
+                    Table.UpdateButton = updateButton
+                    DropdownList[button] = Table
 
-                    UpdateButton()
+                    updateButton()
                     Dropdown:Display()
 
-                    if ButtonLabel.TextBounds.X > ListSizeX then
-                        ListSizeX = ButtonLabel.TextBounds.X
+                    if buttonLabel.TextBounds.X > ListSizeX then
+                        ListSizeX = buttonLabel.TextBounds.X + 40
                     end
                 end
 
-                ListSizeX = ListSizeX + 30
-                RecalculateCanvasSize()
+                ListSizeX = math.max(ListSizeX, 170)
                 RecalculateListSize()
+                RecalculateCanvasSize()
             end
 
             function Dropdown:SetValues(NewValues)
@@ -1232,7 +1270,6 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end
 
-            -- Initialize default value
             local Defaults = {}
             if type(info.Default) == "string" then
                 if table.find(Dropdown.Values, info.Default) then
@@ -1251,7 +1288,7 @@ function OrionLibV2:MakeWindow(Info)
             if next(Defaults) then
                 if Dropdown.Multi then
                     Dropdown.Value = {}
-                    for _, Value in next, Defaults do
+                    for _, Value in ipairs(Defaults) do
                         Dropdown.Value[Value] = true
                     end
                 else
@@ -1266,22 +1303,11 @@ function OrionLibV2:MakeWindow(Info)
             Dropdown:BuildDropdownList()
             Dropdown:Display()
 
-            -- Animate in
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
-            }):Play()
-            TweenService:Create(description, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
-            }):Play()
-            TweenService:Create(DropdownInner, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0.9
-            }):Play()
-            TweenService:Create(innerStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                Transparency = 0.5
-            }):Play()
+            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+            TweenService:Create(description, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+            TweenService:Create(DropdownInner, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+            TweenService:Create(innerStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Transparency = 0.5}):Play()
 
             elementY = elementY + 60
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
