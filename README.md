@@ -1,13 +1,13 @@
-# Orion Library V2
+# Rain Library V2
 
 ### Load
 ``` lua
-local OrionLibV2 = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua"))()
+local RainLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua"))()
 ```
 
 ### window
 ``` lua
-local window = OrionLibV2:MakeWindow({
+local window = RainLib:MakeWindow({
     Title = "My Cheat GUI",
     SubTitle = "wow"
 })
@@ -58,6 +58,20 @@ local Toggle = Tab:AddToggle({
 })
 ```
 
+### Dropdown ( Test )
+``` lua
+local Dropdown = Tab:AddDropdown({
+    Name = "Perks",
+    Description = "Choose your perks",
+    Values = {"Hi", "Hii", "Hiii"},
+    Default = {"Hi"},
+    Multi = false,
+    Callback = function(value)
+        print("Selected Mode: .. tostring(value))
+    end
+})
+```
+
 ## example of use
 ``` lua
 -- Load
@@ -100,6 +114,16 @@ local Toggle = Tab1:AddToggle({
     Default = false,
     Callback = function(state)
         print("Toggle: " .. tostring(state))
+    end
+})
+local Dropdown = Tab1:AddDropdown({
+    Name = "Perks",
+    Description = "Choose your perks",
+    Values = {"Hi", "Hii", "Hiii"},
+    Default = {"Hi"},
+    Multi = false,
+    Callback = function(value)
+        print("Selected Mode: .. tostring(value))
     end
 })
 ```
