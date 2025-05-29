@@ -819,7 +819,6 @@ local Icons = {
     ["zoomin"] = "rbxassetid://10747384552",
     ["zoomout"] = "rbxassetid://10747384679"
 }
-
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -1169,13 +1168,12 @@ function OrionLibV2:MakeWindow(Info)
             description.Font = Enum.Font.Gotham
             description.TextSize = 11
             description.TextXAlignment = Enum.TextXAlignment.Left
-            description.TextTransparency = 1
             description.TextWrapped = true
 
             local Toggle = {
                 Value = info.Default or false,
                 Callback = info.Callback or function() end,
-            }
+            })
 
             local toggleButton = Instance.new("TextButton", container)
             toggleButton.Size = UDim2.new(0, 40, 0, 20)
@@ -1200,7 +1198,7 @@ function OrionLibV2:MakeWindow(Info)
                 TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     BackgroundColor3 = Toggle.Value and Color3.fromRGB(76, 194, 255) or Color3.fromRGB(60, 60, 60)
                 }):Play()
-                TweenService:Create(toggleKnob, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                TweenService:Create(toggleKnob, TweenInfo.new(0.2, Enum.EasingStyle.Quad) {
                     Position = Toggle.Value and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
                 }):Play()
                 if Toggle.Callback then
@@ -1211,7 +1209,7 @@ function OrionLibV2:MakeWindow(Info)
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
-            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad) {
                 TextTransparency = 0
             }):Play()
             TweenService:Create(description, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
@@ -1228,7 +1226,7 @@ function OrionLibV2:MakeWindow(Info)
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
 
             return container
-        end
+        end)
 
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame", TabContent)
@@ -1236,20 +1234,20 @@ function OrionLibV2:MakeWindow(Info)
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
+            container.BorderSizePixel = 0
+
             local stroke = Instance.new("UIStroke", container)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Transparency = 0.5
-            stroke.Thickness = 1
-
             local corner = Instance.new("UICorner", container)
             corner.CornerRadius = UDim.new(0, 10)
 
             local title = Instance.new("TextLabel", container)
             title.Text = info.Name or "Dropdown"
-            title.Size = UDim2.new(0.6, -100, 0, 20)
+            title.Size = UDim2.new(0.6, 0, 0, 20)
             title.Position = UDim2.new(0, 10, 0, 1)
             title.BackgroundTransparency = 1
-            title.TextColor3 = Color3.fromRGB(255, 255, 255
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
             title.Font = Enum.Font.GothamBold
             title.TextSize = 14
             title.TextXAlignment = Enum.TextXAlignment.Left
@@ -1272,20 +1270,18 @@ function OrionLibV2:MakeWindow(Info)
                 Value = info.Default,
                 Multi = info.Multi or false,
                 Buttons = {},
-                Dropdown = false,
+                Opened = false,
                 Callback = info.Callback or function() end,
-            }
+            })
 
             local DropdownInner = Instance.new("TextButton", container)
             DropdownInner.Size = UDim2.new(0, 160, 0, 30)
-            DropdownInner.Position = UDim2.new(1, -10, 0.5, 0)
-            DropdownInner.BackgroundColorPoint = Vector2.new(1, 0.5)
+            DropdownInner.Position = UDim2.new(1, -170, 0.5, -15)
             DropdownInner.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             DropdownInner.BackgroundTransparency = 0
-            DropdownInner.AutoButtonColor = False
+            DropdownInner.AutoButtonColor = false
             DropdownInner.Text = ""
-            DropdownInner.BackgroundColorPixel = 0
-            Instance.new("FrameCorner", DropdownInner).CornerRadius = UDim.new(0, 8)
+            Instance.new("UICorner", DropdownInner).CornerRadius = UDim.new(0, 8)
             local innerStroke = Instance.new("UIStroke", DropdownInner)
             innerStroke.Transparency = 0.5
             innerStroke.Color = Color3.fromRGB(100, 100, 100)
@@ -1293,116 +1289,97 @@ function OrionLibV2:MakeWindow(Info)
             innerGradient.Color = ColorSequence.new({
                 ColorSequenceKeypoint.new(0, Color3.fromRGB(60, 60, 60)),
                 ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
-            )
+            })
             innerGradient.Rotation = 90
 
-            local DropdownDisplay = Instance.new("TextLabel", DropdownInner)
-            DropdownDisplay.Text = ""
-            DropdownDisplay.Size = UDim2.new(1, -40, 0, 14)
-            DropdownDisplay.Position = UDim2.new(0, 12, 0.5, 0)
-            DropdownDisplay.BackgroundColorPoint = Vector2.new(0, 0.5)
-            DropdownDisplay.BackgroundTransparency = 1
-            DropdownDisplay.TextColor3 = Color3.fromRGB(220, 220, 220)
-            DropdownDisplay.TextFont = Enum.Font.Gotham
-            DropdownDisplay.TextXSize = 13
-            DropdownDisplay.TextXAlignment = Enum.TextXAlignment.Left
-            local DropdownIco = Instance.new("ImageLabel", DropdownInner)
-            DropdownIco.Image = "rbxassetid://10709790948"
-            DropdownIco.Size = UDim2.fromOffset(14, 14)
-            DropdownIco.Position = UDim2.new(1, -10, 0.5, 0)
-            DropdownIco.BackgroundColorPoint = Vector2.new(1, 0.5)
-            DropdownIco.BackgroundTransparency = 1
-            DropdownIco.ImageColor3 = Color3.fromRGB(150, 150, 150)
-            DropdownIco.ImageRotation = 0
+            local DropdownLabel = Instance.new("TextLabel", DropdownInner)
+            DropdownLabel.Text = Dropdown.Value or ""
+            DropdownLabel.Size = UDim2.new(1, -40, 1, 0)
+            DropdownLabel.Position = UDim2.new(0, 12, 0, 0)
+            DropdownLabel.BackgroundTransparency = 1
+            DropdownLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+            DropdownLabel.Font = Enum.Font.Gotham
+            DropdownLabel.TextSize = 13
+            DropdownLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-            local DropdownListLayout = Instance.new("UIListLayout")
-            DropdownListLayout.Padding = UDim.new(0, 4)
-            DropdownListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            local DropdownIcon = Instance.new("ImageLabel", DropdownInner)
+            DropdownIcon.Image = "rbxassetid://10709790948"
+            DropdownIcon.Size = UDim2.new(0, 14, 0, 14)
+            DropdownIcon.Position = UDim2.new(1, -24, 0.5, -7)
+            DropdownIcon.BackgroundTransparency = 1
+            DropdownIcon.ImageColor3 = Color3.fromRGB(150, 150, 150)
 
-            local DropdownScrollFrame = Instance.new("ScrollingFrame")
-            DropdownScrollFrame.Size = UDim2.new(1, -10, -10, 1)
-            DropdownScrollFrame.Position = UDim2.fromOffset(5, 5)
+            local DropdownHolderCanvas = Instance.new("Frame", window)
+            DropdownHolderCanvas.BackgroundTransparency = 1
+            DropdownHolderCanvas.Size = UDim2.new(0, 170, 0, 0)
+            DropdownHolderCanvas.Visible = false
+            DropdownHolderCanvas.ZIndex = 10
+
+            local DropdownHolderFrame = Instance.new("Frame", DropdownHolderCanvas)
+            DropdownHolderFrame.Size = UDim2.new(1, 0, 1, 0)
+            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            Instance.new("UICorner", DropdownHolderFrame).CornerRadius = UDim.new(0, 8)
+            local holderStroke = Instance.new("UIStroke", DropdownHolderFrame)
+            holderStroke.Color = Color3.fromRGB(100, 100, 100)
+            holderStroke.Transparency = 0.5
+
+            local shadow = Instance.new("ImageLabel", DropdownHolderFrame)
+            shadow.BackgroundTransparency = 1
+            shadow.Image = "rbxassetid://5554236805"
+            shadow.ScaleType = Enum.ScaleType.Slice
+            shadow.SliceCenter = Rect.new(23, 23, 277, 277)
+            shadow.Size = UDim2.new(1, 40, 1, 40)
+            shadow.Position = UDim2.new(0, -20, 0, -20)
+            shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+            shadow.ImageTransparency = 0.3
+            shadow.ZIndex = 9
+
+            local DropdownScrollFrame = Instance.new("ScrollingFrame", DropdownHolderFrame)
+            DropdownScrollFrame.Size = UDim2.new(1, -10, 1, -10)
+            DropdownScrollFrame.Position = UDim2.new(0, 5, 0, 5)
             DropdownScrollFrame.BackgroundTransparency = 1
             DropdownScrollFrame.ScrollBarThickness = 3
             DropdownScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 80)
             DropdownScrollFrame.ScrollBarImageTransparency = 0.7
-            DropdownScrollBar.BackgroundColorPixel = 0
-            DropdownScrollFrame.CanvasSize = UDim2.fromOffset(0, 0
+            DropdownScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
             DropdownScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
-            DropdownScrollBar.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-            DropdownListLayout.Parent = DropdownScrollFrame
+            DropdownScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            DropdownScrollFrame.ZIndex = 11
 
-            local DropdownHolderFrame = Instance.new("Frame")
-            DropdownHolderFrame.Size = UDim2.fromOffset(1, 0)
-            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-            DropdownHolderFrame.BackgroundTransparency = 0.1
-            Instance.new("FrameCorner", DropdownHolderFrame).CornerRadius = UDim.new(0, 8)
-            local holderStroke = Instance.new("UIStroke", DropdownHolderFrame)
-            holderStroke.Color = Color3.fromRGB(100, 100, 100)
-            holderStroke.BackgroundTransparency = 1
-            holderStroke.Visible = True
-            DropdownHolderFrame.Parent = DropdownScrollFrame
-
-            local shadow = Instance.new("ImageLabel", DropdownHolderFrame)
-            shadow.BackgroundTransparency = 1
-            shadow.Image = "http://www.roblox.com/shadow/asset/?id=5554236805"
-            shadow.ScaleType = Enum.ImageScaleType.Slice
-            shadow.SliceCenter = Rect.new(23, 23, 277, 277)
-            shadow.Size = UDim2.fromOffset(1, 1) + UDim2.fromOffset(40, 40)
-            shadow.Position = UDim2.fromOffset(-20, -20)
-            shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-            shadow.ImageTransparency = 0.3
-
-            local DropdownHolderCanvas = Instance.new("Frame", window)
-            DropdownHolderCanvas.BackgroundTransparency = 1
-            DropdownHolderCanvas.Size = UDim2.fromOffset(170, -0)
-            DropdownHolderCanvas.Visible = false
-            DropdownHolderFrame.Parent = DropdownHolderCanvas
-            local sizeConstraint = Instance.new("UISizeConstraint", DropdownHolderCanvas)
-            sizeConstraint.MinSize = Vector2.new(170, 0)
+            local DropdownListLayout = Instance.new("UIListLayout", DropdownScrollFrame)
+            DropdownListLayout.Padding = UDim.new(0, 4)
+            DropdownListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
             local function RecalculateListPosition()
-                local buttonAbsPos = DropdownInner.PositionAbsolutePosition
-                local windowAbsPos = window.PositionAbsolutePosition
-
-                DropdownHolderCanvas.Position = UDim2.fromOffset(
-                    buttonAbsPos.X - windowAbsPos.X,
-                    buttonAbsPos.Y - windowAbsPos.Y + DropdownInner.PositionAbsoluteSize.Y + 5
+                local buttonAbsPos = DropdownInner.AbsolutePosition
+                local buttonAbsSize = DropdownInner.AbsoluteSize
+                local windowAbsPos = window.AbsolutePosition
+                DropdownHolderCanvas.Position = UDim2.new(
+                    0, buttonAbsPos.X - windowAbsPos.X,
+                    0, buttonAbsPos.Y - windowAbsPos.Y + buttonAbsSize.Y + 5
                 )
             end
 
-            local ListSizeX = 0
             local function RecalculateListSize()
-                local contentHeight = DropdownListLayout.PositionAbsoluteContentSize.Y + 10
-                if #Dropdown.Values > 10 then
-                    contentHeight = 390
-                end
-                DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, contentHeight)
+                local contentHeight = DropdownListLayout.AbsoluteContentSize.Y + 10
+                contentHeight = math.min(contentHeight, 390)
+                DropdownHolderCanvas.Size = UDim2.new(0, 170, 0, contentHeight)
+                DropdownScrollFrame.Size = UDim2.new(1, -10, 1, -10)
                 RecalculateListPosition()
             end
 
             local function RecalculateCanvasSize()
-                DropdownScrollFrame.CanvasSize = UDim2.fromOffset(0, DropdownListLayout.PositionAbsoluteContentSize.Y)
+                DropdownScrollFrame.CanvasSize = UDim2.new(0, 0, 0, DropdownListLayout.AbsoluteContentSize.Y)
             end
 
-            spawn(function()
-                wait(0.1)
-                RecalculateListSize()
-                RecalculateCanvasSize()
-            end)
-
-            window.Changed:Connect(function(property)
-                if property == "Position" then
-                    DropdownRecalculateListPosition()
-                end
-            end)
-
             local isDragging = false
-            local connection
+            local dragConnection
+            local inputConnection
+
             local function StartPositionUpdate()
-                if not connection then
-                    connection = RunService:ConnectRenderStepped(function()
-                        if Dropdown.DownOpened and isDragging then
+                if not dragConnection then
+                    dragConnection = RunService.RenderStepped:Connect(function()
+                        if Dropdown.Opened and isDragging then
                             RecalculateListPosition()
                         end
                     end)
@@ -1410,335 +1387,330 @@ function OrionLibV2:MakeWindow(Info)
             end
 
             local function StopPositionUpdate()
-                if connection then
-                    connection:Unconnect()
-                    connection = nil
+                if dragConnection then
+                    dragConnection:Disconnect()
+                    dragConnection = nil
                 end
             end
 
-            window.MouseDown:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseDownButton1 then
-                    isDragging = true
-                    StartPositionUpdate()
-                end
-            end)
+            UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 and Dropdown.Opened and not gameProcessed then
+                    local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+                    local holderAbsPos = DropdownHolderFrame.AbsolutePosition
+                    local holderAbsSize = DropdownHolderFrame.AbsoluteSize
+                    local innerAbsPos = DropdownInner.AbsolutePosition
+                    local innerAbsSize = DropdownInner.AbsoluteSize
 
-            window.MouseUp:Connect(function(input)
-                if input.UserTypeInput == Enum.UserInputType.MouseUpButton1 then
-                    isDragging = false
-                end
-            end)
+                    local isOutsideHolder = not (
+                        mousePos.X >= holderAbsPos.X and mousePos.X <= holderAbsPos.X + holderAbsSize.X and
+                        mousePos.Y >= holderAbsPos.Y and mousePos.Y <= holderAbsPos.Y + holderAbsSize.Y
+                    )
+                    local isOutsideInner = not (
+                        mousePos.X >= innerAbsPos.X and mousePos.X <= innerAbsPos.X + innerAbsSize.X and
+                        mousePos.Y >= innerAbsPos.Y and mousePos.Y <= innerAbsPos.Y + innerAbsSize.Y
+                    )
 
-            DropdownInner.MouseDown:Connect(function()
-                if Dropdown.Down then
-                    Dropdown:Unconnect()
-                else
-                    Dropdown:Open()
-                end
-                TweenService:Create(DropdownInner, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                    BackgroundTransparency = Dropdown.Down and 0.2 or 0
-                }):Play()
-            end)
-
-            DropdownInner.MouseEnter:Connect(function()
-                TweenService:Connect(innerStroke, TweenInfo.new(0.2, Enum.EasingStyle), {
-                    Color = Color3.fromRGB(120, 120, 120)
-                }):Play()
-                TweenService:Connect(DropdownHolder, TweenInfo.new(0.2, Enum.EasingStyle), {
-                    BackgroundTransparency = 0.1
-            }):Play()
-            end)
-
-            DropdownInner.MouseLeave:Connect(function()
-                if Dropdown not.Down then
-                    TweenService:Connect(innerStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                        Color = Color3.fromRGB(100, 100, 100)
-                    }):Play()
-                    TweenService:Connect(DropdownInner, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                        BackgroundTransparency = 0
-                    }):Play()
-                end
-            end)
-
-            UserInputService:Input.DownConnect(function(input)
-                if Dropdown.Down and input.UserInputType == Enum.UserInputType.MouseDownButton1 then
-                    local mousePos = Vector2.new(MouseDown.X, Mouse.Y)
-                    local absPos = DropdownHolderFrame.PositionAbsolutePosition
-                    local absSize = DropdownHolderFrame.SizeAbsoluteSize
-                    local isOutside = not (mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
-                                        mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.YY)
-                    local isInDropdownInner = DropdownInner:IsAncestorOfElement(game:GetService("GuiService"):GetFocusedGuiElement())
-                    local isInScrollFrame = Dropdown:IsAncestorOf(game:GetService("GuiScrollFrameService"):GetFocusedGuiElement())
-
-                    if isOutside and not isInDropdownInner and not isInScrollFrame then
+                    if isOutsideHolder and isOutsideInner then
                         Dropdown:Close()
                     end
                 end
             end)
 
-            function Dropdown:Open()
-                Dropdown.Down = true
-                TabScrollBarFrame.VisibleEnabled = false
-                DropdownHolderCanvas.Visible = true
-                TweenService:Create(DropdownIcoo, TweenInfo.new(0.3, Enum.EasingStyle, Enum.EasingDirection), {
-                    ImageRotation = 180
-                }):Play()
-                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.4, Enum.EasingStyle, Enum.EasingDirection, Enum.Easing), {
-                    Size = UDim2.fromScale(1, 1),
-                    BackgroundTransparency = 0
-                }):Play()
+            window.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    isDragging = true
+                    StartPositionUpdate()
+                end
             end)
 
+            window.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    isDragging = false
+                    StopPositionUpdate()
+                end
+            end)
+
+            function Dropdown:Open()
+                Dropdown.Opened = true
+                TabScrollFrame.ScrollingEnabled = false
+                DropdownHolderCanvas.Visible = true
+                TweenService:Create(DropdownIcon, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    Rotation = 180
+                }):Play()
+                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
+                }):Play()
+                TweenService:Create(DropdownInner, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0.2
+                }):Play()
+            end
+
             function Dropdown:Close()
-                Dropdown.Down = false
+                Dropdown.Opened = false
                 TabScrollFrame.ScrollingEnabled = true
-                TweenService:Create(DropdownIco, TweenInfo.new(0.3, Enum.EasingStyle, Enum.Easing), {
-                    ImageRotation = 0
+                TweenService:Create(DropdownIcon, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    Rotation = 0
                 }):Play()
-                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.3, Enum.EasingStyle, Enum.Hasing), {
-                    Size = UDim2.fromScale(1, 0),
-                    BackgroundTransparency = 0.1
+                TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0.5
                 }):Play()
-                TweenService:Create(DropHolderholder(), TweenInfo.new(0.3, Enum.HasingStyle), {
-                    Transparency = 1
+                TweenService:Create(DropdownInner, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
                 }):Play()
                 wait(0.3)
                 DropdownHolderCanvas.Visible = false
                 StopPositionUpdate()
+            end
+
+            DropdownInner.MouseButton1Click:Connect(function()
+                if Dropdown.Opened then
+                    Dropdown:Close()
+                else
+                    Dropdown:Open()
+                end
+            end)
+
+            DropdownInner.MouseEnter:Connect(function()
+                TweenService:Create(innerStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                    Color = Color3.fromRGB(120, 120, 120)
+                }):Play()
+                TweenService:Create(DropdownInner, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0.1
+                }):Play()
+            end)
+
+            DropdownInner.MouseLeave:Connect(function()
+                if not Dropdown.Opened then
+                    TweenService:Create(innerStroke, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                        Color = Color3.fromRGB(100, 100, 100)
+                    }):Play()
+                    TweenService:Create(DropdownInner, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                        BackgroundTransparency = 0
+                    }):Play()
+                end
             end)
 
             function Dropdown:Display()
-                local Str = ""
-                if Dropdown.M then
-                    for Value, Value in pairs(Dropdown.Value) do
-                        if Bool then
-                            Str = Str .. Value .. ", "
+                local text = ""
+                if Dropdown.Multi then
+                    local active = {}
+                    for value, selected in pairs(Dropdown.Value) do
+                        if selected then
+                            table.insert(active, value)
                         end
                     end
-                    Str = Str:sub(1, #Str - 1)
+                    text = table.concat(active, ", ")
                 else
-                    Str = Dropdown.Value or ""
+                    text = Dropdown.Value or ""
                 end
-                DropdownDisplay.Text = (Str == "" and "" or Str)
+                DropdownLabel.Text = text == "" and "None" or text
             end
 
             function Dropdown:GetActiveValues()
-                if Dropdown.M then
-                    local T = {}
-                    for Value, Bool in pairs(Dropdown.Value) do
-                        if Bool then
-                            table.insert(T, Value)
+                if Dropdown.Multi then
+                    local active = {}
+                    for value, selected in pairs(Dropdown.Value) do
+                        if selected then
+                            table.insert(active, value)
                         end
                     end
-                    return T
+                    return active
                 else
-                    return Dropdown.Value and 1 or nil
+                    return Dropdown.Value
                 end
             end
 
             function Dropdown:BuildDropdownList()
-                for _, Element in next, DropdownScrollFrame:GetChildren() do
-                    if not Element:IsA("UIListLayout") then
-                        Element:Destroy()
+                for _, child in ipairs(DropdownScrollFrame:GetChildren()) do
+                    if child:IsA("TextButton") then
+                        child:Destroy()
                     end
                 end
 
-                local Count = 0
-                local DropdownList = {}
+                Dropdown.Buttons = {}
+                local buttonHeight = 34
+                local count = 0
 
-                for _, Value in ipairs(Dropdown.Values) do
-                    local Table = {}
-                    Count = Count + 1
-
+                for _, value in ipairs(Dropdown.Values) do
+                    count = count + 1
                     local button = Instance.new("TextButton", DropdownScrollFrame)
-                    button.Size = UDim2.new(1, -5, 0, 34)
-                    button.BackgroundTransparency = 1
-                    button.ZIndex = 23
-                    button.Text = ""
+                    button.Size = UDim2.new(1, -5, 0, buttonHeight)
                     button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                    button.BackgroundTransparency = 1
+                    button.Text = ""
+                    button.ZIndex = 12
                     Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
 
                     local checkmark = Instance.new("ImageLabel", button)
-                    checkmark.Size = UDim2.fromOffset(14, 14)
-                    checkmark.Position = UDim2.new(0, 8, 0.5, 0)
+                    checkmark.Size = UDim2.new(0, 14, 0, 14)
+                    checkmark.Position = UDim2.new(0, 8, 0.5, -7)
                     checkmark.BackgroundTransparency = 1
-                    checkmark.Image = "rbxassetid://1070976000"
+                    checkmark.Image = "rbxassetid://10709790644"
                     checkmark.ImageTransparency = 1
                     checkmark.ImageColor3 = Color3.fromRGB(76, 194, 255)
+                    checkmark.ZIndex = 13
 
                     local buttonLabel = Instance.new("TextLabel", button)
-                    buttonLabel.Text = Value
+                    buttonLabel.Text = tostring(value)
                     buttonLabel.Size = UDim2.new(1, -30, 1, 0)
-                    buttonLabel.Position = UDim2.fromOffset(30, 0)
+                    buttonLabel.Position = UDim2.new(0, 30, 0, 0)
                     buttonLabel.BackgroundTransparency = 1
                     buttonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
                     buttonLabel.Font = Enum.Font.Gotham
                     buttonLabel.TextSize = 13
                     buttonLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    buttonLabel.ZIndex = 13
 
-                    local Selected
+                    local selected
                     if Dropdown.Multi then
-                        Selected = Dropdown.Value[Value]
+                        selected = Dropdown.Value[value] or false
                     else
-                        Selected = Dropdown.Value == Value
+                        selected = Dropdown.Value == value
                     end
 
                     local function updateButton()
                         if Dropdown.Multi then
-                            Selected = Dropdown.Value[Value]
+                            selected = Dropdown.Value[value] or false
                         else
-                            Selected = Dropdown.Value == Value
+                            selected = Dropdown.Value == value
                         end
                         TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            BackgroundTransparency = Selected and 0.7 or 1
+                            BackgroundTransparency = selected and 0.7 or 1
                         }):Play()
                         TweenService:Create(checkmark, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            ImageTransparency = (Dropdown.Multi and Selected) and 0 or 1
+                            ImageTransparency = (Dropdown.Multi and selected) and 0 or 1
                         }):Play()
                     end
 
                     button.MouseEnter:Connect(function()
-                        TweenService:Create(button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.6 or 0.85,
-                            Size = UDim2.new(1, -5, 0, 35)
+                        TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                            BackgroundTransparency = selected and 0.6 or 0.85,
+                            Size = UDim2.new(1, -5, 0, buttonHeight + 1)
                         }):Play()
                     end)
+
                     button.MouseLeave:Connect(function()
-                        TweenService:Create(button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.7 or 1,
-                            Size = UDim2.new(1, -5, 0, 34)
+                        TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                            BackgroundTransparency = selected and 0.7 or 1,
+                            Size = UDim2.new(1, -5, 0, buttonHeight)
                         }):Play()
                     end)
+
                     button.MouseButton1Down:Connect(function()
-                        TweenService:Create(button, TweenInfo.new(0.1), {
+                        TweenService:Create(button, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {
                             BackgroundTransparency = 0.5
                         }):Play()
                     end)
+
                     button.MouseButton1Up:Connect(function()
-                        TweenService:Create(button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.6 or 0.85
+                        TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                            BackgroundTransparency = selected and 0.6 or 0.85
                         }):Play()
                     end)
 
                     button.MouseButton1Click:Connect(function()
-                        local Try = not Selected
-                        if Dropdown:GetActiveValues() == 1 and not Try and not info.Multi then
-                            -- Do nothing if single selection and trying to deselect
+                        if Dropdown.Multi then
+                            Dropdown.Value[value] = not Dropdown.Value[value]
                         else
-                            if Dropdown.Multi then
-                                Selected = Try
-                                Dropdown.Value[Value] = Selected and true or nil
+                            if Dropdown.Value == value then
+                                Dropdown.Value = nil
                             else
-                                Selected = Try
-                                Dropdown.Value = Selected and Value or nil
-                                for _, OtherButton in next, DropdownList do
-                                    OtherButton:UpdateButton()
-                                end
+                                Dropdown.Value = value
                             end
-                            Table:UpdateButton()
-                            Dropdown:Display()
-                            if Dropdown.Callback then
-                                Dropdown.Callback(Dropdown.Value)
+                            for _, btn in pairs(Dropdown.Buttons) do
+                                btn:Update()
                             end
+                        end
+                        updateButton()
+                        Dropdown:Display()
+                        if Dropdown.Callback then
+                            Dropdown.Callback(Dropdown:GetActiveValues())
                         end
                     end)
 
-                    Table.UpdateButton = updateButton
-                    DropdownList[button] = Table
-
+                    Dropdown.Buttons[button] = { Update = updateButton }
                     updateButton()
-                    Dropdown:Display()
-
-                    if buttonLabel.TextBounds.X > ListSizeX then
-                        ListSizeX = buttonLabel.TextBounds.X + 40
-                    end
                 end
 
-                ListSizeX = math.max(ListSizeX, 170)
-                Dropdown:RecalculateListSize()
-                DropdownRecalculateCanvasSize()
+                RecalculateCanvasSize()
+                RecalculateListSize()
             end
 
-            function Dropdown:SetValues(NewValues)
-                if NewValues then
-                    Dropdown.Values = NewValues
+            function Dropdown:SetValues(newValues)
+                Dropdown.Values = newValues or Dropdown.Values
+                if Dropdown.Multi then
+                    Dropdown.Value = Dropdown.Value or {}
+                else
+                    Dropdown.Value = Dropdown.Value or nil
                 end
                 Dropdown:BuildDropdownList()
-            end)
+                Dropdown:Display()
+            end
 
-            function Dropdown:SetValue(Val)
-                if Dropdown.M then
-                    local nTable = {}
-                    for _, Value in next ipairs(Val) do
-                        if Dropdown.find(Dropdown.Values, value) then
-                            nTable[Value] = true
+            function Dropdown:SetValue(value)
+                if Dropdown.Multi then
+                    Dropdown.Value = {}
+                    if type(value) == "table" then
+                        for _, val in ipairs(value) do
+                            if table.find(Dropdown.Values, val) then
+                                Dropdown.Value[val] = true
+                            end
                         end
                     end
-                    Dropdown.Value = nTable
                 else
-                    if not Val or Dropdown.find(Dropdown.Values, value) then
-                        Dropdown.Value = Val
-                    end
-                else
-                    Dropdown:BuildDropdownList()
-                    Dropdown:Display()
-                    if Dropdown.Callback then
-                        Dropdown.Callback(Dropdown.Value)
+                    if value == nil or table.find(Dropdown.Values, value) then
+                        Dropdown.Value = value
                     end
                 end
-            local Defaults = {}
-            if type(info.Default) == "string" then
-                if Dropdown.find(Dropdown.Values, info.Default) then
-                    Dropdown.insert(Defaults.Dropdown, info.Default)
+                Dropdown:BuildDropdownList()
+                Dropdown:Display()
+                if Dropdown.Callback then
+                    Dropdown.Callback(Dropdown:GetActiveValues())
                 end
-            elseif type(info.Default) == "table" then
-                for _, Value in next ipairs(Dropdown.Default) do
-                    if Dropdown.find(Dropdown.Values, value) then
-                        Dropdown.insert(Defaults, value)
-                    end
-                end
-            elseif type(info.Default) == "number" and Dropdown.Values[info.Default] then
-                Dropdown.insert(Defaults, Dropdown.Values[info.Default])
             end
 
-            if next(Defaults) then
-                Dropdown.M then
+            if Dropdown.Multi then
                 Dropdown.Value = {}
-                for _, Value in ipairs(Defaults) do
-                    Dropdown.Value[Value] = true
-                else
-                Dropdown.Value = Defaults[1]
+                if type(info.Default) == "table" then
+                    for _, value in ipairs(info.Default) do
+                        if table.find(Dropdown.Values, value) then
+                            Dropdown.Value[value] = true
+                        end
+                    end
+                elseif info.Default and table.find(Dropdown.Values, info.Default) then
+                    Dropdown.Value[info.Default] = true
+                end
             else
-            if Dropdown then
-                Dropdown.Value = {}
-            else
-                Dropdown.Value = nil
+                if type(info.Default) == "string" and table.find(Dropdown.Values, info.Default) then
+                    Dropdown.Value = info.Default
+                elseif type(info.Default) == "number" and Dropdown.Values[info.Default] then
+                    Dropdown.Value = Dropdown.Values[info.Default]
+                end
             end
 
-            Dropdown:BuildDropdown()
-            DropdownDisplay()
-            end
+            Dropdown:BuildDropdownList()
+            Dropdown:Display()
 
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle), {
-                BackgroundTransparency = UDim0
-            }):Play()
-            TweenService:Create(Dropdown, TweenInfo.new(0.3, Enum.EasingStyle), {
-                TextTransparency = 0
-            }):Play()
-            TweenService:Create(description, TweenInfo.new(0.3, Enum.EasingStyle), {
-                TextTransparency = UDim2(0
-            }):Play()
-            TweenService:Create(DropdownInner, TweenInfo.new(0.3, Enum.EasingStyle), {
+            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
-            TweenService:Create(innerStroke, TweenInfo.new(0.3, Enum.EasingStyle), {
+            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                TextTransparency = 0
+            }):Play()
+            TweenService:Create(description, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                TextTransparency = 0
+            }):Play()
+            TweenService:Create(DropdownInner, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                BackgroundTransparency = 0
+            }):Play()
+            TweenService:Create(innerStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 Transparency = 0.5
             }):Play()
 
             elementY = elementY + 60
-            TabContent.CanvasSize = UDim2.fromOffset(0, 0, 0, elementY)
+            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
 
-            return container
+            return Dropdown
         end
 
         return TabFunctions
