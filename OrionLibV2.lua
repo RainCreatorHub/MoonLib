@@ -825,9 +825,9 @@ local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
 
-function OrionLibV2:MakeWindow(Info)
-    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-    ScreenGui.Name = "CheatGUI"
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CheatGUI"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
     local window = Instance.new("Frame")
     window.Name = "MainWindow"
