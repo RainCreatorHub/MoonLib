@@ -819,6 +819,7 @@ local Icons = {
     ["zoomin"] = "rbxassetid://10747384552",
     ["zoomout"] = "rbxassetid://10747384679"
 }
+
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -1168,12 +1169,13 @@ function OrionLibV2:MakeWindow(Info)
             description.Font = Enum.Font.Gotham
             description.TextSize = 11
             description.TextXAlignment = Enum.TextXAlignment.Left
+            description.TextTransparency = 1
             description.TextWrapped = true
 
             local Toggle = {
                 Value = info.Default or false,
                 Callback = info.Callback or function() end,
-            })
+            }
 
             local toggleButton = Instance.new("TextButton", container)
             toggleButton.Size = UDim2.new(0, 40, 0, 20)
@@ -1198,7 +1200,7 @@ function OrionLibV2:MakeWindow(Info)
                 TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     BackgroundColor3 = Toggle.Value and Color3.fromRGB(76, 194, 255) or Color3.fromRGB(60, 60, 60)
                 }):Play()
-                TweenService:Create(toggleKnob, TweenInfo.new(0.2, Enum.EasingStyle.Quad) {
+                TweenService:Create(toggleKnob, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     Position = Toggle.Value and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
                 }):Play()
                 if Toggle.Callback then
@@ -1209,7 +1211,7 @@ function OrionLibV2:MakeWindow(Info)
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
-            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad) {
+            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 TextTransparency = 0
             }):Play()
             TweenService:Create(description, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
@@ -1226,7 +1228,7 @@ function OrionLibV2:MakeWindow(Info)
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
 
             return container
-        end)
+        end
 
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame", TabContent)
@@ -1272,7 +1274,7 @@ function OrionLibV2:MakeWindow(Info)
                 Buttons = {},
                 Opened = false,
                 Callback = info.Callback or function() end,
-            })
+            }
 
             local DropdownInner = Instance.new("TextButton", container)
             DropdownInner.Size = UDim2.new(0, 160, 0, 30)
