@@ -1,4 +1,4 @@
--- MoonLib UI Library para Roblox
+-- MoonLib UI Library para Roblox (adaptado para executor)
 local MoonLib = {}
 MoonLib.__index = MoonLib
 
@@ -337,3 +337,6 @@ function MoonLib:MakeWindow(config)
 
     return window
 end
+
+-- Retornar a MoonLib
+return MoonLib
