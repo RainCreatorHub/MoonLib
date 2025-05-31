@@ -338,5 +338,5 @@ function MoonLib:MakeWindow(config)
     return window
 end
 
--- Retornar a MoonLib
+-- Retornar a biblioteca MoonLib
 return MoonLib
