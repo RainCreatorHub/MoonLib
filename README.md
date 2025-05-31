@@ -16,8 +16,7 @@ local window = RainLib:MakeWindow({
 ### tab
 ``` lua
 local Tab = window:MakeTab({
-    Name = "Tab 1",
-    Icon = "User"
+    Name = "Tab 1"
 })
 ```
 
@@ -58,7 +57,7 @@ local Toggle = Tab:AddToggle({
 })
 ```
 
-### Dropdown ( Test )
+### Dropdown ( Not Found )
 ``` lua
 local Dropdown = Tab:AddDropdown({
     Name = "Perks",
@@ -112,18 +111,13 @@ local Toggle = Tab1:AddToggle({
     Name = "Toggle",
     Description = "toggle description!",
     Default = false,
-    Callback = function(state)
-        print("Toggle: " .. tostring(state))
-    end
-})
-local Dropdown = Tab1:AddDropdown({
-    Name = "Perks",
-    Description = "Choose your perks",
-    Values = {"Hi", "Hii", "Hiii"},
-    Default = {"Hi"},
-    Multi = false,
     Callback = function(value)
-        print("Selected Mode: .. tostring(value))
+      if value == true then
+        print("Toggle: on)
+      end
+      if value == false then
+        print("Toggle: off")
+      end
     end
 })
 ```
