@@ -35,15 +35,15 @@ function MoonLib:MakeWindow(config)
     -- Definir cores e estilos modernos
     local colors = {
         Dark = {
-            FrameBg = Color3.fromRGB(25, 25, 25), -- Fundo mais escuro e elegante
-            DragBarBg = Color3.fromRGB(35, 35, 40), -- Gradiente base
-            TitleText = Color3.fromRGB(255, 215, 0), -- Ouro suave
+            FrameBg = Color3.fromRGB(25, 25, 25),
+            DragBarBg = Color3.fromRGB(35, 35, 40),
+            TitleText = Color3.fromRGB(255, 215, 0),
             SubtitleText = Color3.fromRGB(150, 150, 160),
             ConfirmFrameBg = Color3.fromRGB(40, 40, 45),
             TabBg = Color3.fromRGB(30, 30, 35),
             TabSelectedBg = Color3.fromRGB(50, 50, 60),
             TabText = Color3.fromRGB(200, 200, 210),
-            Accent = Color3.fromRGB(0, 120, 255), -- Azul vibrante como destaque
+            Accent = Color3.fromRGB(0, 120, 255),
             Shadow = Color3.fromRGB(0, 0, 0)
         },
         Light = {
@@ -67,10 +67,10 @@ function MoonLib:MakeWindow(config)
     screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
     screenGui.ResetOnSpawn = false
 
-    -- Criar Frame principal da janela (500x370 pixels)
+    -- Criar Frame principal da janela (350x250 pixels)
     local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 500, 0, 370)
-    frame.Position = UDim2.new(0.5, -250, 0.5, -185)
+    frame.Size = UDim2.new(0, 350, 0, 250)
+    frame.Position = UDim2.new(0.5, -175, 0.5, -125)
     frame.BackgroundColor3 = themeColors.FrameBg
     frame.BorderSizePixel = 0
     frame.Parent = screenGui
@@ -80,7 +80,7 @@ function MoonLib:MakeWindow(config)
     shadow.Size = UDim2.new(1, 10, 1, 10)
     shadow.Position = UDim2.new(0, -5, 0, -5)
     shadow.BackgroundTransparency = 1
-    shadow.Image = "rbxassetid://6014261993" -- Sombra padrão do Roblox
+    shadow.Image = "rbxassetid://6014261993"
     shadow.ImageColor3 = themeColors.Shadow
     shadow.ImageTransparency = 0.7
     shadow.Parent = frame
@@ -92,12 +92,12 @@ function MoonLib:MakeWindow(config)
 
     -- Animação de entrada
     local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local tween = TweenService:Create(frame, tweenInfo, {Size = UDim2.new(0, 500, 0, 370), Position = UDim2.new(0.5, -250, 0.5, -185)})
+    local tween = TweenService:Create(frame, tweenInfo, {Size = UDim2.new(0, 350, 0, 250), Position = UDim2.new(0.5, -175, 0.5, -125)})
     tween:Play()
 
     -- DragBar
     local dragBar = Instance.new("Frame")
-    dragBar.Size = UDim2.new(1, 0, 0, 60)
+    dragBar.Size = UDim2.new(1, 0, 0, 50)
     dragBar.Position = UDim2.new(0, 0, 0, 0)
     dragBar.BackgroundColor3 = themeColors.DragBarBg
     dragBar.BorderSizePixel = 0
@@ -118,7 +118,7 @@ function MoonLib:MakeWindow(config)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Text = window.Title
     titleLabel.TextColor3 = themeColors.TitleText
-    titleLabel.TextSize = 20
+    titleLabel.TextSize = 18
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.Parent = dragBar
@@ -126,28 +126,28 @@ function MoonLib:MakeWindow(config)
     -- Subtítulo na DragBar (abaixo do título)
     local subtitleLabel = Instance.new("TextLabel")
     subtitleLabel.Size = UDim2.new(0.7, -10, 0, 20)
-    subtitleLabel.Position = UDim2.new(0, 15, 0, 35)
+    subtitleLabel.Position = UDim2.new(0, 15, 0, 25)
     subtitleLabel.BackgroundTransparency = 1
     subtitleLabel.Text = window.SubTitle
     subtitleLabel.TextColor3 = themeColors.SubtitleText
-    subtitleLabel.TextSize = 16
+    subtitleLabel.TextSize = 14
     subtitleLabel.Font = Enum.Font.Gotham
     subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     subtitleLabel.Parent = dragBar
 
     -- Botão X na DragBar (direita)
     local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 40, 0, 40)
-    closeButton.Position = UDim2.new(1, -45, 0, 10)
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -35, 0, 10)
     closeButton.BackgroundColor3 = themeColors.Accent
     closeButton.Text = "X"
     closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    closeButton.TextSize = 20
+    closeButton.TextSize = 18
     closeButton.Font = Enum.Font.GothamBold
     closeButton.Parent = dragBar
 
     local cornerButton = Instance.new("UICorner")
-    cornerButton.CornerRadius = UDim.new(0, 8)
+    cornerButton.CornerRadius = UDim.new(0, 6)
     cornerButton.Parent = closeButton
 
     -- Animação do botão X ao passar o mouse
@@ -158,10 +158,10 @@ function MoonLib:MakeWindow(config)
         TweenService:Create(closeButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = themeColors.Accent}):Play()
     end)
 
-    -- Frame de confirmação (100x70 pixels)
+    -- Frame de confirmação (200x150 pixels)
     local confirmFrame = Instance.new("Frame")
-    confirmFrame.Size = UDim2.new(0, 100, 0, 70)
-    confirmFrame.Position = UDim2.new(0.5, -50, 0.5, -35)
+    confirmFrame.Size = UDim2.new(0, 200, 0, 150)
+    confirmFrame.Position = UDim2.new(0.5, -100, 0.5, -75)
     confirmFrame.BackgroundColor3 = themeColors.ConfirmFrameBg
     confirmFrame.Visible = false
     confirmFrame.Parent = frame
@@ -172,20 +172,20 @@ function MoonLib:MakeWindow(config)
 
     -- Animação de entrada do confirmFrame
     confirmFrame.MouseEnter:Connect(function()
-        TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 110, 0, 80)}):Play()
+        TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 210, 0, 160)}):Play()
     end)
     confirmFrame.MouseLeave:Connect(function()
-        TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 100, 0, 70)}):Play()
+        TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 200, 0, 150)}):Play()
     end)
 
     -- Botão Sim
     local yesButton = Instance.new("TextButton")
-    yesButton.Size = UDim2.new(0, 40, 0, 25)
-    yesButton.Position = UDim2.new(0, 10, 1, -30)
+    yesButton.Size = UDim2.new(0, 80, 0, 30)
+    yesButton.Position = UDim2.new(0, 20, 1, -40)
     yesButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
     yesButton.Text = "Sim"
     yesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    yesButton.TextSize = 14
+    yesButton.TextSize = 16
     yesButton.Font = Enum.Font.Gotham
     yesButton.Parent = confirmFrame
 
@@ -203,12 +203,12 @@ function MoonLib:MakeWindow(config)
 
     -- Botão Não
     local noButton = Instance.new("TextButton")
-    noButton.Size = UDim2.new(0, 40, 0, 25)
-    noButton.Position = UDim2.new(1, -50, 1, -30)
+    noButton.Size = UDim2.new(0, 80, 0, 30)
+    noButton.Position = UDim2.new(1, -100, 1, -40)
     noButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
     noButton.Text = "Não"
     noButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    noButton.TextSize = 14
+    noButton.TextSize = 16
     noButton.Font = Enum.Font.Gotham
     noButton.Parent = confirmFrame
 
@@ -226,8 +226,8 @@ function MoonLib:MakeWindow(config)
 
     -- Área para abas (vertical, à esquerda)
     local tabBar = Instance.new("Frame")
-    tabBar.Size = UDim2.new(0, 120, 1, -60) -- Aumentei a largura para 120
-    tabBar.Position = UDim2.new(0, 0, 0, 60)
+    tabBar.Size = UDim2.new(0, 90, 1, -50)
+    tabBar.Position = UDim2.new(0, 0, 0, 50)
     tabBar.BackgroundTransparency = 1
     tabBar.Parent = frame
 
@@ -239,26 +239,26 @@ function MoonLib:MakeWindow(config)
 
     -- Área para conteúdo das abas
     local containerHolder = Instance.new("Frame")
-    containerHolder.Size = UDim2.new(1, -120, 1, -60) -- Ajustado para a nova largura da tabBar
-    containerHolder.Position = UDim2.new(0, 120, 0, 60)
+    containerHolder.Size = UDim2.new(1, -90, 1, -50)
+    containerHolder.Position = UDim2.new(0, 90, 0, 50)
     containerHolder.BackgroundTransparency = 1
     containerHolder.Parent = frame
 
     -- Lógica do botão X (suporte para PC e mobile)
     closeButton.Activated:Connect(function()
-        TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 100, 0, 70), Position = UDim2.new(0.5, -50, 0.5, -35), BackgroundTransparency = 0}):Play()
+        TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 200, 0, 150), Position = UDim2.new(0.5, -100, 0.5, -75), BackgroundTransparency = 0}):Play()
         confirmFrame.Visible = true
     end)
 
-    -- Lógica do botão Sim
+    -- Lógica do botão Sim (exclui o Gui)
     yesButton.Activated:Connect(function()
-        TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
         wait(0.3)
         screenGui:Destroy()
         print(string.format("Window '%s' closed", window.Title))
     end)
 
-    -- Lógica do botão Não
+    -- Lógica do botão Não (fecha apenas o ConfirmFrame)
     noButton.Activated:Connect(function()
         TweenService:Create(confirmFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
         wait(0.3)
@@ -313,7 +313,7 @@ function MoonLib:MakeWindow(config)
 
         -- Criar botão da aba com animação
         local tabButton = Instance.new("TextButton")
-        tabButton.Size = UDim2.new(1, 0, 0, 40)
+        tabButton.Size = UDim2.new(1, 0, 0, 35)
         tabButton.BackgroundColor3 = themeColors.TabBg
         tabButton.Text = tab.Name
         tabButton.TextColor3 = themeColors.TabText
@@ -322,7 +322,7 @@ function MoonLib:MakeWindow(config)
         tabButton.Parent = tabBar
 
         local tabCorner = Instance.new("UICorner")
-        tabCorner.CornerRadius = UDim.new(0, 8)
+        tabCorner.CornerRadius = UDim.new(0, 6)
         tabCorner.Parent = tabButton
 
         -- Animação da aba ao passar o mouse
@@ -367,9 +367,9 @@ function MoonLib:MakeWindow(config)
         -- Lógica de seleção da aba com animação
         tabButton.Activated:Connect(function()
             window:SelectTab(tabIndex)
-            TweenService:Create(tabButton, TweenInfo.new(0.3, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, 45)}):Play()
+            TweenService:Create(tabButton, TweenInfo.new(0.3, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, 40)}):Play()
             wait(0.3)
-            TweenService:Create(tabButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, 40)}):Play()
+            TweenService:Create(tabButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 0, 35)}):Play()
         end)
 
         window.Tabs[tabIndex] = tab
