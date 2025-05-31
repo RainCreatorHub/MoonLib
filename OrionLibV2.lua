@@ -17,7 +17,11 @@ function MoonLib:MakeWindow(config)
         Title = config.Title or "MoonLib Window",
         SubTitle = config.SubTitle or "",
         Theme = config.Theme or "Dark",
-        Visible = true
+        Visible = true,
+        Tabs = {},
+        Containers = {},
+        SelectedTab = 0,
+        TabCount = 0
     }
 
     -- Validar tema
@@ -34,14 +38,20 @@ function MoonLib:MakeWindow(config)
             DragBarBg = Color3.fromRGB(40, 40, 40),
             TitleText = Color3.fromRGB(255, 255, 255),
             SubtitleText = Color3.fromRGB(200, 200, 200),
-            ConfirmFrameBg = Color3.fromRGB(50, 50, 50)
+            ConfirmFrameBg = Color3.fromRGB(50, 50, 50),
+            TabBg = Color3.fromRGB(35, 35, 35),
+            TabSelectedBg = Color3.fromRGB(60, 60, 60),
+            TabText = Color3.fromRGB(255, 255, 255)
         },
         Light = {
             FrameBg = Color3.fromRGB(200, 200, 200),
             DragBarBg = Color3.fromRGB(220, 220, 220),
             TitleText = Color3.fromRGB(0, 0, 0),
             SubtitleText = Color3.fromRGB(50, 50, 50),
-            ConfirmFrameBg = Color3.fromRGB(180, 180, 180)
+            ConfirmFrameBg = Color3.fromRGB(180, 180, 180),
+            TabBg = Color3.fromRGB(210, 210, 210),
+            TabSelectedBg = Color3.fromRGB(180, 180, 180),
+            TabText = Color3.fromRGB(0, 0, 0)
         }
     }
     local themeColors = colors[window.Theme]
@@ -154,6 +164,26 @@ function MoonLib:MakeWindow(config)
     cornerNo.CornerRadius = UDim.new(0, 2)
     cornerNo.Parent = noButton
 
+    -- Área para abas (vertical, à esquerda)
+    local tabBar = Instance.new("Frame")
+    tabBar.Size = UDim2.new(0, 100, 1, -50) -- Largura 100, altura menos a DragBar
+    tabBar.Position = UDim2.new(0, 0, 0, 50)
+    tabBar.BackgroundTransparency = 1
+    tabBar.Parent = frame
+
+    local tabLayout = Instance.new("UIListLayout")
+    tabLayout.FillDirection = Enum.FillDirection.Vertical
+    tabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    tabLayout.Padding = UDim.new(0, 5)
+    tabLayout.Parent = tabBar
+
+    -- Área para conteúdo das abas
+    local containerHolder = Instance.new("Frame")
+    containerHolder.Size = UDim2.new(1, -100, 1, -50) -- Restante da janela, menos a tabBar
+    containerHolder.Position = UDim2.new(0, 100, 0, 50)
+    containerHolder.BackgroundTransparency = 1
+    containerHolder.Parent = frame
+
     -- Lógica do botão X (suporte para PC e mobile)
     closeButton.Activated:Connect(function()
         confirmFrame.Visible = true
@@ -202,13 +232,104 @@ function MoonLib:MakeWindow(config)
         end
     end)
 
-    -- Métodos da janela
+    -- Método para criar abas
+    function window:MakeTab(config)
+        if not config or type(config) ~= "table" or not config.Name then
+            error("Configuração de aba inválida: é necessário passar uma tabela com 'Name'")
+        end
+
+        window.TabCount = window.TabCount + 1
+        local tabIndex = window.TabCount
+
+        local tab = {
+            Name = config.Name,
+            Selected = false
+        }
+
+        -- Criar botão da aba
+        local tabButton = Instance.new("TextButton")
+        tabButton.Size = UDim2.new(1, 0, 0, 34)
+        tabButton.BackgroundColor3 = themeColors.TabBg
+        tabButton.Text = tab.Name
+        tabButton.TextColor3 = themeColors.TabText
+        tabButton.TextSize = 12
+        tabButton.Font = Enum.Font.SourceSans
+        tabButton.Parent = tabBar
+
+        local tabCorner = Instance.new("UICorner")
+        tabCorner.CornerRadius = UDim.new(0, 6)
+        tabCorner.Parent = tabButton
+
+        -- Criar container da aba
+        local containerFrame = Instance.new("ScrollingFrame")
+        containerFrame.Size = UDim2.new(1, 0, 1, 0)
+        containerFrame.BackgroundTransparency = 1
+        containerFrame.Visible = false
+        containerFrame.ScrollBarThickness = 3
+        containerFrame.ScrollBarImageColor3 = themeColors.TabText
+        containerFrame.ScrollBarImageTransparency = 0.95
+        containerFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        containerFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+        containerFrame.Parent = containerHolder
+
+        local containerLayout = Instance.new("UIListLayout")
+        containerLayout.Padding = UDim.new(0, 5)
+        containerLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        containerLayout.Parent = containerFrame
+
+        local containerPadding = Instance.new("UIPadding")
+        containerPadding.PaddingRight = UDim.new(0, 10)
+        containerPadding.PaddingLeft = UDim.new(0, 1)
+        containerPadding.PaddingTop = UDim.new(0, 1)
+        containerPadding.PaddingBottom = UDim.new(0, 1)
+        containerPadding.Parent = containerFrame
+
+        -- Atualizar CanvasSize automaticamente
+        containerLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            containerFrame.CanvasSize = UDim2.new(0, 0, 0, containerLayout.AbsoluteContentSize.Y + 2)
+        end)
+
+        -- Lógica de seleção da aba
+        tabButton.Activated:Connect(function()
+            window:SelectTab(tabIndex)
+        end)
+
+        window.Tabs[tabIndex] = tab
+        window.Containers[tabIndex] = containerFrame
+        tab.Frame = tabButton
+        tab.Container = containerFrame
+
+        print(string.format("Created tab: %s", tab.Name))
+
+        -- Selecionar a primeira aba automaticamente
+        if window.TabCount == 1 then
+            window:SelectTab(1)
+        end
+
+        return tab
+    end
+
+    -- Método para selecionar aba
+    function window:SelectTab(tabIndex)
+        if window.Tabs[tabIndex] then
+            window.SelectedTab = tabIndex
+            for i, tab in pairs(window.Tabs) do
+                tab.Selected = (i == tabIndex)
+                tab.Frame.BackgroundColor3 = tab.Selected and themeColors.TabSelectedBg or themeColors.TabBg
+                window.Containers[i].Visible = tab.Selected
+            end
+            print(string.format("Selected tab: %s", window.Tabs[tabIndex].Name))
+        end
+    end
+
+    -- Método da janela
     function window:GetInfo()
         return {
             Title = self.Title,
             SubTitle = self.SubTitle,
             Theme = self.Theme,
-            Visible = self.Visible
+            Visible = self.Visible,
+            Tabs = self.TabCount
         }
     end
 
