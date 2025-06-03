@@ -73,6 +73,131 @@ function OrionLibV2:MakeWindow(Info)
     local Tabs = {}  
     local TabList = {}  
 
+    -- Notification Function
+    function window:Notify(NotifyInfo)
+        local notifyFrame = Instance.new("Frame", ScreenGui)
+        notifyFrame.Size = UDim2.new(0, 300, 0, 150)
+        notifyFrame.Position = UDim2.new(1, -320, 1, -170) -- Bottom right corner
+        notifyFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        notifyFrame.BackgroundTransparency = 1
+        Instance.new("UICorner", notifyFrame).CornerRadius = UDim.new(0, 12)
+
+        local stroke = Instance.new("UIStroke", notifyFrame)
+        stroke.Thickness = 1.5
+        stroke.Color = Color3.fromRGB(0, 0, 0)
+        stroke.Transparency = 0.4
+
+        local notifyTitle = Instance.new("TextLabel", notifyFrame)
+        notifyTitle.Text = NotifyInfo.Title or "Notification"
+        notifyTitle.Size = UDim2.new(1, -20, 0, 30)
+        notifyTitle.Position = UDim2.new(0, 10, 0, 10)
+        notifyTitle.BackgroundTransparency = 1
+        notifyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        notifyTitle.Font = Enum.Font.GothamBold
+        notifyTitle.TextSize = 18
+        notifyTitle.TextXAlignment = Enum.TextXAlignment.Left
+        notifyTitle.TextTransparency = 1
+
+        local notifySubTitle = Instance.new("TextLabel", notifyFrame)
+        notifySubTitle.Text = NotifyInfo.SubTitle or "Description"
+        notifySubTitle.Size = UDim2.new(1, -20, 0, 40)
+        notifySubTitle.Position = UDim2.new(0, 10, 0, 40)
+        notifySubTitle.BackgroundTransparency = 1
+        notifySubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+        notifySubTitle.Font = Enum.Font.Gotham
+        notifySubTitle.TextSize = 14
+        notifySubTitle.TextXAlignment = Enum.TextXAlignment.Left
+        notifySubTitle.TextWrapped = true
+        notifySubTitle.TextTransparency = 1
+
+        -- Fade-in animation
+        TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            BackgroundTransparency = 0
+        }):Play()
+        TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TextTransparency = 0
+        }):Play()
+        TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TextTransparency = 0
+        }):Play()
+
+        -- Handle Request and Options
+        if NotifyInfo.Request and NotifyInfo.Options then
+            local buttonContainer = Instance.new("Frame", notifyFrame)
+            buttonContainer.Size = UDim2.new(1, -20, 0, 40)
+            buttonContainer.Position = UDim2.new(0, 10, 1, -50)
+            buttonContainer.BackgroundTransparency = 1
+
+            for i, option in ipairs(NotifyInfo.Options) do
+                local button = Instance.new("TextButton", buttonContainer)
+                button.Size = UDim2.new(0, 120, 0, 30)
+                button.Position = UDim2.new((i - 1) * 0.5, 10, 0, 5)
+                button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                button.TextColor3 = Color3.fromRGB(255, 255, 255)
+                button.Font = Enum.Font.GothamBold
+                button.TextSize = 14
+                button.Text = option
+                button.TextTransparency = 1
+                button.BackgroundTransparency = 0.3
+                Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+                TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 0,
+                    BackgroundTransparency = 0
+                }):Play()
+
+                button.MouseEnter:Connect(function()
+                    TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
+                end)
+                button.MouseLeave:Connect(function()
+                    TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+                end)
+
+                button.MouseButton1Click:Connect(function()
+                    if NotifyInfo.Callback and typeof(NotifyInfo.Callback) == "function" then
+                        NotifyInfo.Callback(option)
+                    end
+                    -- Fade-out animation
+                    TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                        BackgroundTransparency = 1
+                    }):Play()
+                    TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                        TextTransparency = 1
+                    }):Play()
+                    TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                        TextTransparency = 1
+                    }):Play()
+                    for _, btn in ipairs(buttonContainer:GetChildren()) do
+                        if btn:IsA("TextButton") then
+                            TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                                TextTransparency = 1,
+                                BackgroundTransparency = 1
+                            }):Play()
+                        end
+                    end
+                    wait(0.3)
+                    notifyFrame:Destroy()
+                end)
+            end
+        else
+            -- Auto-close after 3 seconds if no request
+            spawn(function()
+                wait(3)
+                TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 1
+                }):Play()
+                TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 1
+                }):Play()
+                TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 1
+                }):Play()
+                wait(0.3)
+                notifyFrame:Destroy()
+            end)
+        end
+    end
+
     function Tabs:MakeTab(TabInfo)  
         local Button = Instance.new("TextButton", TabScrollFrame)  
         Button.Size = UDim2.new(0, 120, 0, 30)  
@@ -371,208 +496,10 @@ function OrionLibV2:MakeWindow(Info)
             return container  
         end  
 
-        function TabFunctions:Notify(Info)
-            local Root = script.Parent.Parent
-            local Flipper = require(Root.Packages.Flipper)
-            local Creator = require(Root.Creator)
-            local Acrylic = require(Root.Acrylic)
-
-            local Spring = Flipper.Spring.new
-            local Instant = Flipper.Instant.new
-            local New = Creator.New
-
-            local Notification = {}
-            Notification.Holder = New("Frame", {
-                Position = UDim2.new(1, -30, 1, -30),
-                Size = UDim2.new(0, 310, 1, -30),
-                AnchorPoint = Vector2.new(1, 1),
-                BackgroundTransparency = 1,
-                Parent = window, -- Vincula ao frame principal da janela
-            }, {
-                New("UIListLayout", {
-                    HorizontalAlignment = Enum.HorizontalAlignment.Center,
-                    SortOrder = Enum.SortOrder.LayoutOrder,
-                    VerticalAlignment = Enum.VerticalAlignment.Bottom,
-                    Padding = UDim.new(0, 20),
-                }),
-            })
-
-            local Config = Info or {}
-            Config.Title = Config.Title or "Title"
-            Config.Content = Config.Content or "Content"
-            Config.SubContent = Config.SubContent or ""
-            Config.Duration = Config.Duration or nil
-            local NewNotification = {
-                Closed = false,
-            }
-
-            NewNotification.AcrylicPaint = Acrylic.AcrylicPaint()
-
-            NewNotification.Title = New("TextLabel", {
-                Position = UDim2.new(0, 14, 0, 17),
-                Text = Config.Title,
-                RichText = true,
-                TextColor3 = Color3.fromRGB(255, 255, 255),
-                TextTransparency = 0,
-                FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-                TextSize = 13,
-                TextXAlignment = "Left",
-                TextYAlignment = "Center",
-                Size = UDim2.new(1, -12, 0, 12),
-                TextWrapped = true,
-                BackgroundTransparency = 1,
-                ThemeTag = {
-                    TextColor3 = "Text",
-                },
-            })
-
-            NewNotification.ContentLabel = New("TextLabel", {
-                FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-                Text = Config.Content,
-                TextColor3 = Color3.fromRGB(240, 240, 240),
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                AutomaticSize = Enum.AutomaticSize.Y,
-                Size = UDim2.new(1, 0, 0, 14),
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                BackgroundTransparency = 1,
-                TextWrapped = true,
-                ThemeTag = {
-                    TextColor3 = "Text",
-                },
-            })
-
-            NewNotification.SubContentLabel = New("TextLabel", {
-                FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-                Text = Config.SubContent,
-                TextColor3 = Color3.fromRGB(240, 240, 240),
-                TextSize = 14,
-                TextXAlignment = Enum.TextXAlignment.Left,
-                AutomaticSize = Enum.AutomaticSize.Y,
-                Size = UDim2.new(1, 0, 0, 14),
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                BackgroundTransparency = 1,
-                TextWrapped = true,
-                ThemeTag = {
-                    TextColor3 = "SubText",
-                },
-            })
-
-            NewNotification.LabelHolder = New("Frame", {
-                AutomaticSize = Enum.AutomaticSize.Y,
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                BackgroundTransparency = 1,
-                Position = UDim2.fromOffset(14, 40),
-                Size = UDim2.new(1, -28, 0, 0),
-            }, {
-                New("UIListLayout", {
-                    SortOrder = Enum.SortOrder.LayoutOrder,
-                    VerticalAlignment = Enum.VerticalAlignment.Center,
-                    Padding = UDim.new(0, 3),
-                }),
-                NewNotification.ContentLabel,
-                NewNotification.SubContentLabel,
-            })
-
-            NewNotification.CloseButton = New("TextButton", {
-                Text = "",
-                Position = UDim2.new(1, -14, 0, 13),
-                Size = UDim2.fromOffset(20, 20),
-                AnchorPoint = Vector2.new(1, 0),
-                BackgroundTransparency = 1,
-            }, {
-                New("ImageLabel", {
-                    Image = require(script.Parent.Assets).Close,
-                    Size = UDim2.fromOffset(16, 16),
-                    Position = UDim2.fromScale(0.5, 0.5),
-                    AnchorPoint = Vector2.new(0.5, 0.5),
-                    BackgroundTransparency = 1,
-                    ThemeTag = {
-                        ImageColor3 = "Text",
-                    },
-                }),
-            })
-
-            NewNotification.Root = New("Frame", {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 1, 0),
-                Position = UDim2.fromScale(1, 0),
-            }, {
-                NewNotification.AcrylicPaint.Frame,
-                NewNotification.Title,
-                NewNotification.CloseButton,
-                NewNotification.LabelHolder,
-            })
-
-            if Config.Content == "" then
-                NewNotification.ContentLabel.Visible = false
-            end
-
-            if Config.SubContent == "" then
-                NewNotification.SubContentLabel.Visible = false
-            end
-
-            NewNotification.Holder = New("Frame", {
-                BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 0, 200),
-                Parent = Notification.Holder,
-            }, {
-                NewNotification.Root,
-            })
-
-            local RootMotor = Flipper.GroupMotor.new({
-                Scale = 1,
-                Offset = 60,
-            })
-
-            RootMotor:onStep(function(Values)
-                NewNotification.Root.Position = UDim2.new(Values.Scale, Values.Offset, 0, 0)
-            end)
-
-            Creator.AddSignal(NewNotification.CloseButton.MouseButton1Click, function()
-                NewNotification:Close()
-            end)
-
-            function NewNotification:Open()
-                local ContentSize = NewNotification.LabelHolder.AbsoluteSize.Y
-                NewNotification.Holder.Size = UDim2.new(1, 0, 0, 58 + ContentSize)
-
-                RootMotor:setGoal({
-                    Scale = Spring(0, { frequency = 5 }),
-                    Offset = Spring(0, { frequency = 5 }),
-                })
-            end
-
-            function NewNotification:Close()
-                if not NewNotification.Closed then
-                    NewNotification.Closed = true
-                    task.spawn(function()
-                        RootMotor:setGoal({
-                            Scale = Spring(1, { frequency = 5 }),
-                            Offset = Spring(60, { frequency = 5 }),
-                        })
-                        task.wait(0.4)
-                        if require(Root).UseAcrylic then
-                            NewNotification.AcrylicPaint.Model:Destroy()
-                        end
-                        NewNotification.Holder:Destroy()
-                    end)
-                end
-            end
-
-            NewNotification:Open()
-            if Config.Duration then
-                task.delay(Config.Duration, function()
-                    NewNotification:Close()
-                end)
-            end
-            return NewNotification
-        end
-
         return TabFunctions  
     end  
 
-    return Tabs
+    return Tabs, window
 end
 
 return OrionLibV2
