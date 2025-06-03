@@ -6,29 +6,29 @@ function OrionLibV2:MakeWindow(Info)
     local ScreenGui = Instance.new("ScreenGui", game.CoreGui)  
     ScreenGui.Name = "CheatGUI"  
 
-    local window = Instance.new("Frame")  
-    window.Name = "MainWindow"  
-    window.Parent = ScreenGui  
-    window.Size = UDim2.new(0, 500, 0, 350)  
-    window.Position = UDim2.new(0.5, -250, 0.5, -175)  
-    window.BackgroundColor3 = Color3.fromRGB(30, 30, 30)  
-    window.Active = true  
-    window.Draggable = true  
-    Instance.new("UICorner", window).CornerRadius = UDim.new(0, 12)  
+    local windowFrame = Instance.new("Frame")  
+    windowFrame.Name = "MainWindow"  
+    windowFrame.Parent = ScreenGui  
+    windowFrame.Size = UDim2.new(0, 500, 0, 350)  
+    windowFrame.Position = UDim2.new(0.5, -250, 0.5, -175)  
+    windowFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)  
+    windowFrame.Active = true  
+    windowFrame.Draggable = true  
+ Instance.new("UICorner", windowFrame).CornerRadius = UDim.new(0, 12)  
 
-    local stroke = Instance.new("UIStroke", window)  
+    local stroke = Instance.new("UIStroke", windowFrame)  
     stroke.Thickness = 1.5  
     stroke.Color = Color3.fromRGB(0, 0, 0)  
     stroke.Transparency = 0.4  
 
-    local gradient = Instance.new("UIGradient", window)  
+    local gradient = Instance.new("UIGradient", windowFrame)  
     gradient.Color = ColorSequence.new{  
         ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),  
         ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))  
     }  
     gradient.Rotation = 90  
 
-    local Title = Instance.new("TextLabel", window)  
+    local Title = Instance.new("TextLabel", windowFrame)  
     Title.Text = Info.Title or "Orion"  
     Title.Size = UDim2.new(0, 300, 0, 30)  
     Title.Position = UDim2.new(0, 10, 0, 5)  
@@ -38,7 +38,7 @@ function OrionLibV2:MakeWindow(Info)
     Title.Font = Enum.Font.GothamBold  
     Title.TextSize = 20  
 
-    local SubTitle = Instance.new("TextLabel", window)  
+    local SubTitle = Instance.new("TextLabel", windowFrame)  
     SubTitle.Text = Info.SubTitle or "Orion Subtitle"  
     SubTitle.Size = UDim2.new(0, 300, 0, 20)  
     SubTitle.Position = UDim2.new(0, 10, 0, 35)  
@@ -48,18 +48,18 @@ function OrionLibV2:MakeWindow(Info)
     SubTitle.Font = Enum.Font.Gotham  
     SubTitle.TextSize = 14  
 
-    local Separator = Instance.new("Frame", window)  
+    local Separator = Instance.new("Frame", windowFrame)  
     Separator.Size = UDim2.new(1, -20, 0, 1)  
     Separator.Position = UDim2.new(0, 10, 0, 60)  
     Separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)  
 
-    local VerticalLine = Instance.new("Frame", window)  
+    local VerticalLine = Instance.new("Frame", windowFrame)  
     VerticalLine.Size = UDim2.new(0, 1, 1, -80)  
     VerticalLine.Position = UDim2.new(0, 135, 0, 70)  
     VerticalLine.BackgroundColor3 = Color3.fromRGB(80, 80, 80)  
     VerticalLine.BorderSizePixel = 0  
 
-    local TabScrollFrame = Instance.new("ScrollingFrame", window)  
+    local TabScrollFrame = Instance.new("ScrollingFrame", windowFrame)  
     TabScrollFrame.Size = UDim2.new(0, 120, 1, -80)  
     TabScrollFrame.Position = UDim2.new(0, 10, 0, 70)  
     TabScrollFrame.BackgroundTransparency = 1  
@@ -70,11 +70,13 @@ function OrionLibV2:MakeWindow(Info)
     TabScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar  
 
     local ButtonY = 0  
-    local Tabs = {}  
     local TabList = {}  
 
-    -- Notification Function
-    function window:Notify(NotifyInfo)
+    -- Window table to hold all functions
+    local Window = {}
+
+    -- Notify function
+    function Window:Notify(NotifyInfo)
         local notifyFrame = Instance.new("Frame", ScreenGui)
         notifyFrame.Size = UDim2.new(0, 300, 0, 150)
         notifyFrame.Position = UDim2.new(1, -320, 1, -170) -- Bottom right corner
@@ -198,7 +200,8 @@ function OrionLibV2:MakeWindow(Info)
         end
     end
 
-    function Tabs:MakeTab(TabInfo)  
+    -- MakeTab function
+    function Window:MakeTab(TabInfo)  
         local Button = Instance.new("TextButton", TabScrollFrame)  
         Button.Size = UDim2.new(0, 120, 0, 30)  
         Button.Position = UDim2.new(0, 0, 0, ButtonY)  
@@ -213,7 +216,7 @@ function OrionLibV2:MakeWindow(Info)
         ButtonY = ButtonY + 35  
         TabScrollFrame.CanvasSize = UDim2.new(0, 0, 0, ButtonY)  
 
-        local TabContent = Instance.new("ScrollingFrame", window)  
+        local TabContent = Instance.new("ScrollingFrame", windowFrame)  
         TabContent.Name = TabInfo.Name or "TabContent"  
         TabContent.Size = UDim2.new(1, -150, 1, -80)  
         TabContent.Position = UDim2.new(0, 140, 0, 70)  
@@ -499,7 +502,7 @@ function OrionLibV2:MakeWindow(Info)
         return TabFunctions  
     end  
 
-    return Tabs, window
+    return Window
 end
 
 return OrionLibV2
