@@ -14,7 +14,7 @@ function OrionLibV2:MakeWindow(Info)
     windowFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)  
     windowFrame.Active = true  
     windowFrame.Draggable = true  
- Instance.new("UICorner", windowFrame).CornerRadius = UDim.new(0, 12)  
+    Instance.new("UICorner", windowFrame).CornerRadius = UDim.new(0, 12)  
 
     local stroke = Instance.new("UIStroke", windowFrame)  
     stroke.Thickness = 1.5  
@@ -72,135 +72,8 @@ function OrionLibV2:MakeWindow(Info)
     local ButtonY = 0  
     local TabList = {}  
 
-    -- Window table to hold all functions
     local Window = {}
 
-    -- Notify function
-    function Window:Notify(NotifyInfo)
-        local notifyFrame = Instance.new("Frame", ScreenGui)
-        notifyFrame.Size = UDim2.new(0, 300, 0, 150)
-        notifyFrame.Position = UDim2.new(1, -320, 1, -170) -- Bottom right corner
-        notifyFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        notifyFrame.BackgroundTransparency = 1
-        Instance.new("UICorner", notifyFrame).CornerRadius = UDim.new(0, 12)
-
-        local stroke = Instance.new("UIStroke", notifyFrame)
-        stroke.Thickness = 1.5
-        stroke.Color = Color3.fromRGB(0, 0, 0)
-        stroke.Transparency = 0.4
-
-        local notifyTitle = Instance.new("TextLabel", notifyFrame)
-        notifyTitle.Text = NotifyInfo.Title or "Notification"
-        notifyTitle.Size = UDim2.new(1, -20, 0, 30)
-        notifyTitle.Position = UDim2.new(0, 10, 0, 10)
-        notifyTitle.BackgroundTransparency = 1
-        notifyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-        notifyTitle.Font = Enum.Font.GothamBold
-        notifyTitle.TextSize = 18
-        notifyTitle.TextXAlignment = Enum.TextXAlignment.Left
-        notifyTitle.TextTransparency = 1
-
-        local notifySubTitle = Instance.new("TextLabel", notifyFrame)
-        notifySubTitle.Text = NotifyInfo.SubTitle or "Description"
-        notifySubTitle.Size = UDim2.new(1, -20, 0, 40)
-        notifySubTitle.Position = UDim2.new(0, 10, 0, 40)
-        notifySubTitle.BackgroundTransparency = 1
-        notifySubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
-        notifySubTitle.Font = Enum.Font.Gotham
-        notifySubTitle.TextSize = 14
-        notifySubTitle.TextXAlignment = Enum.TextXAlignment.Left
-        notifySubTitle.TextWrapped = true
-        notifySubTitle.TextTransparency = 1
-
-        -- Fade-in animation
-        TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-            BackgroundTransparency = 0
-        }):Play()
-        TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-            TextTransparency = 0
-        }):Play()
-        TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-            TextTransparency = 0
-        }):Play()
-
-        -- Handle Request and Options
-        if NotifyInfo.Request and NotifyInfo.Options then
-            local buttonContainer = Instance.new("Frame", notifyFrame)
-            buttonContainer.Size = UDim2.new(1, -20, 0, 40)
-            buttonContainer.Position = UDim2.new(0, 10, 1, -50)
-            buttonContainer.BackgroundTransparency = 1
-
-            for i, option in ipairs(NotifyInfo.Options) do
-                local button = Instance.new("TextButton", buttonContainer)
-                button.Size = UDim2.new(0, 120, 0, 30)
-                button.Position = UDim2.new((i - 1) * 0.5, 10, 0, 5)
-                button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-                button.TextColor3 = Color3.fromRGB(255, 255, 255)
-                button.Font = Enum.Font.GothamBold
-                button.TextSize = 14
-                button.Text = option
-                button.TextTransparency = 1
-                button.BackgroundTransparency = 0.3
-                Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
-
-                TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                    TextTransparency = 0,
-                    BackgroundTransparency = 0
-                }):Play()
-
-                button.MouseEnter:Connect(function()
-                    TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
-                end)
-                button.MouseLeave:Connect(function()
-                    TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
-                end)
-
-                button.MouseButton1Click:Connect(function()
-                    if NotifyInfo.Callback and typeof(NotifyInfo.Callback) == "function" then
-                        NotifyInfo.Callback(option)
-                    end
-                    -- Fade-out animation
-                    TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                        BackgroundTransparency = 1
-                    }):Play()
-                    TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                        TextTransparency = 1
-                    }):Play()
-                    TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                        TextTransparency = 1
-                    }):Play()
-                    for _, btn in ipairs(buttonContainer:GetChildren()) do
-                        if btn:IsA("TextButton") then
-                            TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                                TextTransparency = 1,
-                                BackgroundTransparency = 1
-                            }):Play()
-                        end
-                    end
-                    wait(0.3)
-                    notifyFrame:Destroy()
-                end)
-            end
-        else
-            -- Auto-close after 3 seconds if no request
-            spawn(function()
-                wait(3)
-                TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                    BackgroundTransparency = 1
-                }):Play()
-                TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                    TextTransparency = 1
-                }):Play()
-                TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                    TextTransparency = 1
-                }):Play()
-                wait(0.3)
-                notifyFrame:Destroy()
-            end)
-        end
-    end
-
-    -- MakeTab function
     function Window:MakeTab(TabInfo)  
         local Button = Instance.new("TextButton", TabScrollFrame)  
         Button.Size = UDim2.new(0, 120, 0, 30)  
@@ -501,6 +374,135 @@ function OrionLibV2:MakeWindow(Info)
 
         return TabFunctions  
     end  
+
+    -- Notify function (defined after AddToggle)
+    function OrionLibV2:Notify(NotifyInfo)
+        local TweenService = game:GetService("TweenService")
+        local NotifyScreenGui = Instance.new("ScreenGui", game.CoreGui)
+        NotifyScreenGui.Name = "NotifyGUI_" .. tostring(math.random(1, 1000000)) -- Unique name to avoid conflicts
+
+        local notifyFrame = Instance.new("Frame", NotifyScreenGui)
+        notifyFrame.Size = UDim2.new(0, 300, 0, 150)
+        notifyFrame.Position = UDim2.new(1, -320, 1, -170) -- Bottom right corner
+        notifyFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        notifyFrame.BackgroundTransparency = 1
+        Instance.new("UICorner", notifyFrame).CornerRadius = UDim.new(0, 12)
+
+        local stroke = Instance.new("UIStroke", notifyFrame)
+        stroke.Thickness = 1.5
+        stroke.Color = Color3.fromRGB(0, 0, 0)
+        stroke.Transparency = 0.4
+
+        local notifyTitle = Instance.new("TextLabel", notifyFrame)
+        notifyTitle.Text = NotifyInfo.Title or "Notification"
+        notifyTitle.Size = UDim2.new(1, -20, 0, 30)
+        notifyTitle.Position = UDim2.new(0, 10, 0, 10)
+        notifyTitle.BackgroundTransparency = 1
+        notifyTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        notifyTitle.Font = Enum.Font.GothamBold
+        notifyTitle.TextSize = 18
+        notifyTitle.TextXAlignment = Enum.TextXAlignment.Left
+        notifyTitle.TextTransparency = 1
+
+        local notifySubTitle = Instance.new("TextLabel", notifyFrame)
+        notifySubTitle.Text = NotifyInfo.SubTitle or "Description"
+        notifySubTitle.Size = UDim2.new(1, -20, 0, 40)
+        notifySubTitle.Position = UDim2.new(0, 10, 0, 40)
+        notifySubTitle.BackgroundTransparency = 1
+        notifySubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+        notifySubTitle.Font = Enum.Font.Gotham
+        notifySubTitle.TextSize = 14
+        notifySubTitle.TextXAlignment = Enum.TextXAlignment.Left
+        notifySubTitle.TextWrapped = true
+        notifySubTitle.TextTransparency = 1
+
+        -- Fade-in animation
+        TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            BackgroundTransparency = 0
+        }):Play()
+        TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TextTransparency = 0
+        }):Play()
+        TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TextTransparency = 0
+        }):Play()
+
+        -- Handle Request and Options
+        if NotifyInfo.Request and NotifyInfo.Options then
+            local buttonContainer = Instance.new("Frame", notifyFrame)
+            buttonContainer.Size = UDim2.new(1, -20, 0, 40)
+            buttonContainer.Position = UDim2.new(0, 10, 1, -50)
+            buttonContainer.BackgroundTransparency = 1
+
+            for i, option in ipairs(NotifyInfo.Options) do
+                local button = Instance.new("TextButton", buttonContainer)
+                button.Size = UDim2.new(0, 120, 0, 30)
+                button.Position = UDim2.new((i - 1) * 0.5, 10, 0, 5)
+                button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                button.TextColor3 = Color3.fromRGB(255, 255, 255)
+                button.Font = Enum.Font.GothamBold
+                button.TextSize = 14
+                button.Text = option
+                button.TextTransparency = 1
+                button.BackgroundTransparency = 0.3
+                Instance.new("UICorner", button).CornerRadius = UDim.new(0, 6)
+
+                TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 0,
+                    BackgroundTransparency = 0
+                }):Play()
+
+                button.MouseEnter:Connect(function()
+                    TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
+                end)
+                button.MouseLeave:Connect(function()
+                    TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+                end)
+
+                button.MouseButton1Click:Connect(function()
+                    if NotifyInfo.Callback and typeof(NotifyInfo.Callback) == "function" then
+                        NotifyInfo.Callback(option)
+                    end
+                    -- Fade-out animation
+                    TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                        BackgroundTransparency = 1
+                    }):Play()
+                    TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                        TextTransparency = 1
+                    }):Play()
+                    TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                        TextTransparency = 1
+                    }):Play()
+                    for _, btn in ipairs(buttonContainer:GetChildren()) do
+                        if btn:IsA("TextButton") then
+                            TweenService:Create(btn, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                                TextTransparency = 1,
+                                BackgroundTransparency = 1
+                            }):Play()
+                        end
+                    end
+                    wait(0.3)
+                    NotifyScreenGui:Destroy()
+                end)
+            end
+        else
+            -- Auto-close after 3 seconds if no request
+            spawn(function()
+                wait(3)
+                TweenService:Create(notifyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 1
+                }):Play()
+                TweenService:Create(notifyTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 1
+                }):Play()
+                TweenService:Create(notifySubTitle, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 1
+                }):Play()
+                wait(0.3)
+                NotifyScreenGui:Destroy()
+            end)
+        end
+    end
 
     return Window
 end
