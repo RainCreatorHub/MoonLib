@@ -57,7 +57,7 @@ local Toggle = Tab:AddToggle({
 })
 ```
 
-### Dropdown ( Not Found )
+### Dropdown ( Test )
 ``` lua
 local Dropdown = Tab:AddDropdown({
     Name = "Perks",
