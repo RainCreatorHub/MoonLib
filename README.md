@@ -1,4 +1,3 @@
-local readmeContent = [[
 # OrionLibV2 - GUI Library for Roblox
 
 OrionLibV2 is a customizable and responsive GUI library designed for Roblox, supporting both PC and mobile devices. It provides a sleek interface with features like tabs, buttons, toggles, labels, and a dynamic dropdown menu with text truncation for long values.
@@ -14,7 +13,7 @@ OrionLibV2 is a customizable and responsive GUI library designed for Roblox, sup
 
 ### executor
 ``` lua
-local OrionLib = loadstring(game:HttpGet(''))()
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua'))()
 ```
 ### Roblox studio
 ``` lua
@@ -98,5 +97,4 @@ local Toggle = Tab:AddToggle({
 This library is provided as-is for educational and personal use. Feel free to modify and adapt it for your Roblox projects.
 
 ## Last Updated
-Wednesday, June 11, 2025, 03:35
-]]
+Wednesday, June 11, 2025, 03:41
