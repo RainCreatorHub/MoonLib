@@ -1,123 +1,102 @@
-# Rain Library V2
+local readmeContent = [[
+# OrionLibV2 - GUI Library for Roblox
 
-### Load
+OrionLibV2 is a customizable and responsive GUI library designed for Roblox, supporting both PC and mobile devices. It provides a sleek interface with features like tabs, buttons, toggles, labels, and a dynamic dropdown menu with text truncation for long values.
+
+## Features
+- **Cross-Platform Support**: Optimized for PC (mouse) and mobile (touch) devices.
+- **Responsive Design**: Scales dynamically based on screen size.
+- **Customizable Components**: Includes tabs, sections, buttons, toggles, labels, and dropdowns.
+- **Dropdown Enhancements**: Rounded borders, matching container color, and text truncation for values over 10 characters.
+- **Smooth Animations**: Tween transitions for a polished user experience.
+
+## Installation
+
+### executor
 ``` lua
-local RainLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua"))()
+local OrionLib = loadstring(game:HttpGet(''))()
+```
+### Roblox studio
+``` lua
+local OrionLib = require(game.ReplicatedStorage.OrionLibV2)
 ```
 
-### window
+## Usage
+
+### Creating a Window
+Create a main window with a title and subtitle:
 ``` lua
-local window = RainLib:MakeWindow({
-    Title = "My Cheat GUI",
-    SubTitle = "wow"
+local Window = OrionLib:MakeWindow({
+    Title = "Minha Interface",
+    SubTitle = "Exemplo de Uso"
 })
 ```
 
-### tab
+### Adding a Tab
+Add a tab to organize your GUI elements:
 ``` lua
-local Tab = window:MakeTab({
-    Name = "Tab 1"
+local Tab = Window:MakeTab({
+    Name = "Configurações"
 })
 ```
 
-### section
+### Adding a Section
+Add a section within a tab to group related elements:
 ``` lua
 local section = Tab:AddSection({
-    Name = "Section 1"
+    Name = "Opções"
 })
 ```
 
-### Label
+### Adding a Label
+Add a label with a title and content:
 ``` lua
 local Label = Tab:AddLabel({
-    Name = "Label",
-    Content = "Label description!"
+    Name = "Informação",
+    Content = "Este é um texto de exemplo para o label."
 })
 ```
 
-### Button
-``` lua
-local Button = Tab:AddButton({
-    Name = "Button!",
-    Callback = function()
-     print("Hello, world")
-    end
-})
-```
-
-### Toggle
-``` lua
-local Toggle = Tab:AddToggle({
-    Name = "Toggle",
-    Description = "toggle description!",
-    Default = false,
-    Callback = function(state)
-        print("Toggle: " .. tostring(state))
-    end
-})
-```
-
-### Dropdown ( Test )
+### Adding a Dropdown
+Create a dropdown with customizable options and callbacks:
 ``` lua
 local Dropdown = Tab:AddDropdown({
-    Name = "Perks",
-    Description = "Choose your perks",
-    Values = {"Hi", "Hii", "Hiii"},
-    Default = {"Hi"},
+    Name = "Selecione uma Opção",
+    Default = "Opção 1",
+    Values = {"Opção 1", "Opção 2 muito longa", "Opção 3 ainda mais longa texto de teste", "Opção 4 curta"},
     Multi = false,
-    Callback = function(value)
-        print("Selected Mode: .. tostring(value))
+    Callback = function(Value)
+        print("Selecionado: " .. tostring(Value))
     end
 })
 ```
 
-## example of use
+### Adding a Button
+Add a button with a callback function:
 ``` lua
--- Load
-local RainLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua"))()
-
--- window
-local window = RainLib:MakeWindow({
-    Title = "My Cheat GUI",
-    SubTitle = "wow"
-})
-
--- Tab
-local Tab1 = window:MakeTab({
-    Name = "Tab 1"
-})
-
--- Section
-local section = Tab1:AddSection({
-    Name = "Section 1"
-})
-
--- Label
-local Label = Tab1:AddLabel({
-    Name = "Label",
-    Content = "Label description!"
-})
-
--- Button
-local Button = Tab1:AddButton({
-    Name = "Button!",
+local Button = Tab:AddButton({
+    Name = "Teste Botão",
     Callback = function()
-     print("Hello, world")
-    end
-})
-
--- Toggle
-local Toggle = Tab1:AddToggle({
-    Name = "Toggle",
-    Description = "toggle description!",
-    Default = false,
-    Callback = function(value)
-      if value == true then
-        print("Toggle: on)
-      end
-      if value == false then
-        print("Toggle: off")
-      end
+        print("Botão clicado!")
     end
 })
 ```
+
+### Adding a Toggle
+Add a toggle with a callback function:
+``` lua
+local Toggle = Tab:AddToggle({
+    Name = "Ativar Opção",
+    Default = false,
+    Callback = function(Value)
+        print("Toggle está: " .. tostring(Value))
+    end
+})
+```
+
+## License
+This library is provided as-is for educational and personal use. Feel free to modify and adapt it for your Roblox projects.
+
+## Last Updated
+Wednesday, June 11, 2025, 03:35
+]]
