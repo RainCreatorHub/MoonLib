@@ -400,8 +400,8 @@ function OrionLibV2:MakeWindow(Info)
             DropdownInner.Position = UDim2.new(1, -10, 0.5, 0)
             DropdownInner.AnchorPoint = Vector2.new(1, 0.5)
             DropdownInner.BackgroundTransparency = 0.9
-            DropdownInner.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            ApplyCommonStyles(DropdownInner, 5)
+            DropdownInner.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Cor mais destacada
+            ApplyCommonStyles(DropdownInner, 5, Color3.fromRGB(100, 100, 100)) -- Borda mais visível
 
             local DropdownListLayout = Instance.new("UIListLayout")
             DropdownListLayout.Padding = UDim.new(0, 3)
@@ -478,6 +478,9 @@ function OrionLibV2:MakeWindow(Info)
                 TweenService:Create(DropdownHolderFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                     Size = UDim2.fromScale(1, 1)
                 }):Play()
+                TweenService:Create(DropdownInner, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- Destaque ao abrir
+                }):Play()
             end
 
             function Dropdown:Close()
@@ -485,6 +488,9 @@ function OrionLibV2:MakeWindow(Info)
                 TabContent.ScrollingEnabled = true
                 DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
                 DropdownHolderCanvas.Visible = false
+                TweenService:Create(DropdownInner, TweenInfo.new(0.2), {
+                    BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Volta ao normal ao fechar
+                }):Play()
             end
 
             function Dropdown:Display()
