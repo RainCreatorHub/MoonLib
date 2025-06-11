@@ -400,8 +400,8 @@ function OrionLibV2:MakeWindow(Info)
             DropdownInner.Position = UDim2.new(1, -10, 0.5, 0)
             DropdownInner.AnchorPoint = Vector2.new(1, 0.5)
             DropdownInner.BackgroundTransparency = 0.9
-            DropdownInner.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Cor mais destacada
-            ApplyCommonStyles(DropdownInner, 5, Color3.fromRGB(100, 100, 100)) -- Borda mais visível
+            DropdownInner.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            ApplyCommonStyles(DropdownInner, 5, Color3.fromRGB(100, 100, 100))
 
             local DropdownListLayout = Instance.new("UIListLayout")
             DropdownListLayout.Padding = UDim.new(0, 3)
@@ -419,8 +419,8 @@ function OrionLibV2:MakeWindow(Info)
 
             local DropdownHolderFrame = Instance.new("Frame")
             DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
-            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-            ApplyCommonStyles(DropdownHolderFrame, 7)
+            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Mesma cor do DropdownInner
+            ApplyCommonStyles(DropdownHolderFrame, 7) -- Bordas arredondadas
             DropdownHolderFrame.Parent = ScreenGui
             DropdownHolderFrame.Visible = false
             DropdownScrollFrame.Parent = DropdownHolderFrame
@@ -445,7 +445,8 @@ function OrionLibV2:MakeWindow(Info)
                 if #Dropdown.Values > 10 then
                     DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, 392)
                 else
-                    DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, DropdownListLayout.AbsoluteContentSize.Y + 10)
+                    local totalHeight = DropdownListLayout.AbsoluteContentSize.Y + 10
+                    DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX, totalHeight)
                 end
             end
 
@@ -479,7 +480,7 @@ function OrionLibV2:MakeWindow(Info)
                     Size = UDim2.fromScale(1, 1)
                 }):Play()
                 TweenService:Create(DropdownInner, TweenInfo.new(0.2), {
-                    BackgroundColor3 = Color3.fromRGB(70, 70, 70) -- Destaque ao abrir
+                    BackgroundColor3 = Color3.fromRGB(70, 70, 70)
                 }):Play()
             end
 
@@ -489,7 +490,7 @@ function OrionLibV2:MakeWindow(Info)
                 DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
                 DropdownHolderCanvas.Visible = false
                 TweenService:Create(DropdownInner, TweenInfo.new(0.2), {
-                    BackgroundColor3 = Color3.fromRGB(50, 50, 50) -- Volta ao normal ao fechar
+                    BackgroundColor3 = Color3.fromRGB(50, 50, 50)
                 }):Play()
             end
 
@@ -530,97 +531,123 @@ function OrionLibV2:MakeWindow(Info)
                 end
 
                 local Count = 0
+                local textSegments = {}
                 for _, Value in next, Dropdown.Values do
-                    local Button = Instance.new("TextButton", DropdownScrollFrame)
-                    Button.Size = UDim2.new(1, -5, 0, 32)
-                    Button.BackgroundTransparency = 1
-                    Button.Text = ""
-                    Button.ZIndex = 23
-                    Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                    ApplyCommonStyles(Button, 6)
+                    local textLength = #Value
+                    local segments = {}
+                    if textLength > 10 then
+                        for i = 1, math.ceil(textLength / 10) do
+                            local startIdx = (i - 1) * 10 + 1
+                            local endIdx = math.min(i * 10, textLength)
+                            table.insert(segments, Value:sub(startIdx, endIdx))
+                        end
+                    else
+                        table.insert(segments, Value)
+                    end
+                    table.insert(textSegments, {text = Value, segments = segments})
 
-                    local ButtonSelector = Instance.new("Frame", Button)
+                    local ButtonFrame = Instance.new("Frame", DropdownScrollFrame)
+                    ButtonFrame.Size = UDim2.new(1, -5, 0, 32 * #segments) -- Ajusta altura com base nos segmentos
+                    ButtonFrame.BackgroundTransparency = 1
+                    ButtonFrame.ClipsDescendants = true
+                    ApplyCommonStyles(ButtonFrame, 6)
+
+                    local ButtonSelector = Instance.new("Frame", ButtonFrame)
                     ButtonSelector.Size = UDim2.fromOffset(4, 14)
                     ButtonSelector.BackgroundColor3 = Color3.fromRGB(76, 194, 255)
                     ButtonSelector.Position = UDim2.fromOffset(-1, 16)
                     ButtonSelector.AnchorPoint = Vector2.new(0, 0.5)
                     ApplyCommonStyles(ButtonSelector, 2)
 
-                    local ButtonLabel = Instance.new("TextLabel", Button)
-                    ButtonLabel.Text = Value
-                    ButtonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-                    ButtonLabel.TextSize = 13
-                    ButtonLabel.TextXAlignment = Enum.TextXAlignment.Left
-                    ButtonLabel.BackgroundTransparency = 1
-                    ButtonLabel.Size = UDim2.fromScale(1, 1)
-                    ButtonLabel.Position = UDim2.fromOffset(10, 0)
-                    ButtonLabel.Name = "ButtonLabel"
+                    for i, segment in ipairs(segments) do
+                        local Button = Instance.new("TextButton", ButtonFrame)
+                        Button.Size = UDim2.new(1, -5, 0, 32)
+                        Button.Position = UDim2.new(0, 0, 0, (i - 1) * 32)
+                        Button.BackgroundTransparency = 1
+                        Button.Text = ""
+                        Button.ZIndex = 23
+                        Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                        ApplyCommonStyles(Button, 6)
 
-                    local Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
-                    local BackTransparency = Selected and 0.89 or 1
-                    local SelTransparency = Selected and 0 or 1
+                        local ButtonLabel = Instance.new("TextLabel", Button)
+                        ButtonLabel.Text = segment
+                        ButtonLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                        ButtonLabel.TextSize = 13
+                        ButtonLabel.TextXAlignment = Enum.TextXAlignment.Left
+                        ButtonLabel.BackgroundTransparency = 1
+                        ButtonLabel.Size = UDim2.fromScale(1, 1)
+                        ButtonLabel.Position = UDim2.fromOffset(10, 0)
+                        ButtonLabel.Name = "ButtonLabel"
 
-                    Button.BackgroundTransparency = BackTransparency
-                    ButtonSelector.BackgroundTransparency = SelTransparency
-                    ButtonSelector.Size = UDim2.new(0, 4, 0, Selected and 14 or 6)
+                        local Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
+                        local BackTransparency = Selected and 0.89 or 1
+                        local SelTransparency = Selected and 0 or 1
 
-                    Button.MouseEnter:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = Selected and 0.85 or 0.89}):Play()
-                    end)
-                    Button.MouseLeave:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = Selected and 0.89 or 1}):Play()
-                    end)
-                    Button.MouseButton1Down:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = 0.92}):Play()
-                    end)
-                    Button.MouseButton1Up:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = Selected and 0.85 or 0.89}):Play()
-                    end)
+                        Button.BackgroundTransparency = BackTransparency
+                        ButtonSelector.BackgroundTransparency = SelTransparency
+                        ButtonSelector.Size = UDim2.new(0, 4, 0, Selected and 14 or 6)
+                        if i == 1 then
+                            ButtonSelector.Parent = Button
+                        end
 
-                    ButtonLabel.InputBegan:Connect(function(Input)
-                        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                            local Try = not Selected
-                            if Dropdown:GetActiveValues() == 1 and not Try and not Config.AllowNull then
-                                return
-                            end
-                            if Dropdown.Multi then
-                                Selected = Try
-                                Dropdown.Value[Value] = Selected and true or nil
-                            else
-                                Selected = Try
-                                Dropdown.Value = Selected and Value or nil
-                                for _, OtherButton in next, Dropdown.Buttons do
-                                    if OtherButton ~= Button then
-                                        OtherButton.BackgroundTransparency = 1
-                                        OtherButton.ButtonSelector.BackgroundTransparency = 1
-                                        OtherButton.ButtonSelector.Size = UDim2.new(0, 4, 0, 6)
+                        Button.MouseEnter:Connect(function()
+                            TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = Selected and 0.85 or 0.89}):Play()
+                        end)
+                        Button.MouseLeave:Connect(function()
+                            TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = Selected and 0.89 or 1}):Play()
+                        end)
+                        Button.MouseButton1Down:Connect(function()
+                            TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = 0.92}):Play()
+                        end)
+                        Button.MouseButton1Up:Connect(function()
+                            TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundTransparency = Selected and 0.85 or 0.89}):Play()
+                        end)
+
+                        ButtonLabel.InputBegan:Connect(function(Input)
+                            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                                local Try = not Selected
+                                if Dropdown:GetActiveValues() == 1 and not Try and not Config.AllowNull then
+                                    return
+                                end
+                                if Dropdown.Multi then
+                                    Selected = Try
+                                    Dropdown.Value[Value] = Selected and true or nil
+                                else
+                                    Selected = Try
+                                    Dropdown.Value = Selected and Value or nil
+                                    for _, OtherButton in next, Dropdown.Buttons do
+                                        if OtherButton ~= Button then
+                                            OtherButton.BackgroundTransparency = 1
+                                            OtherButton.ButtonSelector.BackgroundTransparency = 1
+                                            OtherButton.ButtonSelector.Size = UDim2.new(0, 4, 0, 6)
+                                        end
                                     end
                                 end
+                                Button.BackgroundTransparency = Selected and 0.89 or 1
+                                ButtonSelector.BackgroundTransparency = Selected and 0 or 1
+                                ButtonSelector.Size = UDim2.new(0, 4, 0, Selected and 14 or 6)
+                                Dropdown:Display()
+                                if Dropdown.Callback then
+                                    Dropdown.Callback(Dropdown.Value)
+                                end
+                                if Dropdown.Changed then
+                                    Dropdown.Changed(Dropdown.Value)
+                                end
                             end
-                            Button.BackgroundTransparency = Selected and 0.89 or 1
-                            ButtonSelector.BackgroundTransparency = Selected and 0 or 1
-                            ButtonSelector.Size = UDim2.new(0, 4, 0, Selected and 14 or 6)
-                            Dropdown:Display()
-                            if Dropdown.Callback then
-                                Dropdown.Callback(Dropdown.Value)
-                            end
-                            if Dropdown.Changed then
-                                Dropdown.Changed(Dropdown.Value)
-                            end
-                        end
-                    end)
+                        end)
 
-                    Dropdown.Buttons[Button] = {
-                        UpdateButton = function()
-                            Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
-                            Button.BackgroundTransparency = Selected and 0.89 or 1
-                            ButtonSelector.BackgroundTransparency = Selected and 0 or 1
-                            ButtonSelector.Size = UDim2.new(0, 4, 0, Selected and 14 or 6)
-                        end,
-                        ButtonLabel = ButtonLabel
-                    }
+                        Dropdown.Buttons[Button] = {
+                            UpdateButton = function()
+                                Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
+                                Button.BackgroundTransparency = Selected and 0.89 or 1
+                                ButtonSelector.BackgroundTransparency = Selected and 0 or 1
+                                ButtonSelector.Size = UDim2.new(0, 4, 0, Selected and 14 or 6)
+                            end,
+                            ButtonLabel = ButtonLabel
+                        }
 
-                    Count = Count + 1
+                        Count = Count + 1
+                    end
                 end
 
                 ListSizeX = 0
