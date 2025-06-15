@@ -5,6 +5,7 @@ function OrionLibV2:MakeWindow(Info)
 
     local ScreenGui = Instance.new("ScreenGui", game.CoreGui)  
     ScreenGui.Name = "CheatGUI"  
+    ScreenGui.AlwaysOnTop = true -- Garante que o GUI fique acima de outros elementos
 
     local window = Instance.new("Frame")  
     window.Name = "MainWindow"  
@@ -381,23 +382,26 @@ function OrionLibV2:MakeWindow(Info)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
+            container.ZIndex = 1000 -- Aumenta o ZIndex do container
 
             local stroke = Instance.new("UIStroke", container)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 1.5
+            stroke.ZIndex = 1000
 
             local corner = Instance.new("UICorner", container)
             corner.CornerRadius = UDim.new(0, 6)
 
             local textContainer = Instance.new("Frame", container)
-            textContainer.Size = UDim2.new(0.4, 0, 1, 0) -- Ajustado para suportar texto longo
+            textContainer.Size = UDim2.new(0.4, 0, 1, 0)
             textContainer.Position = UDim2.new(0, 0, 0, 0)
             textContainer.BackgroundTransparency = 1
-            textContainer.ClipsDescendants = false -- Removido corte
+            textContainer.ClipsDescendants = false
+            textContainer.ZIndex = 1000
 
             local dropdownText = Instance.new("TextLabel", textContainer)
             dropdownText.Text = info.Name or "Dropdown"
-            dropdownText.Size = UDim2.new(1, 0, 0, 20) -- Tamanho dinâmico
+            dropdownText.Size = UDim2.new(1, 0, 0, 20)
             dropdownText.Position = UDim2.new(0, 5, 0, 10)
             dropdownText.BackgroundTransparency = 1
             dropdownText.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -405,12 +409,13 @@ function OrionLibV2:MakeWindow(Info)
             dropdownText.TextSize = 14
             dropdownText.TextXAlignment = Enum.TextXAlignment.Left
             dropdownText.TextTransparency = 1
-            dropdownText.TextWrapped = true -- Permitir que o texto quebre linhas
-            dropdownText.TextTruncate = Enum.TextTruncate.None -- Remover corte com ...
+            dropdownText.TextWrapped = true
+            dropdownText.TextTruncate = Enum.TextTruncate.None
+            dropdownText.ZIndex = 1000
 
             local dropdownDescription = Instance.new("TextLabel", textContainer)
             dropdownDescription.Text = info.Description or ""
-            dropdownDescription.Size = UDim2.new(1, 0, 0, 15) -- Tamanho dinâmico
+            dropdownDescription.Size = UDim2.new(1, 0, 0, 15)
             dropdownDescription.Position = UDim2.new(0, 5, 0, 30)
             dropdownDescription.BackgroundTransparency = 1
             dropdownDescription.TextColor3 = Color3.fromRGB(180, 180, 180)
@@ -418,8 +423,9 @@ function OrionLibV2:MakeWindow(Info)
             dropdownDescription.TextSize = 11
             dropdownDescription.TextXAlignment = Enum.TextXAlignment.Left
             dropdownDescription.TextTransparency = 1
-            dropdownDescription.TextWrapped = true -- Permitir quebre de linhas
-            dropdownDescription.TextTruncate = Enum.TextTruncate.None -- Remover corte com ...
+            dropdownDescription.TextWrapped = true
+            dropdownDescription.TextTruncate = Enum.TextTruncate.None
+            dropdownDescription.ZIndex = 1000
 
             local dropdownButton = Instance.new("TextButton", container)
             dropdownButton.Size = UDim2.new(0, 100, 0, 24)
@@ -435,6 +441,7 @@ function OrionLibV2:MakeWindow(Info)
             dropdownButton.TextTransparency = 1
             dropdownButton.BackgroundTransparency = 0.3
             dropdownButton.ClipsDescendants = true
+            dropdownButton.ZIndex = 1000
 
             local buttonCorner = Instance.new("UICorner", dropdownButton)
             buttonCorner.CornerRadius = UDim.new(0, 6)
@@ -448,6 +455,7 @@ function OrionLibV2:MakeWindow(Info)
             dropdownIcon.Font = Enum.Font.Gotham
             dropdownIcon.TextSize = 12
             dropdownIcon.TextTransparency = 1
+            dropdownIcon.ZIndex = 1000
 
             local dropdownList = Instance.new("ScrollingFrame", container)
             dropdownList.Size = UDim2.new(0, 100, 0, 0)
@@ -461,10 +469,12 @@ function OrionLibV2:MakeWindow(Info)
             dropdownList.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             dropdownList.Visible = false
             dropdownList.ClipsDescendants = true
+            dropdownList.ZIndex = 1000 -- ZIndex alto para sobrepor outros elementos
 
             local listStroke = Instance.new("UIStroke", dropdownList)
             listStroke.Color = Color3.fromRGB(80, 80, 80)
             listStroke.Thickness = 1.5
+            listStroke.ZIndex = 1000
 
             local listCorner = Instance.new("UICorner", dropdownList)
             listCorner.CornerRadius = UDim.new(0, 6)
@@ -472,6 +482,7 @@ function OrionLibV2:MakeWindow(Info)
             local listLayout = Instance.new("UIListLayout", dropdownList)
             listLayout.SortOrder = Enum.SortOrder.LayoutOrder
             listLayout.Padding = UDim.new(0, 2)
+            listLayout.ZIndex = 1000
 
             local Dropdown = {
                 Values = info.Values or {},
@@ -499,6 +510,7 @@ function OrionLibV2:MakeWindow(Info)
                 Dropdown.Opened = not Dropdown.Opened
                 local targetHeight = Dropdown.Opened and math.min(#Dropdown.Values * 30, 120) or 0
                 dropdownList.Visible = Dropdown.Opened
+                dropdownList.Parent = ScreenGui -- Move o dropdownList para o ScreenGui para garantir que fique acima de tudo
                 TweenService:Create(dropdownList, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                     Size = UDim2.new(0, dropdownButton.Size.X.Offset, 0, targetHeight),
                     BackgroundTransparency = Dropdown.Opened and 0 or 1
@@ -506,6 +518,9 @@ function OrionLibV2:MakeWindow(Info)
                 TweenService:Create(dropdownIcon, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                     Rotation = Dropdown.Opened and 180 or 0
                 }):Play()
+                if not Dropdown.Opened then
+                    dropdownList.Parent = container -- Volta o dropdownList para o container ao fechar
+                end
             end
 
             local function buildDropdownList()
@@ -547,6 +562,7 @@ function OrionLibV2:MakeWindow(Info)
                     optionButton.TextTransparency = 1
                     optionButton.BackgroundTransparency = 0.3
                     optionButton.AutoButtonColor = false
+                    optionButton.ZIndex = 1000
 
                     local optionCorner = Instance.new("UICorner", optionButton)
                     optionCorner.CornerRadius = UDim.new(0, 4)
