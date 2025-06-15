@@ -391,7 +391,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local textContainer = Instance.new("Frame", container)
             textContainer.Size = UDim2.new(0.4, -10, 1, 0)
-            textContainer.Position = UDim2.new(0.6, 0, 0, 0)
+            textContainer.Position = UDim2.new(0, 0, 0, 0)
             textContainer.BackgroundTransparency = 1
             textContainer.ClipsDescendants = true
 
@@ -422,7 +422,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local dropdownButton = Instance.new("TextButton", container)
             dropdownButton.Size = UDim2.new(0, 100, 0, 24)
-            dropdownButton.Position = UDim2.new(0, 10, 0, 13)
+            dropdownButton.Position = UDim2.new(0.6, 0, 0, 13)
             dropdownButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
             dropdownButton.BorderSizePixel = 0
             dropdownButton.AutoButtonColor = false
@@ -450,7 +450,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local dropdownList = Instance.new("ScrollingFrame", container)
             dropdownList.Size = UDim2.new(0, 100, 0, 0)
-            dropdownList.Position = UDim2.new(0, 10, 0, 37)
+            dropdownList.Position = UDim2.new(0.6, 0, 0, 37)
             dropdownList.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             dropdownList.BackgroundTransparency = 1
             dropdownList.ScrollBarThickness = 4
@@ -529,9 +529,9 @@ function OrionLibV2:MakeWindow(Info)
 
                 local buttonWidth = math.min(maxTextWidth + 30, 190)
                 dropdownButton.Size = UDim2.new(0, buttonWidth, 0, 24)
-                dropdownButton.Position = UDim2.new(0, 10, 0, 13)
+                dropdownButton.Position = UDim2.new(0.6, 0, 0, 13)
                 dropdownList.Size = UDim2.new(0, buttonWidth, 0, Dropdown.Opened and math.min(#Dropdown.Values * 30, 120) or 0)
-                dropdownList.Position = UDim2.new(0, 10, 0, 37)
+                dropdownList.Position = UDim2.new(0.6, 0, 0, 37)
 
                 local count = 0
                 for _, value in ipairs(Dropdown.Values) do
