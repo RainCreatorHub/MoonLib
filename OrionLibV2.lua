@@ -4,9 +4,12 @@ function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
 
-    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)  
-    ScreenGui.Name = "CheatGUI"  
-    ScreenGui.AlwaysOnTop = true -- Garante que todo o GUI fique acima
+    -- Criar um ScreenGui independente em vez de usar CoreGui diretamente
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "OrionGUI"
+    ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui") -- Usa PlayerGui como alternativa
+    ScreenGui.ResetOnSpawn = false -- Garante que o GUI persista
+    ScreenGui.AlwaysOnTop = true
 
     local window = Instance.new("Frame")  
     window.Name = "MainWindow"  
@@ -470,7 +473,7 @@ function OrionLibV2:MakeWindow(Info)
             dropdownList.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             dropdownList.Visible = false
             dropdownList.ClipsDescendants = true
-            dropdownList.ZIndex = 2000 -- ZIndex muito alto para garantir prioridade
+            dropdownList.ZIndex = 2000
 
             local listStroke = Instance.new("UIStroke", dropdownList)
             listStroke.Color = Color3.fromRGB(80, 80, 80)
@@ -512,7 +515,7 @@ function OrionLibV2:MakeWindow(Info)
                 local targetHeight = Dropdown.Opened and math.min(#Dropdown.Values * 30, 120) or 0
                 dropdownList.Visible = Dropdown.Opened
                 if Dropdown.Opened then
-                    dropdownList.Parent = ScreenGui -- Move para o ScreenGui com AlwaysOnTop
+                    dropdownList.Parent = ScreenGui
                     dropdownList.Position = UDim2.new(0, container.AbsolutePosition.X + dropdownButton.AbsolutePosition.X, 0, container.AbsolutePosition.Y + dropdownButton.AbsolutePosition.Y + dropdownButton.Size.Y.Offset)
                 end
                 TweenService:Create(dropdownList, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
@@ -523,7 +526,7 @@ function OrionLibV2:MakeWindow(Info)
                     Rotation = Dropdown.Opened and 180 or 0
                 }):Play()
                 if not Dropdown.Opened then
-                    dropdownList.Parent = container -- Volta ao container ao fechar
+                    dropdownList.Parent = container
                 end
             end
 
