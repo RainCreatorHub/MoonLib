@@ -169,7 +169,7 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, será ajustado
+            container.Size = UDim2.new(1, -20, 0, 50)
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
@@ -195,7 +195,6 @@ function OrionLibV2:MakeWindow(Info)
             title.TextSize = 14
             title.TextXAlignment = Enum.TextXAlignment.Left
             title.TextTransparency = 1
-            title.TextWrapped = true -- Ativa soft wrap
             title.Parent = container
 
             local content = Instance.new("TextLabel")
@@ -208,43 +207,7 @@ function OrionLibV2:MakeWindow(Info)
             content.TextSize = 13
             content.TextXAlignment = Enum.TextXAlignment.Left
             content.TextTransparency = 1
-            content.TextWrapped = true -- Ativa soft wrap
             content.Parent = container
-
-            -- Ajustar tamanhos dinamicamente com base no texto
-            local function updateLabelSizes()
-                -- Definir largura máxima do contêiner (baseado no TabContent menos margens)
-                local maxWidth = TabContent.AbsoluteSize.X - 20 - 10
-
-                -- Ajustar largura dos TextLabels
-                title.Size = UDim2.new(0, maxWidth, 0, 18)
-                content.Size = UDim2.new(0, maxWidth, 0, 18)
-
-                -- Calcular altura necessária para o título
-                title.Text = info.Name or "Label"
-                local titleBounds = title.TextBounds
-                local titleHeight = math.max(18, titleBounds.Y)
-
-                -- Calcular altura necessária para o conteúdo
-                content.Text = info.Content or "Texto"
-                local contentBounds = content.TextBounds
-                local contentHeight = math.max(18, contentBounds.Y)
-
-                -- Ajustar posições e tamanhos
-                title.Size = UDim2.new(0, maxWidth, 0, titleHeight)
-                content.Size = UDim2.new(0, maxWidth, 0, contentHeight)
-                content.Position = UDim2.new(0, 5, 0, 5 + titleHeight + 5)
-
-                -- Ajustar tamanho do contêiner
-                local containerHeight = titleHeight + contentHeight + 15
-                container.Size = UDim2.new(1, -20, 0, containerHeight)
-            end
-
-            -- Chamar a função de ajuste após a criação
-            updateLabelSizes()
-
-            -- Atualizar tamanhos se o tamanho do TabContent mudar
-            TabContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLabelSizes)
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
@@ -256,7 +219,7 @@ function OrionLibV2:MakeWindow(Info)
                 TextTransparency = 0
             }):Play()
 
-            elementY = elementY + container.Size.Y.Offset + 10
+            elementY = elementY + 60
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -327,7 +290,7 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
@@ -342,31 +305,6 @@ function OrionLibV2:MakeWindow(Info)
             local corner = Instance.new("UICorner")
             corner.CornerRadius = UDim.new(0, 6)
             corner.Parent = container
-
-            local toggleText = Instance.new("TextLabel")
-            toggleText.Text = info.Name or "Toggle"
-            toggleText.Size = UDim2.new(1, -60, 0, 20)
-            toggleText.Position = UDim2.new(0, 10, 0, 5)
-            toggleText.BackgroundTransparency = 1
-            toggleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-            toggleText.Font = Enum.Font.GothamBold
-            toggleText.TextSize = 14
-            toggleText.TextXAlignment = Enum.TextXAlignment.Left
-            toggleText.TextTransparency = 1
-            toggleText.Parent = container
-
-            local toggleDescription = Instance.new("TextLabel")
-            toggleDescription.Text = info.Description or ""
-            toggleDescription.Size = UDim2.new(1, -60, 0, 15)
-            toggleDescription.Position = UDim2.new(0, 10, 0, 25)
-            toggleDescription.BackgroundTransparency = 1
-            toggleDescription.TextColor3 = Color3.fromRGB(180, 180, 180)
-            toggleDescription.Font = Enum.Font.Gotham
-            toggleDescription.TextSize = 11
-            toggleDescription.TextXAlignment = Enum.TextXAlignment.Left
-            toggleDescription.TextTransparency = 1
-            toggleDescription.TextWrapped = true
-            toggleDescription.Parent = container
 
             local toggleButton = Instance.new("TextButton")
             toggleButton.Size = UDim2.new(0, 50, 0, 24)
@@ -396,14 +334,115 @@ function OrionLibV2:MakeWindow(Info)
             local isOn = info.Default or false
             local toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
 
+            -- Lista para armazenar TextLabels de Name e Description
+            local nameLabels = {}
+            local descriptionLabels = {}
+
+            local function createTextLabel(text, font, textSize, color, position, parent)
+                local label = Instance.new("TextLabel")
+                label.Text = text
+                label.Size = UDim2.new(1, -60, 0, 0) -- Altura ajustada dinamicamente
+                label.Position = position
+                label.BackgroundTransparency = 1
+                label.TextColor3 = color
+                label.Font = font
+                label.TextSize = textSize
+                label.TextXAlignment = Enum.TextXAlignment.Left
+                label.TextTransparency = 1
+                label.TextWrapped = false -- Desativa wrap automático, usamos recorte manual
+                label.Parent = parent
+                return label
+            end
+
+            local function splitText(text, label, maxWidth)
+                local words = {}
+                for word in text:gmatch("%S+") do
+                    table.insert(words, word)
+                end
+
+                local lines = {""}
+                local currentLine = 1
+
+                for _, word in ipairs(words) do
+                    local testText = lines[currentLine] .. (lines[currentLine] == "" and "" or " ") .. word
+                    label.Text = testText
+                    if label.TextBounds.X <= maxWidth then
+                        lines[currentLine] = testText
+                    else
+                        if lines[currentLine] == "" then
+                            lines[currentLine] = word
+                        else
+                            currentLine = currentLine + 1
+                            lines[currentLine] = word
+                        end
+                    end
+                end
+
+                label.Text = text -- Restaura texto original
+                return lines
+            end
+
+            local function adjustTextLabels()
+                -- Limpa labels existentes
+                for _, label in ipairs(nameLabels) do
+                    label:Destroy()
+                end
+                for _, label in ipairs(descriptionLabels) do
+                    label:Destroy()
+                end
+                nameLabels = {}
+                descriptionLabels = {}
+
+                -- Configura Name
+                local nameText = info.Name or "Toggle"
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
+                local maxWidth = container.AbsoluteSize.X - 70 -- Espaço até o toggleButton (60 + margem de 10)
+                local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                tempNameLabel:Destroy()
+
+                local yOffset = 5
+                for i, line in ipairs(nameLines) do
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
+                    nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y)
+                    table.insert(nameLabels, nameLabel)
+                    yOffset = yOffset + nameLabel.TextBounds.Y + 2
+                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                end
+
+                -- Configura Description
+                local descText = info.Description or ""
+                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                local descLines = splitText(descText, tempDescLabel, maxWidth)
+                tempDescLabel:Destroy()
+
+                for i, line in ipairs(descLines) do
+                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                    descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y)
+                    table.insert(descriptionLabels, descLabel)
+                    yOffset = yOffset + descLabel.TextBounds.Y + 2
+                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                end
+
+                -- Ajusta altura do container
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                toggleButton.Position = UDim2.new(1, -60, 0.5, -12) -- Mantém toggle centralizado verticalmente
+            end
+
+            -- Ajusta texto inicial
+            adjustTextLabels()
+
+            -- Reajusta quando o texto ou tamanho do container mudar
+            local function onTextOrSizeChanged()
+                adjustTextLabels()
+                elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
+                TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+            end
+
+            container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onTextOrSizeChanged)
+
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(toggleText, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
-            }):Play()
-            TweenService:Create(toggleDescription, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
             }):Play()
             TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
@@ -445,7 +484,7 @@ function OrionLibV2:MakeWindow(Info)
 
             updateToggle()
 
-            elementY = elementY + 60
+            elementY = elementY + container.Size.Y.Offset + 10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
