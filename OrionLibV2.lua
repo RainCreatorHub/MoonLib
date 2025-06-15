@@ -390,15 +390,15 @@ function OrionLibV2:MakeWindow(Info)
             corner.CornerRadius = UDim.new(0, 6)
 
             local textContainer = Instance.new("Frame", container)
-            textContainer.Size = UDim2.new(0, 150, 1, 0)
-            textContainer.Position = UDim2.new(0, 210, 0, 0)
+            textContainer.Size = UDim2.new(0.4, -10, 1, 0)
+            textContainer.Position = UDim2.new(0.6, 0, 0, 0)
             textContainer.BackgroundTransparency = 1
             textContainer.ClipsDescendants = true
 
             local dropdownText = Instance.new("TextLabel", textContainer)
             dropdownText.Text = info.Name or "Dropdown"
             dropdownText.Size = UDim2.new(1, -10, 0, 20)
-            dropdownText.Position = UDim2.new(0, 5, 0, 15)
+            dropdownText.Position = UDim2.new(0, 5, 0, 10)
             dropdownText.BackgroundTransparency = 1
             dropdownText.TextColor3 = Color3.fromRGB(255, 255, 255)
             dropdownText.Font = Enum.Font.GothamBold
@@ -410,7 +410,7 @@ function OrionLibV2:MakeWindow(Info)
             local dropdownDescription = Instance.new("TextLabel", textContainer)
             dropdownDescription.Text = info.Description or ""
             dropdownDescription.Size = UDim2.new(1, -10, 0, 15)
-            dropdownDescription.Position = UDim2.new(0, 5, 0, 35)
+            dropdownDescription.Position = UDim2.new(0, 5, 0, 30)
             dropdownDescription.BackgroundTransparency = 1
             dropdownDescription.TextColor3 = Color3.fromRGB(180, 180, 180)
             dropdownDescription.Font = Enum.Font.Gotham
@@ -463,7 +463,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local listStroke = Instance.new("UIStroke", dropdownList)
             listStroke.Color = Color3.fromRGB(80, 80, 80)
-            stroke.Thickness = 1.5
+            listStroke.Thickness = 1.5
 
             local listCorner = Instance.new("UICorner", dropdownList)
             listCorner.CornerRadius = UDim.new(0, 6)
