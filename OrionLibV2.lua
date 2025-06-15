@@ -10,8 +10,8 @@ function OrionLibV2:MakeWindow(Info)
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CheatGUI"
-    ScreenGui.Parent = LocalPlayer.PlayerGui -- Alterado de game.CoreGui para LocalPlayer.PlayerGui
-    ScreenGui.ResetOnSpawn = false -- Evita que a GUI seja resetada ao respawn do jogador
+    ScreenGui.Parent = LocalPlayer.PlayerGui
+    ScreenGui.ResetOnSpawn = false
 
     local window = Instance.new("Frame")
     window.Name = "MainWindow"
@@ -169,7 +169,7 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, será ajustado
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
@@ -180,7 +180,6 @@ function OrionLibV2:MakeWindow(Info)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 1.5
             stroke.Parent = container
-
 
             local corner = Instance.new("UICorner")
             corner.CornerRadius = UDim.new(0, 6)
@@ -196,6 +195,7 @@ function OrionLibV2:MakeWindow(Info)
             title.TextSize = 14
             title.TextXAlignment = Enum.TextXAlignment.Left
             title.TextTransparency = 1
+            title.TextWrapped = true -- Ativa soft wrap
             title.Parent = container
 
             local content = Instance.new("TextLabel")
@@ -208,7 +208,43 @@ function OrionLibV2:MakeWindow(Info)
             content.TextSize = 13
             content.TextXAlignment = Enum.TextXAlignment.Left
             content.TextTransparency = 1
+            content.TextWrapped = true -- Ativa soft wrap
             content.Parent = container
+
+            -- Ajustar tamanhos dinamicamente com base no texto
+            local function updateLabelSizes()
+                -- Definir largura máxima do contêiner (baseado no TabContent menos margens)
+                local maxWidth = TabContent.AbsoluteSize.X - 20 - 10
+
+                -- Ajustar largura dos TextLabels
+                title.Size = UDim2.new(0, maxWidth, 0, 18)
+                content.Size = UDim2.new(0, maxWidth, 0, 18)
+
+                -- Calcular altura necessária para o título
+                title.Text = info.Name or "Label"
+                local titleBounds = title.TextBounds
+                local titleHeight = math.max(18, titleBounds.Y)
+
+                -- Calcular altura necessária para o conteúdo
+                content.Text = info.Content or "Texto"
+                local contentBounds = content.TextBounds
+                local contentHeight = math.max(18, contentBounds.Y)
+
+                -- Ajustar posições e tamanhos
+                title.Size = UDim2.new(0, maxWidth, 0, titleHeight)
+                content.Size = UDim2.new(0, maxWidth, 0, contentHeight)
+                content.Position = UDim2.new(0, 5, 0, 5 + titleHeight + 5)
+
+                -- Ajustar tamanho do contêiner
+                local containerHeight = titleHeight + contentHeight + 15
+                container.Size = UDim2.new(1, -20, 0, containerHeight)
+            end
+
+            -- Chamar a função de ajuste após a criação
+            updateLabelSizes()
+
+            -- Atualizar tamanhos se o tamanho do TabContent mudar
+            TabContent:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateLabelSizes)
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
@@ -220,7 +256,7 @@ function OrionLibV2:MakeWindow(Info)
                 TextTransparency = 0
             }):Play()
 
-            elementY = elementY + 60
+            elementY = elementY + container.Size.Y.Offset + 10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -368,7 +404,7 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
             TweenService:Create(toggleDescription, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 TextTransparency = 0
-            }): consolidated
+            }):Play()
             TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
