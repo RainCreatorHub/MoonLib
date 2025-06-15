@@ -390,14 +390,14 @@ function OrionLibV2:MakeWindow(Info)
             corner.CornerRadius = UDim.new(0, 6)
 
             local textContainer = Instance.new("Frame", container)
-            textContainer.Size = UDim2.new(0.4, -10, 1, 0)
+            textContainer.Size = UDim2.new(0.4, 0, 1, 0) -- Ajustado para suportar texto longo
             textContainer.Position = UDim2.new(0, 0, 0, 0)
             textContainer.BackgroundTransparency = 1
-            textContainer.ClipsDescendants = true
+            textContainer.ClipsDescendants = false -- Removido corte
 
             local dropdownText = Instance.new("TextLabel", textContainer)
             dropdownText.Text = info.Name or "Dropdown"
-            dropdownText.Size = UDim2.new(1, -10, 0, 20)
+            dropdownText.Size = UDim2.new(1, 0, 0, 20) -- Tamanho dinâmico
             dropdownText.Position = UDim2.new(0, 5, 0, 10)
             dropdownText.BackgroundTransparency = 1
             dropdownText.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -405,11 +405,12 @@ function OrionLibV2:MakeWindow(Info)
             dropdownText.TextSize = 14
             dropdownText.TextXAlignment = Enum.TextXAlignment.Left
             dropdownText.TextTransparency = 1
-            dropdownText.TextTruncate = Enum.TextTruncate.AtEnd
+            dropdownText.TextWrapped = true -- Permitir que o texto quebre linhas
+            dropdownText.TextTruncate = Enum.TextTruncate.None -- Remover corte com ...
 
             local dropdownDescription = Instance.new("TextLabel", textContainer)
             dropdownDescription.Text = info.Description or ""
-            dropdownDescription.Size = UDim2.new(1, -10, 0, 15)
+            dropdownDescription.Size = UDim2.new(1, 0, 0, 15) -- Tamanho dinâmico
             dropdownDescription.Position = UDim2.new(0, 5, 0, 30)
             dropdownDescription.BackgroundTransparency = 1
             dropdownDescription.TextColor3 = Color3.fromRGB(180, 180, 180)
@@ -417,8 +418,8 @@ function OrionLibV2:MakeWindow(Info)
             dropdownDescription.TextSize = 11
             dropdownDescription.TextXAlignment = Enum.TextXAlignment.Left
             dropdownDescription.TextTransparency = 1
-            dropdownDescription.TextWrapped = true
-            dropdownDescription.TextTruncate = Enum.TextTruncate.AtEnd
+            dropdownDescription.TextWrapped = true -- Permitir quebre de linhas
+            dropdownDescription.TextTruncate = Enum.TextTruncate.None -- Remover corte com ...
 
             local dropdownButton = Instance.new("TextButton", container)
             dropdownButton.Size = UDim2.new(0, 100, 0, 24)
@@ -591,10 +592,19 @@ function OrionLibV2:MakeWindow(Info)
 
             function Dropdown:SetTitle(title)
                 dropdownText.Text = title or dropdownText.Text
+                local textBounds = dropdownText.TextBounds
+                if textBounds.Y > 20 then
+                    dropdownText.Size = UDim2.new(1, 0, 0, textBounds.Y)
+                    dropdownDescription.Position = UDim2.new(0, 5, 0, textBounds.Y + 10)
+                end
             end
 
             function Dropdown:SetDesc(desc)
                 dropdownDescription.Text = desc or ""
+                local textBounds = dropdownDescription.TextBounds
+                if textBounds.Y > 15 then
+                    dropdownDescription.Size = UDim2.new(1, 0, 0, textBounds.Y)
+                end
             end
 
             UserInputService.InputBegan:Connect(function(input)
