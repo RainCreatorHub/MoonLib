@@ -4,12 +4,11 @@ function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
 
-    -- Criar um ScreenGui independente em vez de usar CoreGui diretamente
+    -- Criar um ScreenGui independente em PlayerGui
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "OrionGUI"
-    ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui") -- Usa PlayerGui como alternativa
+    ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
     ScreenGui.ResetOnSpawn = false -- Garante que o GUI persista
-    ScreenGui.AlwaysOnTop = true
 
     local window = Instance.new("Frame")  
     window.Name = "MainWindow"  
