@@ -2,10 +2,11 @@ local OrionLibV2 = {}
 
 function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
+    local UserInputService = game:GetService("UserInputService")
 
     local ScreenGui = Instance.new("ScreenGui", game.CoreGui)  
     ScreenGui.Name = "CheatGUI"  
-    ScreenGui.AlwaysOnTop = true -- Garante que o GUI fique acima de outros elementos
+    ScreenGui.AlwaysOnTop = true -- Garante que todo o GUI fique acima
 
     local window = Instance.new("Frame")  
     window.Name = "MainWindow"  
@@ -457,7 +458,7 @@ function OrionLibV2:MakeWindow(Info)
             dropdownIcon.TextTransparency = 1
             dropdownIcon.ZIndex = 1000
 
-            local dropdownList = Instance.new("ScrollingFrame", container)
+            local dropdownList = Instance.new("ScrollingFrame")
             dropdownList.Size = UDim2.new(0, 100, 0, 0)
             dropdownList.Position = UDim2.new(0.6, 0, 0, 37)
             dropdownList.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
@@ -469,12 +470,12 @@ function OrionLibV2:MakeWindow(Info)
             dropdownList.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             dropdownList.Visible = false
             dropdownList.ClipsDescendants = true
-            dropdownList.ZIndex = 1000
+            dropdownList.ZIndex = 2000 -- ZIndex muito alto para garantir prioridade
 
             local listStroke = Instance.new("UIStroke", dropdownList)
             listStroke.Color = Color3.fromRGB(80, 80, 80)
             listStroke.Thickness = 1.5
-            listStroke.ZIndex = 1000
+            listStroke.ZIndex = 2000
 
             local listCorner = Instance.new("UICorner", dropdownList)
             listCorner.CornerRadius = UDim.new(0, 6)
@@ -482,12 +483,12 @@ function OrionLibV2:MakeWindow(Info)
             local listLayout = Instance.new("UIListLayout", dropdownList)
             listLayout.SortOrder = Enum.SortOrder.LayoutOrder
             listLayout.Padding = UDim.new(0, 2)
-            listLayout.ZIndex = 1000
+            listLayout.ZIndex = 2000
 
             local Dropdown = {
                 Values = info.Values or {},
-                Value = info.Multi and (info.Default and { [info.Default] = true } or {}) or (info.Default or (info.Values and info.Values[1])),
-                Multi = info.Multi or true, -- Modo Multi ativado por padrão, mas pode ser sobrescrito
+                Value = info.Multi and (type(info.Default) == "table" and info.Default or { [info.Default or info.Values[1]] = true }) or (info.Default or (info.Values and info.Values[1])),
+                Multi = info.Multi or true,
                 Opened = false,
                 Callback = info.Callback or function() end,
             }
@@ -510,7 +511,10 @@ function OrionLibV2:MakeWindow(Info)
                 Dropdown.Opened = not Dropdown.Opened
                 local targetHeight = Dropdown.Opened and math.min(#Dropdown.Values * 30, 120) or 0
                 dropdownList.Visible = Dropdown.Opened
-                dropdownList.Parent = ScreenGui -- Move para o ScreenGui para ficar acima de tudo
+                if Dropdown.Opened then
+                    dropdownList.Parent = ScreenGui -- Move para o ScreenGui com AlwaysOnTop
+                    dropdownList.Position = UDim2.new(0, container.AbsolutePosition.X + dropdownButton.AbsolutePosition.X, 0, container.AbsolutePosition.Y + dropdownButton.AbsolutePosition.Y + dropdownButton.Size.Y.Offset)
+                end
                 TweenService:Create(dropdownList, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                     Size = UDim2.new(0, dropdownButton.Size.X.Offset, 0, targetHeight),
                     BackgroundTransparency = Dropdown.Opened and 0 or 1
@@ -562,7 +566,7 @@ function OrionLibV2:MakeWindow(Info)
                     optionButton.TextTransparency = 1
                     optionButton.BackgroundTransparency = 0.3
                     optionButton.AutoButtonColor = false
-                    optionButton.ZIndex = 1000
+                    optionButton.ZIndex = 2000
 
                     local optionCorner = Instance.new("UICorner", optionButton)
                     optionCorner.CornerRadius = UDim.new(0, 4)
@@ -576,16 +580,20 @@ function OrionLibV2:MakeWindow(Info)
 
                     optionButton.MouseButton1Click:Connect(function()
                         if Dropdown.Multi then
-                            Dropdown.Value[value] = not Dropdown.Value[value] -- Alterna a seleção
+                            Dropdown.Value[value] = not Dropdown.Value[value] or false
                         else
                             Dropdown.Value = value
                         end
                         updateDisplay()
                         Dropdown.Callback(Dropdown.Multi and Dropdown:GetActiveValues() or Dropdown.Value)
                         if not Dropdown.Multi then
-                            toggleDropdown() -- Fecha apenas se não for Multi
+                            toggleDropdown()
                         end
                     end)
+
+                    if Dropdown.Multi and Dropdown.Value[value] then
+                        optionButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+                    end
 
                     TweenService:Create(optionButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                         TextTransparency = 0,
@@ -662,12 +670,6 @@ function OrionLibV2:MakeWindow(Info)
                 TextTransparency = 0
             }):Play()
 
-            if Dropdown.Multi then
-                Dropdown.Value = {}
-                if info.Default then
-                    Dropdown.Value[info.Default] = true
-                end
-            end
             buildDropdownList()
             updateDisplay()
 
