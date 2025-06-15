@@ -10,7 +10,8 @@ function OrionLibV2:MakeWindow(Info)
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CheatGUI"
-    ScreenGui.Parent = game.CoreGui
+    ScreenGui.Parent = LocalPlayer.PlayerGui -- Alterado de game.CoreGui para LocalPlayer.PlayerGui
+    ScreenGui.ResetOnSpawn = false -- Evita que a GUI seja resetada ao respawn do jogador
 
     local window = Instance.new("Frame")
     window.Name = "MainWindow"
@@ -179,6 +180,7 @@ function OrionLibV2:MakeWindow(Info)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 1.5
             stroke.Parent = container
+
 
             local corner = Instance.new("UICorner")
             corner.CornerRadius = UDim.new(0, 6)
@@ -366,7 +368,7 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
             TweenService:Create(toggleDescription, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 TextTransparency = 0
-            }):Play()
+            }): consolidated
             TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
