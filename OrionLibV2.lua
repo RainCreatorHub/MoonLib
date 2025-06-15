@@ -169,7 +169,7 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
             container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
@@ -185,41 +185,117 @@ function OrionLibV2:MakeWindow(Info)
             corner.CornerRadius = UDim.new(0, 6)
             corner.Parent = container
 
-            local title = Instance.new("TextLabel")
-            title.Text = info.Name or "Label"
-            title.Size = UDim2.new(1, -10, 0, 18)
-            title.Position = UDim2.new(0, 5, 0, 5)
-            title.BackgroundTransparency = 1
-            title.TextColor3 = Color3.fromRGB(255, 255, 255)
-            title.Font = Enum.Font.GothamBold
-            title.TextSize = 14
-            title.TextXAlignment = Enum.TextXAlignment.Left
-            title.TextTransparency = 1
-            title.Parent = container
+            -- Lista para armazenar TextLabels de Name e Content
+            local nameLabels = {}
+            local contentLabels = {}
 
-            local content = Instance.new("TextLabel")
-            content.Text = info.Content or "Texto"
-            content.Size = UDim2.new(1, -10, 0, 18)
-            content.Position = UDim2.new(0, 5, 0, 25)
-            content.BackgroundTransparency = 1
-            content.TextColor3 = Color3.fromRGB(180, 180, 180)
-            content.Font = Enum.Font.Gotham
-            content.TextSize = 13
-            content.TextXAlignment = Enum.TextXAlignment.Left
-            content.TextTransparency = 1
-            content.Parent = container
+            local function createTextLabel(text, font, textSize, color, position, parent)
+                local label = Instance.new("TextLabel")
+                label.Text = text
+                label.Size = UDim2.new(1, -10, 0, 0) -- Altura ajustada dinamicamente
+                label.Position = position
+                label.BackgroundTransparency = 1
+                label.TextColor3 = color
+                label.Font = font
+                label.TextSize = textSize
+                label.TextXAlignment = Enum.TextXAlignment.Left
+                label.TextTransparency = 1
+                label.TextWrapped = false -- Desativa wrap automático, usamos recorte manual
+                label.Parent = parent
+                return label
+            end
+
+            local function splitText(text, label, maxWidth)
+                local words = {}
+                for word in text:gmatch("%S+") do
+                    table.insert(words, word)
+                end
+
+                local lines = {""}
+                local currentLine = 1
+
+                for _, word in ipairs(words) do
+                    local testText = lines[currentLine] .. (lines[currentLine] == "" and "" or " ") .. word
+                    label.Text = testText
+                    if label.TextBounds.X <= maxWidth then
+                        lines[currentLine] = testText
+                    else
+                        if lines[currentLine] == "" then
+                            lines[currentLine] = word
+                        else
+                            currentLine = currentLine + 1
+                            lines[currentLine] = word
+                        end
+                    end
+                end
+
+                label.Text = text -- Restaura texto original
+                return lines
+            end
+
+            local function adjustTextLabels()
+                -- Limpa labels existentes
+                for _, label in ipairs(nameLabels) do
+                    label:Destroy()
+                end
+                for _, label in ipairs(contentLabels) do
+                    label:Destroy()
+                end
+                nameLabels = {}
+                contentLabels = {}
+
+                -- Configura Name
+                local nameText = info.Name or "Label"
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container)
+                local maxWidth = container.AbsoluteSize.X - 10 -- Espaço total menos margens
+                local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                tempNameLabel:Destroy()
+
+                local yOffset = 5
+                for i, line in ipairs(nameLines) do
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
+                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y)
+                    table.insert(nameLabels, nameLabel)
+                    yOffset = yOffset + nameLabel.TextBounds.Y + 2
+                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                end
+
+                -- Configura Content
+                local contentText = info.Content or "Texto"
+                local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                local contentLines = splitText(contentText, tempContentLabel, maxWidth)
+                tempContentLabel:Destroy()
+
+                for i, line in ipairs(contentLines) do
+                    local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y)
+                    table.insert(contentLabels, contentLabel)
+                    yOffset = yOffset + contentLabel.TextBounds.Y + 2
+                    TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                end
+
+                -- Ajusta altura do container
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+            end
+
+            -- Ajusta texto inicial
+            adjustTextLabels()
+
+            -- Reajusta quando o tamanho do container mudar
+            local function onSizeChanged()
+                adjustTextLabels()
+                elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
+                TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+            end
+
+            container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
-            TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
-            }):Play()
-            TweenService:Create(content, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
-            }):Play()
 
-            elementY = elementY + 60
+            elementY = elementY + container.Size.Y.Offset + 10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -600,7 +676,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local holderStroke = Instance.new("UIStroke")
             holderStroke.Color = Color3.fromRGB(80, 80, 80)
-            holderStroke.Thickness = 1.5
+            stroke.Thickness = 1.5
             holderStroke.Parent = DropdownHolderFrame
 
             local shadow = Instance.new("ImageLabel")
