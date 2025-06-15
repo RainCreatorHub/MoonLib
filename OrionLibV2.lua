@@ -206,26 +206,22 @@ function OrionLibV2:MakeWindow(Info)
             end
 
             local function splitText(text, label, maxWidth)
-                local words = {}
-                for word in text:gmatch("%S+") do
-                    table.insert(words, word)
+                local chars = {}
+                for char in text:gmatch(".") do
+                    table.insert(chars, char)
                 end
 
                 local lines = {""}
                 local currentLine = 1
 
-                for _, word in ipairs(words) do
-                    local testText = lines[currentLine] .. (lines[currentLine] == "" and "" or " ") .. word
+                for _, char in ipairs(chars) do
+                    local testText = lines[currentLine] .. char
                     label.Text = testText
                     if label.TextBounds.X <= maxWidth then
                         lines[currentLine] = testText
                     else
-                        if lines[currentLine] == "" then
-                            lines[currentLine] = word
-                        else
-                            currentLine = currentLine + 1
-                            lines[currentLine] = word
-                        end
+                        currentLine = currentLine + 1
+                        lines[currentLine] = char
                     end
                 end
 
@@ -431,26 +427,22 @@ function OrionLibV2:MakeWindow(Info)
             end
 
             local function splitText(text, label, maxWidth)
-                local words = {}
-                for word in text:gmatch("%S+") do
-                    table.insert(words, word)
+                local chars = {}
+                for char in text:gmatch(".") do
+                    table.insert(chars, char)
                 end
 
                 local lines = {""}
                 local currentLine = 1
 
-                for _, word in ipairs(words) do
-                    local testText = lines[currentLine] .. (lines[currentLine] == "" and "" or " ") .. word
+                for _, char in ipairs(chars) do
+                    local testText = lines[currentLine] .. char
                     label.Text = testText
                     if label.TextBounds.X <= maxWidth then
                         lines[currentLine] = testText
                     else
-                        if lines[currentLine] == "" then
-                            lines[currentLine] = word
-                        else
-                            currentLine = currentLine + 1
-                            lines[currentLine] = word
-                        end
+                        currentLine = currentLine + 1
+                        lines[currentLine] = char
                     end
                 end
 
@@ -507,7 +499,7 @@ function OrionLibV2:MakeWindow(Info)
             -- Ajusta texto inicial
             adjustTextLabels()
 
-            -- Reajusta quando o texto ou tamanho do container mudar
+            -- Reajusta quando o tamanho do container mudar
             local function onTextOrSizeChanged()
                 adjustTextLabels()
                 elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
@@ -676,7 +668,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local holderStroke = Instance.new("UIStroke")
             holderStroke.Color = Color3.fromRGB(80, 80, 80)
-            stroke.Thickness = 1.5
+            holderStroke.Thickness = 1.5
             holderStroke.Parent = DropdownHolderFrame
 
             local shadow = Instance.new("ImageLabel")
@@ -884,7 +876,7 @@ function OrionLibV2:MakeWindow(Info)
                             BackgroundTransparency = targetTransparency
                         }):Play()
                         TweenService:Create(ButtonSelector, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            Size = UDim2.fromOffset(4, targetSize)
+                            Size = UDim2.fromOffset(4, Bly
                         }):Play()
                     end
 
