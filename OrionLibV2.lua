@@ -7,7 +7,7 @@ function OrionLibV2:MakeWindow(Info)
     local Camera = game:GetService("Workspace").CurrentCamera
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "OrionGUI"
+    ScreenGui.Name = "RainLib"
     ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
     ScreenGui.ResetOnSpawn = false
 
