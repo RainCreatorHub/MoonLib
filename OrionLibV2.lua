@@ -382,7 +382,7 @@ function OrionLibV2:MakeWindow(Info)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
-            container.ZIndex = 1000 -- Aumenta o ZIndex do container
+            container.ZIndex = 1000
 
             local stroke = Instance.new("UIStroke", container)
             stroke.Color = Color3.fromRGB(80, 80, 80)
@@ -433,7 +433,7 @@ function OrionLibV2:MakeWindow(Info)
             dropdownButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
             dropdownButton.BorderSizePixel = 0
             dropdownButton.AutoButtonColor = false
-            dropdownButton.Text = info.Default or (info.Values and info.Values[1]) or ""
+            dropdownButton.Text = info.Default or (info.Values and table.concat(info.Values, ", ")) or ""
             dropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
             dropdownButton.Font = Enum.Font.Gotham
             dropdownButton.TextSize = 12
@@ -469,7 +469,7 @@ function OrionLibV2:MakeWindow(Info)
             dropdownList.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             dropdownList.Visible = false
             dropdownList.ClipsDescendants = true
-            dropdownList.ZIndex = 1000 -- ZIndex alto para sobrepor outros elementos
+            dropdownList.ZIndex = 1000
 
             local listStroke = Instance.new("UIStroke", dropdownList)
             listStroke.Color = Color3.fromRGB(80, 80, 80)
@@ -486,8 +486,8 @@ function OrionLibV2:MakeWindow(Info)
 
             local Dropdown = {
                 Values = info.Values or {},
-                Value = info.Multi and {} or (info.Default or (info.Values and info.Values[1])),
-                Multi = info.Multi or false,
+                Value = info.Multi and (info.Default and { [info.Default] = true } or {}) or (info.Default or (info.Values and info.Values[1])),
+                Multi = info.Multi or true, -- Modo Multi ativado por padrão, mas pode ser sobrescrito
                 Opened = false,
                 Callback = info.Callback or function() end,
             }
@@ -510,7 +510,7 @@ function OrionLibV2:MakeWindow(Info)
                 Dropdown.Opened = not Dropdown.Opened
                 local targetHeight = Dropdown.Opened and math.min(#Dropdown.Values * 30, 120) or 0
                 dropdownList.Visible = Dropdown.Opened
-                dropdownList.Parent = ScreenGui -- Move o dropdownList para o ScreenGui para garantir que fique acima de tudo
+                dropdownList.Parent = ScreenGui -- Move para o ScreenGui para ficar acima de tudo
                 TweenService:Create(dropdownList, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                     Size = UDim2.new(0, dropdownButton.Size.X.Offset, 0, targetHeight),
                     BackgroundTransparency = Dropdown.Opened and 0 or 1
@@ -519,7 +519,7 @@ function OrionLibV2:MakeWindow(Info)
                     Rotation = Dropdown.Opened and 180 or 0
                 }):Play()
                 if not Dropdown.Opened then
-                    dropdownList.Parent = container -- Volta o dropdownList para o container ao fechar
+                    dropdownList.Parent = container -- Volta ao container ao fechar
                 end
             end
 
@@ -576,13 +576,15 @@ function OrionLibV2:MakeWindow(Info)
 
                     optionButton.MouseButton1Click:Connect(function()
                         if Dropdown.Multi then
-                            Dropdown.Value[value] = not Dropdown.Value[value]
+                            Dropdown.Value[value] = not Dropdown.Value[value] -- Alterna a seleção
                         else
                             Dropdown.Value = value
-                            toggleDropdown()
                         end
                         updateDisplay()
                         Dropdown.Callback(Dropdown.Multi and Dropdown:GetActiveValues() or Dropdown.Value)
+                        if not Dropdown.Multi then
+                            toggleDropdown() -- Fecha apenas se não for Multi
+                        end
                     end)
 
                     TweenService:Create(optionButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
