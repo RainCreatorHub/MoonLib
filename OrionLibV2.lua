@@ -142,7 +142,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddSection(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 25)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
             container.Parent = TabContent
@@ -170,7 +170,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -245,40 +245,58 @@ function OrionLibV2:MakeWindow(Info)
                 nameLabels = {}
                 contentLabels = {}
 
-                -- Configura Name
+                -- Calcula altura total do Name
                 local nameText = info.Name or "Label"
-                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container)
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), container)
                 local maxWidth = container.AbsoluteSize.X - 10 -- Espaço total menos margens
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                local nameHeight = 0
+                for _, line in ipairs(nameLines) do
+                    tempNameLabel.Text = line
+                    task.wait()
+                    nameHeight = nameHeight + (tempNameLabel.TextBounds.Y or 14) + 2
+                end
+                nameHeight = nameHeight - 2 -- Remove último espaçamento
                 tempNameLabel:Destroy()
 
-                local yOffset = 5
+                -- Calcula altura total do Content
+                local contentText = info.Content or "Texto"
+                local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, 0), container)
+                local contentLines = splitText(contentText, tempContentLabel, maxWidth)
+                local contentHeight = 0
+                for _, line in ipairs(contentLines) do
+                    tempContentLabel.Text = line
+                    task.wait()
+                    contentHeight = contentHeight + (tempContentLabel.TextBounds.Y or 13) + 2
+                end
+                contentHeight = contentHeight - 2 -- Remove último espaçamento
+                tempContentLabel:Destroy()
+
+                -- Ajusta altura do container
+                local totalHeight = math.max(50, nameHeight + contentHeight + 10) -- 10 pixels de margem
+                container.Size = UDim2.new(1, -20, 0, totalHeight)
+
+                -- Centraliza Name verticalmente
+                local nameYOffset = (totalHeight - nameHeight) / 2
                 for i, line in ipairs(nameLines) do
-                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, nameYOffset), container)
                     task.wait() -- Aguarda renderização
-                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14) -- Fallback para altura
+                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
-                    yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                    nameYOffset = nameYOffset + (nameLabel.TextBounds.Y or 14) + 2
                     TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                -- Configura Content
-                local contentText = info.Content or "Texto"
-                local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
-                local contentLines = splitText(contentText, tempContentLabel, maxWidth)
-                tempContentLabel:Destroy()
-
+                -- Posiciona Content abaixo do Name
+                local contentYOffset = (totalHeight - nameHeight) / 2 + nameHeight + 2
                 for i, line in ipairs(contentLines) do
-                    local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                    local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, contentYOffset), container)
                     task.wait() -- Aguarda renderização
-                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13) -- Fallback para altura
+                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13)
                     table.insert(contentLabels, contentLabel)
-                    yOffset = yOffset + (contentLabel.TextBounds.Y or 13) + 2
+                    contentYOffset = contentYOffset + (contentLabel.TextBounds.Y or 13) + 2
                     TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
-
-                -- Ajusta altura do container
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
             end
 
             -- Ajusta texto inicial
@@ -288,7 +306,7 @@ function OrionLibV2:MakeWindow(Info)
             local function onSizeChanged()
                 adjustTextLabels()
                 elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -298,7 +316,7 @@ function OrionLibV2:MakeWindow(Info)
                 BackgroundTransparency = 0
             }):Play()
 
-            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
+            elementY = elementY + container.Size.Y.Offset + 10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -306,7 +324,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddButton(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -362,7 +380,7 @@ function OrionLibV2:MakeWindow(Info)
                 end)
             end
 
-            elementY = elementY + 60 -- Mantém espaçamento padrão para botão
+            elementY = elementY + 60
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -370,7 +388,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -420,7 +438,7 @@ function OrionLibV2:MakeWindow(Info)
             local function createTextLabel(text, font, textSize, color, position, parent)
                 local label = Instance.new("TextLabel")
                 label.Text = text
-                label.Size = UDim2.new(1, -60, 0, 0) -- Altura ajustada dinamicamente
+                label.Size = UDim2.new(1, -70, 0, 0) -- Altura ajustada dinamicamente, menos espaço para toggle
                 label.Position = position
                 label.BackgroundTransparency = 1
                 label.TextColor3 = color
@@ -473,41 +491,59 @@ function OrionLibV2:MakeWindow(Info)
                 nameLabels = {}
                 descriptionLabels = {}
 
-                -- Configura Name
+                -- Calcula altura total do Name
                 local nameText = info.Name or "Toggle"
-                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
-                local maxWidth = container.AbsoluteSize.X - 70 -- Espaço até o toggleButton (60 + margem de 10)
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0), container)
+                local maxWidth = container.AbsoluteSize.X - 70 -- Espaço até o toggleButton
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                local nameHeight = 0
+                for _, line in ipairs(nameLines) do
+                    tempNameLabel.Text = line
+                    task.wait()
+                    nameHeight = nameHeight + (tempNameLabel.TextBounds.Y or 14) + 2
+                end
+                nameHeight = nameHeight - 2 -- Remove último espaçamento
                 tempNameLabel:Destroy()
 
-                local yOffset = 5
+                -- Calcula altura total da Description
+                local descText = info.Description or ""
+                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, 0), container)
+                local descLines = splitText(descText, tempDescLabel, maxWidth)
+                local descHeight = 0
+                for _, line in ipairs(descLines) do
+                    tempDescLabel.Text = line
+                    task.wait()
+                    descHeight = descHeight + (tempDescLabel.TextBounds.Y or 11) + 2
+                end
+                descHeight = descHeight - 2 -- Remove último espaçamento
+                tempDescLabel:Destroy()
+
+                -- Ajusta altura do container
+                local totalHeight = math.max(50, nameHeight + descHeight + 10) -- 10 pixels de margem
+                container.Size = UDim2.new(1, -20, 0, totalHeight)
+                toggleButton.Position = UDim2.new(1, -60, 0.5, -12) -- Mantém toggle centralizado
+
+                -- Centraliza Name verticalmente
+                local nameYOffset = (totalHeight - nameHeight) / 2
                 for i, line in ipairs(nameLines) do
-                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, nameYOffset), container)
                     task.wait() -- Aguarda renderização
-                    nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14) -- Fallback para altura
+                    nameLabel.Size = UDim2.new(1, -70, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
-                    yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                    nameYOffset = nameYOffset + (nameLabel.TextBounds.Y or 14) + 2
                     TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                -- Configura Description
-                local descText = info.Description or ""
-                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
-                local descLines = splitText(descText, tempDescLabel, maxWidth)
-                tempDescLabel:Destroy()
-
+                -- Posiciona Description abaixo do Name
+                local descYOffset = (totalHeight - nameHeight) / 2 + nameHeight + 2
                 for i, line in ipairs(descLines) do
-                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, descYOffset), container)
                     task.wait() -- Aguarda renderização
-                    descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11) -- Fallback para altura
+                    descLabel.Size = UDim2.new(1, -70, 0, descLabel.TextBounds.Y or 11)
                     table.insert(descriptionLabels, descLabel)
-                    yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
+                    descYOffset = descYOffset + (descLabel.TextBounds.Y or 11) + 2
                     TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
-
-                -- Ajusta altura do container
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
-                toggleButton.Position = UDim2.new(1, -60, 0.5, -12) -- Mantém toggle centralizado verticalmente
             end
 
             -- Ajusta texto inicial
@@ -517,7 +553,7 @@ function OrionLibV2:MakeWindow(Info)
             local function onTextOrSizeChanged()
                 adjustTextLabels()
                 elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -566,7 +602,7 @@ function OrionLibV2:MakeWindow(Info)
 
             updateToggle()
 
-            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
+            elementY = elementY + container.Size.Y.Offset + 10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -574,7 +610,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -1004,7 +1040,7 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end
 
-            elementY = elementY + 60 -- Mantém espaçamento padrão para dropdown
+            elementY = elementY + 60
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
