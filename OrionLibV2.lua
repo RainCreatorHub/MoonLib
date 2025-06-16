@@ -200,14 +200,18 @@ function OrionLibV2:MakeWindow(Info)
                 label.TextSize = textSize
                 label.TextXAlignment = Enum.TextXAlignment.Left
                 label.TextTransparency = 1
-                label.TextWrapped = false -- Desativa wrap automático, usamos recorte manual
+                label.TextWrapped = false -- Desativa wrap automático
                 label.Parent = parent
                 return label
             end
 
             local function splitText(text, label, maxWidth)
+                if not text or text == "" then
+                    return {""} -- Retorna uma linha vazia para evitar erros
+                end
+
                 local chars = {}
-                for char in text:gmatch(".") do
+                for char in text:gmatch("[\128-\191]*.") do -- Suporta caracteres multibyte
                     table.insert(chars, char)
                 end
 
@@ -217,6 +221,7 @@ function OrionLibV2:MakeWindow(Info)
                 for _, char in ipairs(chars) do
                     local testText = lines[currentLine] .. char
                     label.Text = testText
+                    task.wait() -- Aguarda renderização para TextBounds preciso
                     if label.TextBounds.X <= maxWidth then
                         lines[currentLine] = testText
                     else
@@ -250,9 +255,10 @@ function OrionLibV2:MakeWindow(Info)
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
                     local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
-                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y)
+                    task.wait() -- Aguarda renderização
+                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14) -- Fallback para altura
                     table.insert(nameLabels, nameLabel)
-                    yOffset = yOffset + nameLabel.TextBounds.Y + 2
+                    yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
                     TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
@@ -264,9 +270,10 @@ function OrionLibV2:MakeWindow(Info)
 
                 for i, line in ipairs(contentLines) do
                     local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
-                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y)
+                    task.wait() -- Aguarda renderização
+                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13) -- Fallback para altura
                     table.insert(contentLabels, contentLabel)
-                    yOffset = yOffset + contentLabel.TextBounds.Y + 2
+                    yOffset = yOffset + (contentLabel.TextBounds.Y or 13) + 2
                     TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
@@ -421,14 +428,18 @@ function OrionLibV2:MakeWindow(Info)
                 label.TextSize = textSize
                 label.TextXAlignment = Enum.TextXAlignment.Left
                 label.TextTransparency = 1
-                label.TextWrapped = false -- Desativa wrap automático, usamos recorte manual
+                label.TextWrapped = false -- Desativa wrap automático
                 label.Parent = parent
                 return label
             end
 
             local function splitText(text, label, maxWidth)
+                if not text or text == "" then
+                    return {""} -- Retorna uma linha vazia para evitar erros
+                end
+
                 local chars = {}
-                for char in text:gmatch(".") do
+                for char in text:gmatch("[\128-\191]*.") do -- Suporta caracteres multibyte
                     table.insert(chars, char)
                 end
 
@@ -438,6 +449,7 @@ function OrionLibV2:MakeWindow(Info)
                 for _, char in ipairs(chars) do
                     local testText = lines[currentLine] .. char
                     label.Text = testText
+                    task.wait() -- Aguarda renderização para TextBounds preciso
                     if label.TextBounds.X <= maxWidth then
                         lines[currentLine] = testText
                     else
@@ -471,9 +483,10 @@ function OrionLibV2:MakeWindow(Info)
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
                     local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
-                    nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y)
+                    task.wait() -- Aguarda renderização
+                    nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14) -- Fallback para altura
                     table.insert(nameLabels, nameLabel)
-                    yOffset = yOffset + nameLabel.TextBounds.Y + 2
+                    yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
                     TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
@@ -485,9 +498,10 @@ function OrionLibV2:MakeWindow(Info)
 
                 for i, line in ipairs(descLines) do
                     local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
-                    descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y)
+                    task.wait() -- Aguarda renderização
+                    descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11) -- Fallback para altura
                     table.insert(descriptionLabels, descLabel)
-                    yOffset = yOffset + descLabel.TextBounds.Y + 2
+                    yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
                     TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
@@ -876,7 +890,7 @@ function OrionLibV2:MakeWindow(Info)
                             BackgroundTransparency = targetTransparency
                         }):Play()
                         TweenService:Create(ButtonSelector, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            Size = UDim2.fromOffset(4, Bly
+                            Size = UDim2.fromOffset(4, targetSize)
                         }):Play()
                     end
 
