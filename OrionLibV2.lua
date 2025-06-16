@@ -142,7 +142,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddSection(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 25)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
             container.Parent = TabContent
@@ -170,7 +170,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -288,7 +288,7 @@ function OrionLibV2:MakeWindow(Info)
             local function onSizeChanged()
                 adjustTextLabels()
                 elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -298,7 +298,7 @@ function OrionLibV2:MakeWindow(Info)
                 BackgroundTransparency = 0
             }):Play()
 
-            elementY = elementY + container.Size.Y.Offset + 10
+            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -306,7 +306,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddButton(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -362,7 +362,7 @@ function OrionLibV2:MakeWindow(Info)
                 end)
             end
 
-            elementY = elementY + 60
+            elementY = elementY + 60 -- Mantém espaçamento padrão para botão
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -370,7 +370,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -517,7 +517,7 @@ function OrionLibV2:MakeWindow(Info)
             local function onTextOrSizeChanged()
                 adjustTextLabels()
                 elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -566,7 +566,7 @@ function OrionLibV2:MakeWindow(Info)
 
             updateToggle()
 
-            elementY = elementY + container.Size.Y.Offset + 10
+            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -574,7 +574,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -1004,7 +1004,7 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end
 
-            elementY = elementY + 60
+            elementY = elementY + 60 -- Mantém espaçamento padrão para dropdown
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
