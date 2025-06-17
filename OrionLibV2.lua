@@ -1,15 +1,18 @@
 local OrionLibV2 = {}
 
+-- Aguarda carregamento do jogo
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
 function OrionLibV2:MakeWindow(Info)
     -- Função para tentar acessar o mouse com retries
     local function getMouseWithRetry(localPlayer, maxAttempts, delay)
-        maxAttempts = maxAttempts or 5
+        maxAttempts = maxAttempts or 10
         delay = delay or 0.5
         for i = 1, maxAttempts do
-            local success, mouse = pcall(function()
-                return localPlayer:GetMouse()
-            end)
-            if success and mouse then
+            local mouse = localPlayer:GetMouse()
+            if mouse then
                 return mouse
             end
             task.wait(delay)
@@ -18,19 +21,20 @@ function OrionLibV2:MakeWindow(Info)
         return nil
     end
 
-    -- Acessos com WaitForChild para serviços
-    local TweenService = game:WaitForChild("TweenService", 5)
-    local UserInputService = game:WaitForChild("UserInputService", 5)
-    local Players = game:WaitForChild("Players", 5)
-    local LocalPlayer = Players:WaitForChild("LocalPlayer", 5)
-    -- Substituído GetMouse por getMouseWithRetry
+    -- Acessos com GetService para serviços
+    local TweenService = game:GetService("TweenService")
+    local UserInputService = game:GetService("UserInputService")
+    local Players = game:GetService("Players")
+    local Workspace = game:GetService("Workspace")
+
+    -- Acessos com WaitForChild para instâncias
+    local LocalPlayer = Players:WaitForChild("LocalPlayer", 10)
     local Mouse = getMouseWithRetry(LocalPlayer)
-    local Workspace = game:WaitForChild("Workspace", 5)
-    local Camera = Workspace:WaitForChild("CurrentCamera", 5)
+    local Camera = Workspace:WaitForChild("CurrentCamera", 10)
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CheatGUI"
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 10)
     ScreenGui.ResetOnSpawn = false
 
     local window = Instance.new("Frame")
@@ -370,7 +374,7 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
 
             button.MouseEnter:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 50, 60)}):Play()
+                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
             end)
             button.MouseLeave:Connect(function()
                 TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
@@ -448,14 +452,14 @@ function OrionLibV2:MakeWindow(Info)
                 label.TextSize = textSize
                 label.TextXAlignment = Enum.TextXAlignment.Left
                 label.TextTransparency = 1
-                label.TextWrapped = false
+                label.TextWrapped = false -- Desativa wrap automático
                 label.Parent = parent
                 return label
             end
 
             local function splitText(text, label, maxWidth)
                 if not text or text == "" then
-                    return {""}
+                    return {""} -- Retorna uma linha vazia para evitar erros
                 end
 
                 local chars = {}
@@ -782,25 +786,23 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end)
 
-            -- Modificado para verificar se Mouse existe antes de usar
-            if Mouse then
-                UserInputService.InputBegan:Connect(function(Input)
-                    if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
-                        local AbsPos = DropdownHolderFrame.AbsolutePosition
-                        local AbsSize = DropdownHolderFrame.AbsoluteSize
-                        if
-                            Mouse.X < AbsPos.X or
-                            Mouse.X > AbsPos.X + AbsSize.X or
-                            Mouse.Y < (AbsPos.Y - 20) or
-                            Mouse.Y > AbsPos.Y + AbsSize.Y
-                        then
-                            Dropdown:Close()
+            -- Lógica para fechar dropdown ao clicar fora, sem depender de Mouse
+            UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                if Dropdown.Opened and not gameProcessed and
+                    (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                    local uiObjects = LocalPlayer:WaitForChild("PlayerGui", 10):GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)
+                    local isOutside = true
+                    for _, obj in ipairs(uiObjects) do
+                        if obj:IsDescendantOf(DropdownHolderFrame) or obj:IsDescendantOf(DropdownDisplay) then
+                            isOutside = false
+                            break
                         end
                     end
-                end)
-            else
-                warn("Mouse não disponível; funcionalidade de fechar dropdown ao clicar fora desativada.")
-            end
+                    if isOutside then
+                        Dropdown:Close()
+                    end
+                end
+            end)
 
             function Dropdown:Open()
                 Dropdown.Opened = true
@@ -968,7 +970,7 @@ function OrionLibV2:MakeWindow(Info)
 
                 ListSizeX = 0
                 for Button, _ in pairs(Buttons) do
-                    local textBounds = Button:WaitForChild("TextLabel").TextBounds
+                    local textBounds = Button:WaitForChild("TextLabel", 1).TextBounds
                     if textBounds.X > ListSizeX then
                         ListSizeX = textBounds.X + 30
                     end
