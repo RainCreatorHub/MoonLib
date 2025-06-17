@@ -139,6 +139,17 @@ function OrionLibV2:MakeWindow(Info)
         local elementY = 0
         local TabFunctions = {}
 
+        -- Função auxiliar para recalcular CanvasSize
+        local function RecalculateCanvasSize()
+            local totalHeight = 0
+            for _, child in ipairs(TabContent:GetChildren()) do
+                if child:IsA("Frame") and child.Visible then
+                    totalHeight = math.max(totalHeight, child.Position.Y.Offset + child.Size.Y.Offset + 10)
+                end
+            end
+            TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+        end
+
         function TabFunctions:AddSection(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 25)
@@ -163,7 +174,7 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
 
             elementY = elementY + 30
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+            RecalculateCanvasSize()
             return container
         end
 
@@ -280,9 +291,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local function onSizeChanged()
                 adjustTextLabels()
-                elementY = elementY - container.Size.Y.Offset
-                elementY = elementY + container.Size.Y.Offset + 10
-                TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+                RecalculateCanvasSize()
             end
 
             container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
@@ -292,7 +301,7 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
 
             elementY = elementY + container.Size.Y.Offset + 10
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+            RecalculateCanvasSize()
             return container
         end
 
@@ -356,7 +365,7 @@ function OrionLibV2:MakeWindow(Info)
             end
 
             elementY = elementY + 60
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+            RecalculateCanvasSize()
             return container
         end
 
@@ -502,9 +511,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local function onTextOrSizeChanged()
                 adjustTextLabels()
-                elementY = elementY - container.Size.Y.Offset
-                elementY = elementY + container.Size.Y.Offset + 10
-                TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+                RecalculateCanvasSize()
             end
 
             container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onTextOrSizeChanged)
@@ -553,7 +560,7 @@ function OrionLibV2:MakeWindow(Info)
             updateToggle()
 
             elementY = elementY + container.Size.Y.Offset + 10
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+            RecalculateCanvasSize()
             return container
         end
 
@@ -575,30 +582,98 @@ function OrionLibV2:MakeWindow(Info)
             corner.CornerRadius = UDim.new(0, 6)
             corner.Parent = container
 
-            local dropdownText = Instance.new("TextLabel")
-            dropdownText.Text = info.Name or "Dropdown"
-            dropdownText.Size = UDim2.new(1, -170, 0, 20)
-            dropdownText.Position = UDim2.new(0, 10, 0, 5)
-            dropdownText.BackgroundTransparency = 1
-            dropdownText.TextColor3 = Color3.fromRGB(255, 255, 255)
-            dropdownText.Font = Enum.Font.GothamBold
-            dropdownText.TextSize = 14
-            dropdownText.TextXAlignment = Enum.TextXAlignment.Left
-            dropdownText.TextTransparency = 1
-            dropdownText.Parent = container
+            local nameLabels = {}
+            local descriptionLabels = {}
 
-            local dropdownDescription = Instance.new("TextLabel")
-            dropdownDescription.Text = info.Description or ""
-            dropdownDescription.Size = UDim2.new(1, -170, 0, 15)
-            dropdownDescription.Position = UDim2.new(0, 10, 0, 25)
-            dropdownDescription.BackgroundTransparency = 1
-            dropdownDescription.TextColor3 = Color3.fromRGB(180, 180, 180)
-            dropdownDescription.Font = Enum.Font.Gotham
-            dropdownDescription.TextSize = 11
-            dropdownDescription.TextXAlignment = Enum.TextXAlignment.Left
-            dropdownDescription.TextTransparency = 1
-            dropdownDescription.TextWrapped = true
-            dropdownDescription.Parent = container
+            local function createTextLabel(text, font, textSize, color, position, parent)
+                local label = Instance.new("TextLabel")
+                label.Text = text
+                label.Size = UDim2.new(1, -170, 0, 0)
+                label.Position = position
+                label.BackgroundTransparency = 1
+                label.TextColor3 = color
+                label.Font = font
+                label.TextSize = textSize
+                label.TextXAlignment = Enum.TextXAlignment.Left
+                label.TextTransparency = 1
+                label.TextWrapped = false
+                label.Parent = parent
+                return label
+            end
+
+            local function splitText(text, label, maxWidth)
+                if not text or text == "" then
+                    return {""}
+                end
+
+                local chars = {}
+                for char in text:gmatch("[\128-\191]*.") do
+                    table.insert(chars, char)
+                end
+
+                local lines = {""}
+                local currentLine = 1
+
+                for _, char in ipairs(chars) do
+                    local testText = lines[currentLine] .. char
+                    label.Text = testText
+                    task.wait()
+                    if label.TextBounds.X <= maxWidth then
+                        lines[currentLine] = testText
+                    else
+                        currentLine = currentLine + 1
+                        lines[currentLine] = char
+                    end
+                end
+
+                label.Text = text
+                return lines
+            end
+
+            local function adjustTextLabels()
+                for _, label in ipairs(nameLabels) do
+                    label:Destroy()
+                end
+                for _, label in ipairs(descriptionLabels) do
+                    label:Destroy()
+                end
+                nameLabels = {}
+                descriptionLabels = {}
+
+                local nameText = info.Name or "Dropdown"
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
+                local maxWidth = container.AbsoluteSize.X - 180
+                local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                tempNameLabel:Destroy()
+
+                local yOffset = 5
+                for i, line in ipairs(nameLines) do
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
+                    task.wait()
+                    nameLabel.Size = UDim2.new(1, -170, 0, nameLabel.TextBounds.Y or 14)
+                    table.insert(nameLabels, nameLabel)
+                    yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                end
+
+                local descText = info.Description or ""
+                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                local descLines = splitText(descText, tempDescLabel, maxWidth)
+                tempDescLabel:Destroy()
+
+                for i, line in ipairs(descLines) do
+                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                    task.wait()
+                    descLabel.Size = UDim2.new(1, -170, 0, descLabel.TextBounds.Y or 11)
+                    table.insert(descriptionLabels, descLabel)
+                    yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
+                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                end
+
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+            end
+
+            adjustTextLabels()
 
             local Dropdown = {
                 Values = info.Values or {},
@@ -650,18 +725,17 @@ function OrionLibV2:MakeWindow(Info)
             DropdownScrollFrame.Size = UDim2.new(1, -5, 1, -10)
             DropdownScrollFrame.Position = UDim2.fromOffset(5, 5)
             DropdownScrollFrame.BackgroundTransparency = 1
-            DropdownScrollFrame.ScrollBarThickness = 6 -- Aumentar espessura da barra de rolagem
+            DropdownScrollFrame.ScrollBarThickness = 6
             DropdownScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
-            DropdownScrollFrame.ScrollBarImageTransparency = 0.3 -- Tornar barra mais visível
+            DropdownScrollFrame.ScrollBarImageTransparency = 0.3
             DropdownScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
             DropdownScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
             DropdownScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             DropdownListLayout.Parent = DropdownScrollFrame
 
-            -- Controle personalizado de rolagem para reduzir sensibilidade
             DropdownScrollFrame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseWheel then
-                    local scrollAmount = 20 -- Incremento ainda menor para maior controle
+                    local scrollAmount = 20
                     local currentPosition = DropdownScrollFrame.CanvasPosition.Y
                     local newPosition = currentPosition - (input.Position.Z * scrollAmount)
                     newPosition = math.clamp(newPosition, 0, DropdownScrollFrame.CanvasSize.Y.Offset - DropdownScrollFrame.AbsoluteWindowSize.Y)
@@ -709,12 +783,6 @@ function OrionLibV2:MakeWindow(Info)
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(dropdownText, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
-            }):Play()
-            TweenService:Create(dropdownDescription, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
             }):Play()
             TweenService:Create(DropdownDisplay, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 TextTransparency = 0,
@@ -1002,8 +1070,15 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end
 
-            elementY = elementY + 60
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+            local function onSizeChanged()
+                adjustTextLabels()
+                RecalculateCanvasSize()
+            end
+
+            container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
+
+            elementY = elementY + container.Size.Y.Offset + 10
+            RecalculateCanvasSize()
             return container
         end
 
