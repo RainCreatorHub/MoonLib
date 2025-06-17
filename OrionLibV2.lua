@@ -153,8 +153,21 @@ function OrionLibV2:MakeWindow(Info)
         end
 
         function TabFunctions:AddSection(info)
+            -- Criar TextLabel temporário para medir a altura do texto
+            local tempLabel = Instance.new("TextLabel")
+            tempLabel.Text = info.Name or "Section"
+            tempLabel.Font = Enum.Font.GothamBold
+            tempLabel.TextSize = 16
+            tempLabel.TextXAlignment = Enum.TextXAlignment.Left
+            tempLabel.BackgroundTransparency = 1
+            tempLabel.Size = UDim2.new(1, -20, 0, 0) -- Altura automática
+            tempLabel.Parent = TabContent
+            task.wait() -- Aguardar para calcular TextBounds
+            local textHeight = tempLabel.TextBounds.Y or 16 -- Fallback para 16 se TextBounds falhar
+            tempLabel:Destroy()
+
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 20) -- Reduzido para 20
+            container.Size = UDim2.new(1, -20, 0, textHeight) -- Altura do texto
             container.Position = UDim2.new(0, 10, 0, elementY)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -177,7 +190,7 @@ function OrionLibV2:MakeWindow(Info)
                 TextTransparency = 0
             }):Play()
 
-            elementY = elementY + 30 -- Reduzido para 30 (20 tamanho + 10 margem)
+            elementY = elementY + textHeight + 10 -- Altura do texto + 10 de margem
             RecalculateCanvasSize()
             return container
         end
@@ -185,7 +198,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -308,7 +321,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddButton(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -374,7 +387,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -567,7 +580,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -753,7 +766,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local holderStroke = Instance.new("UIStroke")
             holderStroke.Color = Color3.fromRGB(80, 80, 80)
-            holderStroke.Thickness = 1.5
+            stroke.Thickness = 1.5
             holderStroke.Parent = DropdownHolderFrame
 
             local shadow = Instance.new("ImageLabel")
