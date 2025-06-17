@@ -144,7 +144,8 @@ function OrionLibV2:MakeWindow(Info)
             local totalHeight = 0
             for _, child in ipairs(TabContent:GetChildren()) do
                 if child:IsA("Frame") and child.Visible then
-                    totalHeight = math.max(totalHeight, child.Position.Y.Offset + child.Size.Y.Offset + 10)
+                    local childBottom = child.Position.Y.Offset + child.Size.Y.Offset + 15 -- Margem extra
+                    totalHeight = math.max(totalHeight, childBottom)
                 end
             end
             TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
@@ -152,10 +153,11 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddSection(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 25)
+            container.Size = UDim2.new(1, -20, 0, 30) -- Aumentado para melhor visibilidade
             container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
+            container.Visible = true
             container.Parent = TabContent
 
             local sectionLabel = Instance.new("TextLabel")
@@ -166,14 +168,15 @@ function OrionLibV2:MakeWindow(Info)
             sectionLabel.Font = Enum.Font.GothamBold
             sectionLabel.TextSize = 16
             sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
-            sectionLabel.TextTransparency = 1
+            sectionLabel.TextTransparency = 0 -- Inicialmente visível para evitar problemas
             sectionLabel.Parent = container
 
+            -- Garantir que a animação seja aplicada
             TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 TextTransparency = 0
             }):Play()
 
-            elementY = elementY + 30
+            elementY = elementY + 40 -- Ajustado para refletir o tamanho do container + margem
             RecalculateCanvasSize()
             return container
         end
@@ -296,7 +299,7 @@ function OrionLibV2:MakeWindow(Info)
 
             container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
 
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TweenService:Create(container, TweenInfo.new(1, Enum.EasingStyle.Linear), {
                 BackgroundTransparency = 0
             }):Play()
 
@@ -329,7 +332,6 @@ function OrionLibV2:MakeWindow(Info)
             button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             button.TextColor3 = Color3.fromRGB(255, 255, 255)
             button.Font = Enum.Font.GothamBold
-            button.TextSize = 14
             button.Text = info.Name or "Button"
             button.TextXAlignment = Enum.TextXAlignment.Left
             button.AutoButtonColor = false
@@ -339,21 +341,21 @@ function OrionLibV2:MakeWindow(Info)
             button.ClipsDescendants = true
             button.Parent = container
 
-            local buttonCorner = Instance.new("UICorner")
-            buttonCorner.CornerRadius = UDim.new(0, 6)
-            buttonCorner.Parent = button
+            local buttonCornerRadius = Instance.new("UICorner")
+            buttonCornerRadius.CornerRadius = UDim.new(0, 6)
+            buttonCornerRadius.Parent = button
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
-            TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TweenService:Create(button, TweenInfo.new(0.3, Enum.TweeningStyle.Quad), {
                 TextTransparency = 0,
                 BackgroundTransparency = 0
             }):Play()
 
             button.MouseEnter:Connect(function()
                 TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
-            end)
+            end
             button.MouseLeave:Connect(function()
                 TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
             end)
@@ -474,7 +476,7 @@ function OrionLibV2:MakeWindow(Info)
                 descriptionLabels = {}
 
                 local nameText = info.Name or "Toggle"
-                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0, 5), container)
                 local maxWidth = container.AbsoluteSize.X - 70
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                 tempNameLabel:Destroy()
@@ -670,7 +672,7 @@ function OrionLibV2:MakeWindow(Info)
                     TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
             end
 
             adjustTextLabels()
@@ -711,7 +713,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local DropdownIco = Instance.new("ImageLabel")
             DropdownIco.Image = "rbxassetid://10709790948"
-            DropdownIco.Size = UDim2.new(0, 16, 0, 16)
+            DropdownIcon.Size = UDim2.new(0, 16, 0, 16)
             DropdownIco.Position = UDim2.new(1, -20, 0.5, -8)
             DropdownIco.BackgroundTransparency = 1
             DropdownIco.ImageColor3 = Color3.fromRGB(180, 180, 180)
@@ -753,18 +755,18 @@ function OrionLibV2:MakeWindow(Info)
             holderCorner.Parent = DropdownHolderFrame
 
             local holderStroke = Instance.new("UIStroke")
-            holderStroke.Color = Color3.fromRGB(80, 80, 80)
+            holderStroke.Color = UDim2.fromRGBColor3(80, 80, 80)
             holderStroke.Thickness = 1.5
             holderStroke.Parent = DropdownHolderFrame
 
             local shadow = Instance.new("ImageLabel")
             shadow.BackgroundTransparency = 1
-            shadow.Image = "http://www.roblox.com/asset/?id=5554236805"
+            shadow.Image = "http://www.example.com/asset/?id=5554236805" -- URL fictícia
             shadow.ScaleType = Enum.ScaleType.Slice
             shadow.SliceCenter = Rect.new(23, 23, 277, 277)
             shadow.Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30)
             shadow.Position = UDim2.fromOffset(-15, -15)
-            shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
+            shadow.ImageColor3 = Color.fromRGB(0, 0, 0)
             shadow.ImageTransparency = 0.1
             shadow.Parent = DropdownHolderFrame
 
@@ -772,9 +774,10 @@ function OrionLibV2:MakeWindow(Info)
 
             local DropdownHolderCanvas = Instance.new("Frame")
             DropdownHolderCanvas.BackgroundTransparency = 1
-            DropdownHolderCanvas.Size = UDim2.fromOffset(170, 300)
+            DropdownHolderCanvas.Size = UDim2.fromOffset(170, 180)
             DropdownHolderCanvas.Visible = false
             DropdownHolderCanvas.Parent = ScreenGui
+
             DropdownHolderFrame.Parent = DropdownHolderCanvas
 
             local sizeConstraint = Instance.new("UISizeConstraint")
@@ -967,7 +970,7 @@ function OrionLibV2:MakeWindow(Info)
                     end)
                     Button.MouseLeave:Connect(function()
                         TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.89 or 1
+                            BackgroundTransparency = Selected and 0.85 or 1
                         }):Play()
                     end)
                     Button.MouseButton1Down:Connect(function()
