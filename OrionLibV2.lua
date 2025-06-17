@@ -111,7 +111,7 @@ function OrionLibV2:MakeWindow(Info)
 
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Name = TabInfo.Name or "TabContent"
-        TabContent.Size = UDim2.new(1, -145, 1, -80) -- Ajustado para ocupar a área à direita da VerticalLine
+        TabContent.Size = UDim2.new(1, -145, 1, -80)
         TabContent.Position = UDim2.new(0, 145, 0, 70)
         TabContent.BackgroundTransparency = 1
         TabContent.Visible = (#TabList == 0)
@@ -120,7 +120,7 @@ function OrionLibV2:MakeWindow(Info)
         TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
         TabContent.ScrollingDirection = Enum.ScrollingDirection.Y
         TabContent.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-        TabContent.ClipsDescendants = true -- Ativado para evitar vazamento
+        TabContent.ClipsDescendants = true
         TabContent.Parent = window
         table.insert(TabList, TabContent)
 
@@ -149,7 +149,7 @@ function OrionLibV2:MakeWindow(Info)
                     totalHeight = math.max(totalHeight, childBottom)
                 end
             end
-            totalHeight = math.max(totalHeight, elementY) + 20 -- Margem final
+            totalHeight = math.max(totalHeight, elementY) + 20
             TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
         end
 
@@ -163,7 +163,7 @@ function OrionLibV2:MakeWindow(Info)
             tempLabel.BackgroundTransparency = 1
             tempLabel.Size = UDim2.new(1, -20, 0, 0)
             tempLabel.Parent = TabContent
-            task.wait()
+            task.wait(0) -- Força a renderização antes de medir
             local textHeight = tempLabel.TextBounds.Y or 16
             tempLabel:Destroy()
 
@@ -177,7 +177,8 @@ function OrionLibV2:MakeWindow(Info)
 
             local sectionLabel = Instance.new("TextLabel")
             sectionLabel.Text = info.Name or "Section"
-            sectionLabel.Size = UDim2.new(1, 0, 1, 0)
+            sectionLabel.Size = UDim2.new(1, 0, 0, textHeight)
+            sectionLabel.Position = UDim2.new(0, 0, 0, 2) -- Margem superior de 2 pixels
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
             sectionLabel.Font = Enum.Font.GothamBold
