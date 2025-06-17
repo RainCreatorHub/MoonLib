@@ -120,7 +120,7 @@ function OrionLibV2:MakeWindow(Info)
         TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
         TabContent.ScrollingDirection = Enum.ScrollingDirection.Y
         TabContent.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-        TabContent.ClipsDescendants = false -- Garantir que elementos não sejam cortados
+        TabContent.ClipsDescendants = false
         TabContent.Parent = window
         table.insert(TabList, TabContent)
 
@@ -154,11 +154,11 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddSection(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 30)
+            container.Size = UDim2.new(1, -20, 0, 20) -- Reduzido para 20
             container.Position = UDim2.new(0, 10, 0, elementY)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
-            container.ZIndex = 1 -- Garantir que a seção não sobreponha outros elementos
+            container.ZIndex = 1
             container.Parent = TabContent
 
             local sectionLabel = Instance.new("TextLabel")
@@ -177,7 +177,7 @@ function OrionLibV2:MakeWindow(Info)
                 TextTransparency = 0
             }):Play()
 
-            elementY = elementY + 40
+            elementY = elementY + 30 -- Reduzido para 30 (20 tamanho + 10 margem)
             RecalculateCanvasSize()
             return container
         end
@@ -185,7 +185,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -308,7 +308,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddButton(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -374,7 +374,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -567,7 +567,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20) -- Restaurado +20
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
