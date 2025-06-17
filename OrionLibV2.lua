@@ -111,7 +111,7 @@ function OrionLibV2:MakeWindow(Info)
 
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Name = TabInfo.Name or "TabContent"
-        TabContent.Size = UDim2.new(1, -145, 1, -80)
+        TabContent.Size = UDim2.new(1, -145, 1, -80) -- Ajustado para ocupar a área à direita da VerticalLine
         TabContent.Position = UDim2.new(0, 145, 0, 70)
         TabContent.BackgroundTransparency = 1
         TabContent.Visible = (#TabList == 0)
@@ -120,7 +120,7 @@ function OrionLibV2:MakeWindow(Info)
         TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
         TabContent.ScrollingDirection = Enum.ScrollingDirection.Y
         TabContent.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-        TabContent.ClipsDescendants = true
+        TabContent.ClipsDescendants = true -- Ativado para evitar vazamento
         TabContent.Parent = window
         table.insert(TabList, TabContent)
 
@@ -149,7 +149,7 @@ function OrionLibV2:MakeWindow(Info)
                     totalHeight = math.max(totalHeight, childBottom)
                 end
             end
-            totalHeight = math.max(totalHeight, elementY) + 20
+            totalHeight = math.max(totalHeight, elementY) + 20 -- Margem final
             TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
         end
 
@@ -177,8 +177,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local sectionLabel = Instance.new("TextLabel")
             sectionLabel.Text = info.Name or "Section"
-            sectionLabel.Size = UDim2.new(1, 0, 0, textHeight) -- Altura fixa do texto
-            sectionLabel.Position = UDim2.new(0, 0, 0.5, -textHeight/2) -- Centralizado verticalmente
+            sectionLabel.Size = UDim2.new(1, 0, 1, 0)
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
             sectionLabel.Font = Enum.Font.GothamBold
@@ -272,29 +271,31 @@ function OrionLibV2:MakeWindow(Info)
                 contentLabels = {}
 
                 local nameText = info.Name or "Label"
-                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255,255,255), UDim2.new(0,5,0,0,5), container))
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container)
                 local maxWidth = container.AbsoluteSize.X - 10
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                tempNameLabel:Destroy()
+
                 local yOffset = 5
-                for i, line in ipairs(nameLines)
-                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255,255,255), UDim2.new(0,5,0,yOffset), container))
-                    nameLabel.Size = UDim2.new(1,-10,0, nameLabel.TextBounds.Y or 14)
+                for i, line in ipairs(nameLines) do
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
+                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
                     yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
-                    TweenService:CreateTween(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
                 local contentText = info.Content or "Texto"
-                local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180,180,180), UDim2.new(0,5,5,yOffset), container))
+                local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
                 local contentLines = splitText(contentText, tempContentLabel, maxWidth)
                 tempContentLabel:Destroy()
 
                 for i, line in ipairs(contentLines) do
-                    local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180,180,180), UDim2.new(0,5,5,yOffset), container))
-                    contentLabel.Size = UDim2.new(1,-10,-10,0, contentLabel.TextBounds.Y or 13)
+                    local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13)
                     table.insert(contentLabels, contentLabel)
                     yOffset = yOffset + (contentLabel.TextBounds.Y or 13) + 2
-                    TweenService:CreateTween(contentLabel(label, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
                 container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
@@ -313,38 +314,38 @@ function OrionLibV2:MakeWindow(Info)
                 BackgroundTransparency = 0
             }):Play()
 
-            elementY = elementY + container.Size.YOffset + 10
+            elementY = elementY + container.Size.Y.Offset + 10
             RecalculateCanvasSize()
             return container
         end
 
         function TabFunctions:AddButton(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1,-20,0,50)
-            container.Position = UDim2.new(0,10,0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40,40,40)
+            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
             container.ZIndex = 1
             container.Parent = TabContent
 
             local stroke = Instance.new("UIStroke")
-            stroke.Color = Color3.fromRGB(80,80,80)
+            stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 1.5
             stroke.Parent = container
 
             local corner = Instance.new("UICorner")
-            corner.CornerRadius = UDim.new(0,6)
+            corner.CornerRadius = UDim.new(0, 6)
             corner.Parent = container
 
             local button = Instance.new("TextButton")
-            button.Text = info.Name or "Button"
-            button.Size = UDim2.new(1,-10,-10,-10)
-            button.Position = UDim2.new(0,5,5,0,5)
-            button.BackgroundColor3 = Color3.fromRGB(40,40,40)
-            button.TextColor3 = Color3.fromRGB(255,255,255)
+            button.Size = UDim2.new(1, -10, 1, -10)
+            button.Position = UDim2.new(0, 5, 0, 5)
+            button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            button.TextColor3 = Color3.fromRGB(255, 255, 255)
             button.Font = Enum.Font.GothamBold
             button.TextSize = 14
+            button.Text = info.Name or "Button"
             button.TextXAlignment = Enum.TextXAlignment.Left
             button.AutoButtonColor = false
             button.BorderSizePixel = 0
@@ -355,7 +356,7 @@ function OrionLibV2:MakeWindow(Info)
             button.Parent = container
 
             local buttonCorner = Instance.new("UICorner")
-            buttonCorner.CornerRadius = UDim.new(0,6)
+            buttonCorner.CornerRadius = UDim.new(0, 6)
             buttonCorner.Parent = button
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
@@ -367,10 +368,10 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
 
             button.MouseEnter:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle), {BackgroundColor3 = Color3.fromRGB(60,60,60)}):Play()
-            end
+                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+            end)
             button.MouseLeave:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2, {BackgroundColor3 = Color3.fromRGB(40,40,40)}):Play()
+                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
             end)
 
             if info.Callback and typeof(info.Callback) == "function" then
@@ -386,79 +387,79 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1,-20,-20,0,50)
-            container.Position = UDim2.new(0,10,0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40,40,40,40)
+            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
-            container.ZIndex = 4
+            container.ZIndex = 1
             container.Parent = TabContent
 
             local stroke = Instance.new("UIStroke")
-            stroke.Color = Color3.fromRGB(80,80,80)
+            stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 1.5
             stroke.Parent = container
 
             local corner = Instance.new("UICorner")
-            corner.CornerRadius = UDim.new(0,6)
+            corner.CornerRadius = UDim.new(0, 6)
             corner.Parent = container
 
             local toggleButton = Instance.new("TextButton")
-            toggleButton.Size = UDim2.new(0,50,0,24)
-            toggleButton.Position = UDim2.new(1,-60,0,0.5,0,-12)
-            toggleButton.BackgroundColor3 = Color3.fromRGB(50,50,50)
+            toggleButton.Size = UDim2.new(0, 50, 0, 24)
+            toggleButton.Position = UDim2.new(1, -60, 0.5, -12)
+            toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
             toggleButton.BorderSizePixel = 0
             toggleButton.AutoButtonColor = false
             toggleButton.Text = ""
             toggleButton.ClipsDescendants = true
-            toggleButton.ZIndex = 3
+            toggleButton.ZIndex = 1
             toggleButton.Parent = container
 
             local toggleCorner = Instance.new("UICorner")
-            toggleCorner.CornerRadius = UDim.new(0,12)
+            toggleCorner.CornerRadius = UDim.new(0, 12)
             toggleCorner.Parent = toggleButton
 
             local toggleIndicator = Instance.new("Frame")
-            toggleIndicator.Size = UDim2.new(0,20,0,20)
-            toggleIndicator.Position = UDim2.new(0,2,0.5,0,-10)
-            toggleIndicator.BackgroundColor3 = Color3.fromRGB(255,255,255)
+            toggleIndicator.Size = UDim2.new(0, 20, 0, 20)
+            toggleIndicator.Position = UDim2.new(0, 2, 0.5, -10)
+            toggleIndicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             toggleIndicator.BorderSizePixel = 0
-            toggleIndicator.ZIndex = 2
+            toggleIndicator.ZIndex = 1
             toggleIndicator.Parent = toggleButton
 
             local indicatorCorner = Instance.new("UICorner")
-            indicatorCorner.CornerRadius = UDim.new(0,10)
+            indicatorCorner.CornerRadius = UDim.new(0, 10)
             indicatorCorner.Parent = toggleIndicator
 
             local isOn = info.Default or false
-            local toggleBackgroundColor = isOn and Color3.fromRGB(0,170,0) or Color3.fromRGB(50,50,50)
+            local toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
 
             local nameLabels = {}
             local descriptionLabels = {}
 
-            local function createTextLabel(text, font, font, textSize, color, position, size, parent)
+            local function createTextLabel(text, font, textSize, color, position, parent)
                 local label = Instance.new("TextLabel")
                 label.Text = text
-                label.Size = UDim2.new(1,-60,-60,0,0)
+                label.Size = UDim2.new(1, -60, 0, 0)
                 label.Position = position
-                Label.BackgroundTransparency = 1
+                label.BackgroundTransparency = 1
                 label.TextColor3 = color
                 label.Font = font
                 label.TextSize = textSize
                 label.TextXAlignment = Enum.TextXAlignment.Left
                 label.TextTransparency = 1
                 label.TextWrapped = true
-                label.ZIndex = text
+                label.ZIndex = 1
                 label.Parent = parent
                 return label
             end
 
-            local function splitText(label, text, maxWidth)
+            local function splitText(text, label, maxWidth)
                 if not text or text == "" then
                     return {""}
                 end
                 local chars = {}
-                for char in text:gmatch("[\r\n\128-\191]*.") do
+                for char in text:gmatch("[\128-\191]*.") do
                     table.insert(chars, char)
                 end
                 local lines = {""}
@@ -480,44 +481,44 @@ function OrionLibV2:MakeWindow(Info)
 
             local function adjustTextLabels()
                 for _, label in ipairs(nameLabels) do
-                    label.Label:Destroy()
+                    label:Destroy()
                 end
                 for _, label in ipairs(descriptionLabels) do
-                    label:Destroy(label)
+                    label:Destroy()
                 end
                 nameLabels = {}
                 descriptionLabels = {}
 
                 local nameText = info.Name or "Toggle"
-                local tempNameLabel = createTextLabel(nameText, Enum.Label.Font.GothamBold, 14, Color3.fromRGB(255,255,255), UDim2.new(0,10,0,5), container)
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
                 local maxWidth = container.AbsoluteSize.X - 70
-                local nameLines = splitText(tempNameLabel, nameText, maxWidth)
+                local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                 tempNameLabel:Destroy()
 
                 local yOffset = 5
-                for i = , line in ipairs(nameLines) do
-                    local nameLabel = createLabelLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255,255,255), UDim2.new(0,10,0,yOffset), container)
-                    nameLabel.Size = UDim2.new(1,-60,-60,0, nameLabel.TextBounds.Y or 14)
+                for i, line in ipairs(nameLines) do
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
+                    nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
                     yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
-                    TweenService:CreateTween(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
                 local descText = info.Description or ""
-                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180,180,180), UDim2.new(0,10,0,yOffset), descLabel)
-                local descLines = splitText(tempDescLabel, descText, maxWidth)
+                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                local descLines = splitText(descText, tempDescLabel, maxWidth)
                 tempDescLabel:Destroy()
 
-                for i = , line in ipairs(descLines) do
-                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180,180,180), UDim2.new(0,10,0,yOffset), container)
-                    descLabel.Size = UDim2.new(1,-60,-60,-0, descLabel.TextBounds.Y or 11)
+                for i, line in ipairs(descLines) do
+                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                    descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11)
                     table.insert(descriptionLabels, descLabel)
                     yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
-                    TweenService:CreateTween(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1,-20,-0, math.max(50, yOffset + 5))
-                toggleButton.Position = UDim2.new(1,-60,-0,0.5,-12)
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                toggleButton.Position = UDim2.new(1, -60, 0.5, -12)
             end
 
             adjustTextLabels()
@@ -529,27 +530,27 @@ function OrionLibV2:MakeWindow(Info)
 
             container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onTextOrSizeChanged)
 
-            TweenService:CreateTween(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
-            TweenService:CreateTween(toggleButton, TweenInfo.new(0.3,Enum.EasingStyle.Quad), {
+            TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
-            TweenService:CreateTween(toggleIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+            TweenService:Create(toggleIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
             }):Play()
 
             local function updateToggle()
-                isOn = (isOn == null) and false or isOn
-                toggleBackgroundColor = toggleBackgroundColor and Color3.fromRGB(0,170,0) or Color3.fromRGB(50,50,50)
-                local targetPosition = isOn and UDim2.new(0,28,0,0.5,-10) or UDim2.new(0,2,0.5,0,-10)
-                TweenService:CreateTween(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                isOn = (isOn == nil) and false or isOn
+                toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
+                local targetPosition = isOn and UDim2.new(0, 28, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
+                TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     BackgroundColor3 = toggleBackgroundColor
                 }):Play()
-                TweenService:CreateTween(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     Position = targetPosition
                 }):Play()
-                if info.Callback then
+                if info.Callback and typeof(info.Callback) == "function" then
                     info.Callback(isOn)
                 end
             end
@@ -561,67 +562,67 @@ function OrionLibV2:MakeWindow(Info)
 
             toggleButton.MouseEnter:Connect(function()
                 if not isOn then
-                    TweenService:CreateTween(toggleButton, TweenInfo.new(0.2,Enum.EasingStyle), {BackgroundColor3 = Color3.fromRGB(70,70,70)}):Play()
+                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
                 end
             end)
             toggleButton.MouseLeave:Connect(function()
                 if not isOn then
-                    TweenService:CreateTween(toggleButton, TweenInfo.new(0.2,Enum.EasingStyle), {BackgroundColor3 = Color3.fromRGB(50,50,50)}):Play()
+                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
                 end
             end)
 
             updateToggle()
 
-            elementY = elementY + container.Size.YOffset + 10
+            elementY = elementY + container.Size.Y.Offset + 10
             RecalculateCanvasSize()
             return container
         end
 
         function TabFunctions:AddDropdown(info)
-            local container = Dropdown.new("Frame")
-            container.Size = UDim2.new(1,-20,-0,50)
-            container.Position = UDim2.new(0,10,0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40,40,40)
+            local container = Instance.new("Frame")
+            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
+            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
             container.ZIndex = 1
             container.Parent = TabContent
 
-            local stroke = Dropdown.new("UIStroke")
-            stroke.Color = Color3.fromRGB(80,80,80)
+            local stroke = Instance.new("UIStroke")
+            stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 1.5
             stroke.Parent = container
 
-            local corner = Dropdown.new("UICorner")
-            corner.CornerRadius = UDim.new(0,6)
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 6)
             corner.Parent = container
 
             local nameLabels = {}
             local descriptionLabels = {}
 
-            local function dropTextLabel(text, font, textSize, color, position, parent)
-                local dropLabel = Instance.new("TextLabel")
-                dropLabel.Text = text
-                dropLabel.Size = UDim2.new(drop, -170,0,0)
-                dropLabel.Position = position
-                dropLabel.BackgroundTransparency = 1
-                dropLabel.TextColor3 = color
-                dropLabel.Font = font
-                dropLabel.TextSize = textSize
-                dropLabel.TextXAlignment = Enum.TextXAlignment.Left
-                dropLabel.TextTransparency = 1
-                dropLabel.TextWrapped = true
-                dropLabel.ZIndex = 1
-                dropLabel.Parent = parent
-                return dropLabel
+            local function createTextLabel(text, font, textSize, color, position, parent)
+                local label = Instance.new("TextLabel")
+                label.Text = text
+                label.Size = UDim2.new(1, -170, 0, 0)
+                label.Position = position
+                label.BackgroundTransparency = 1
+                label.TextColor3 = color
+                label.Font = font
+                label.TextSize = textSize
+                label.TextXAlignment = Enum.TextXAlignment.Left
+                label.TextTransparency = 1
+                label.TextWrapped = true
+                label.ZIndex = 1
+                label.Parent = parent
+                return label
             end
 
-            local function splitDropText(text, label, maxWidth)
+            local function splitText(text, label, maxWidth)
                 if not text or text == "" then
                     return {""}
                 end
                 local chars = {}
-                for char in text:gmatch(drop:gmatch("[\*-\*]*.") do
+                for char in text:gmatch("[\128-\191]*.") do
                     table.insert(chars, char)
                 end
                 local lines = {""}
@@ -630,7 +631,7 @@ function OrionLibV2:MakeWindow(Info)
                     local testText = lines[currentLine] .. char
                     label.Text = testText
                     task.wait()
-                    if dropLabel.TextBounds.X <= maxWidth then
+                    if label.TextBounds.X <= maxWidth then
                         lines[currentLine] = testText
                     else
                         currentLine = currentLine + 1
@@ -641,63 +642,63 @@ function OrionLibV2:MakeWindow(Info)
                 return lines
             end
 
-            local function adjustDropText()
-                for _, dropLabel in ipairs(nameLabels) do
-                    dropLabel:Destroy()
+            local function adjustTextLabels()
+                for _, label in ipairs(nameLabels) do
+                    label:Destroy()
                 end
-                for _, dropLabel in ipairs(descriptionLabels) do
-                    dropLabel:Destroy()
+                for _, label in ipairs(descriptionLabels) do
+                    label:Destroy()
                 end
                 nameLabels = {}
                 descriptionLabels = {}
 
-                local nameText = drop.Name or "Dropdown"
-                local tempNameDrop = dropTextLabel(nameText, Enum.Font.dropGothamBold, 14, Color3.fromRGB(255,255,255), UDim2.new(0,10,0,5), container)
-                local maxWidth = container.AbsoluteDropSize.X - 180
-                local nameLines = splitDropText(nameText, tempNameDrop, maxWidth)
-                tempNameDrop:Destroy()
+                local nameText = info.Name or "Dropdown"
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
+                local maxWidth = container.AbsoluteSize.X - 180
+                local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                tempNameLabel:Destroy()
 
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
-                    local nameDrop = dropTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255,255,255), UDim2.new(0,10,0,yOffset), container)
-                    nameDrop.Size = UDim2.new(1,-170,0, nameDrop.TextBounds.Y or 14)
-                    table.insert(nameLabels, nameDrop)
-                    yOffset = yOffset + (nameDrop.TextBounds.Y or 14) + 2
-                    TweenService:CreateTween(nameDrop, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
+                    nameLabel.Size = UDim2.new(1, -170, 0, nameLabel.TextBounds.Y or 14)
+                    table.insert(nameLabels, nameLabel)
+                    yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                local descText = drop.Description or ""
-                local tempDescDrop = dropTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180,180,180), UDim2.new(0,10,0,yOffset), container)
-                local descLines = splitDropText(descText, tempDescDrop, maxWidth)
-                tempDescDrop:Destroy()
+                local descText = info.Description or ""
+                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                local descLines = splitText(descText, tempDescLabel, maxWidth)
+                tempDescLabel:Destroy()
 
                 for i, line in ipairs(descLines) do
-                    local descDrop = dropTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180,180,180), UDim2.new(0,10,0,yOffset), container)
-                    descDrop.Size = UDim2.new(1,-170,0, descDrop.TextBounds.Y or 11)
-                    table.insert(descriptionLabels, descDrop)
-                    yOffset = yOffset + (descDrop.TextBounds.Y or 11) + 2
-                    TweenService:CreateTween(descDrop, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                    descLabel.Size = UDim2.new(1, -170, 0, descLabel.TextBounds.Y or 11)
+                    table.insert(descriptionLabels, descLabel)
+                    yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
+                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1,-20,0, math.max(50, yOffset + 5))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
             end
 
-            adjustDropText()
+            adjustTextLabels()
 
             local Dropdown = {
-                Values = drop.Values or {},
-                Value = drop.Default or (drop.Multi and {} or nil),
-                Multi = drop.Multi or false,
+                Values = info.Values or {},
+                Value = info.Default or (info.Multi and {} or nil),
+                Multi = info.Multi or false,
                 Buttons = {},
                 Opened = false,
-                Callback = drop.Callback or function() end,
+                Callback = info.Callback or function() end,
             }
 
             local DropdownDisplay = Instance.new("TextButton")
-            DropdownDisplay.Size = UDim2.new(0,160,0,24)
-            DropdownDisplay.Position = UDim2.new(1,-170,0.5,-12)
-            DropdownDisplay.BackgroundColor3 = Color3.fromRGB(50,50,50)
-            DropdownDisplay.TextColor3 = Color3.fromRGB(255,255,255)
+            DropdownDisplay.Size = UDim2.new(0, 160, 0, 24)
+            DropdownDisplay.Position = UDim2.new(1, -170, 0.5, -12)
+            DropdownDisplay.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            DropdownDisplay.TextColor3 = Color3.fromRGB(255, 255, 255)
             DropdownDisplay.Font = Enum.Font.Gotham
             DropdownDisplay.TextSize = 13
             DropdownDisplay.TextXAlignment = Enum.TextXAlignment.Left
@@ -710,36 +711,36 @@ function OrionLibV2:MakeWindow(Info)
             DropdownDisplay.Parent = container
 
             local displayCorner = Instance.new("UICorner")
-            displayCorner.CornerRadius = UDim.new(0,6)
+            displayCorner.CornerRadius = UDim.new(0, 6)
             displayCorner.Parent = DropdownDisplay
 
             local displayStroke = Instance.new("UIStroke")
-            displayStroke.Color = Color3.fromRGB(80,80,80)
+            displayStroke.Color = Color3.fromRGB(80, 80, 80)
             displayStroke.Thickness = 1
             displayStroke.Transparency = 0.5
             displayStroke.Parent = DropdownDisplay
 
             local DropdownIco = Instance.new("ImageLabel")
             DropdownIco.Image = "rbxassetid://10709790948"
-            DropdownIco.Size = UDim2.new(0,16,0,16)
-            DropdownIco.Position = UDim2.new(1,-20,0.5,-8)
+            DropdownIco.Size = UDim2.new(0, 16, 0, 16)
+            DropdownIco.Position = UDim2.new(1, -20, 0.5, -8)
             DropdownIco.BackgroundTransparency = 1
-            DropdownIco.ImageColor3 = Color3.fromRGB(180,180,180)
+            DropdownIco.ImageColor3 = Color3.fromRGB(180, 180, 180)
             DropdownIco.ImageTransparency = 1
             DropdownIco.ZIndex = 1
             DropdownIco.Parent = DropdownDisplay
 
             local DropdownListLayout = Instance.new("UIListLayout")
-            DropdownListLayout.Padding = UDim.new(0,3)
+            DropdownListLayout.Padding = UDim.new(0, 3)
 
             local DropdownScrollFrame = Instance.new("ScrollingFrame")
-            DropdownScrollFrame.Size = UDim2.new(1,-5,1,-10)
-            DropdownScrollFrame.Position = UDim2.fromOffset(5,5)
+            DropdownScrollFrame.Size = UDim2.new(1, -5, 1, -10)
+            DropdownScrollFrame.Position = UDim2.fromOffset(5, 5)
             DropdownScrollFrame.BackgroundTransparency = 1
             DropdownScrollFrame.ScrollBarThickness = 6
-            DropdownScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100,100,100)
+            DropdownScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
             DropdownScrollFrame.ScrollBarImageTransparency = 0.3
-            DropdownScrollFrame.CanvasSize = UDim2.new(0,0,0,0)
+            DropdownScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
             DropdownScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
             DropdownScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             DropdownListLayout.Parent = DropdownScrollFrame
@@ -755,17 +756,17 @@ function OrionLibV2:MakeWindow(Info)
             end)
 
             local DropdownHolderFrame = Instance.new("Frame")
-            DropdownHolderFrame.Size = UDim2.fromScale(1,0.6)
-            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(35,35,35)
+            DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
+            DropdownHolderFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             DropdownHolderFrame.ClipsDescendants = true
             DropdownHolderFrame.ZIndex = 2
 
             local holderCorner = Instance.new("UICorner")
-            holderCorner.CornerRadius = UDim.new(0,6)
+            holderCorner.CornerRadius = UDim.new(0, 6)
             holderCorner.Parent = DropdownHolderFrame
 
             local holderStroke = Instance.new("UIStroke")
-            holderStroke.Color = Color3.fromRGB(80,80,80)
+            holderStroke.Color = Color3.fromRGB(80, 80, 80)
             holderStroke.Thickness = 1.5
             holderStroke.Parent = DropdownHolderFrame
 
@@ -773,10 +774,10 @@ function OrionLibV2:MakeWindow(Info)
             shadow.BackgroundTransparency = 1
             shadow.Image = "http://www.roblox.com/asset/?id=5554236805"
             shadow.ScaleType = Enum.ScaleType.Slice
-            shadow.SliceCenter = Rect.new(23,23,277,277)
-            shadow.Size = UDim2.fromScale(1,1) + UDim2.fromOffset(30,30)
-            shadow.Position = UDim2.fromOffset(-15,-15)
-            shadow.ImageColor3 = Color3.fromRGB(0,0,0)
+            shadow.SliceCenter = Rect.new(23, 23, 277, 277)
+            shadow.Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30)
+            shadow.Position = UDim2.fromOffset(-15, -15)
+            shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
             shadow.ImageTransparency = 0.1
             shadow.ZIndex = 2
             shadow.Parent = DropdownHolderFrame
@@ -785,14 +786,14 @@ function OrionLibV2:MakeWindow(Info)
 
             local DropdownHolderCanvas = Instance.new("Frame")
             DropdownHolderCanvas.BackgroundTransparency = 1
-            DropdownHolderCanvas.Size = UDim2.fromOffset(170,300)
+            DropdownHolderCanvas.Size = UDim2.fromOffset(170, 300)
             DropdownHolderCanvas.Visible = false
             DropdownHolderCanvas.ZIndex = 2
             DropdownHolderCanvas.Parent = ScreenGui
             DropdownHolderFrame.Parent = DropdownHolderCanvas
 
             local sizeConstraint = Instance.new("UISizeConstraint")
-            sizeConstraint.MinSize = Vector2.new(170,0)
+            sizeConstraint.MinSize = Vector2.new(170, 0)
             sizeConstraint.Parent = DropdownHolderCanvas
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
