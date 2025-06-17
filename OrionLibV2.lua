@@ -1,18 +1,35 @@
 local OrionLibV2 = {}
 
 function OrionLibV2:MakeWindow(Info)
-    -- Substituído game:GetService por game:WaitForChild para serviços
+    -- Função para tentar acessar o mouse com retries
+    local function getMouseWithRetry(localPlayer, maxAttempts, delay)
+        maxAttempts = maxAttempts or 5
+        delay = delay or 0.5
+        for i = 1, maxAttempts do
+            local success, mouse = pcall(function()
+                return localPlayer:GetMouse()
+            end)
+            if success and mouse then
+                return mouse
+            end
+            task.wait(delay)
+        end
+        warn("Falha ao obter mouse após " .. maxAttempts .. " tentativas.")
+        return nil
+    end
+
+    -- Acessos com WaitForChild para serviços
     local TweenService = game:WaitForChild("TweenService", 5)
     local UserInputService = game:WaitForChild("UserInputService", 5)
     local Players = game:WaitForChild("Players", 5)
     local LocalPlayer = Players:WaitForChild("LocalPlayer", 5)
-    local Mouse = LocalPlayer:GetMouse() -- GetMouse é síncrono, não precisa de WaitForChild
+    -- Substituído GetMouse por getMouseWithRetry
+    local Mouse = getMouseWithRetry(LocalPlayer)
     local Workspace = game:WaitForChild("Workspace", 5)
     local Camera = Workspace:WaitForChild("CurrentCamera", 5)
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CheatGUI"
-    -- Substituído LocalPlayer.PlayerGui por WaitForChild
     ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 5)
     ScreenGui.ResetOnSpawn = false
 
@@ -131,7 +148,6 @@ function OrionLibV2:MakeWindow(Info)
                 f.Visible = false
             end
             TabContent.Visible = true
-            -- Substituído acesso direto por WaitForChild para TextButtons
             for _, btn in ipairs(TabScrollFrame:GetChildren()) do
                 if btn:IsA("TextButton") then
                     btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -354,7 +370,7 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()
 
             button.MouseEnter:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 50, 60)}):Play()
             end)
             button.MouseLeave:Connect(function()
                 TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
@@ -432,14 +448,14 @@ function OrionLibV2:MakeWindow(Info)
                 label.TextSize = textSize
                 label.TextXAlignment = Enum.TextXAlignment.Left
                 label.TextTransparency = 1
-                label.TextWrapped = false -- Desativa wrap automático
+                label.TextWrapped = false
                 label.Parent = parent
                 return label
             end
 
             local function splitText(text, label, maxWidth)
                 if not text or text == "" then
-                    return {""} -- Retorna uma linha vazia para evitar erros
+                    return {""}
                 end
 
                 local chars = {}
@@ -663,7 +679,6 @@ function OrionLibV2:MakeWindow(Info)
 
             local DropdownListLayout = Instance.new("UIListLayout")
             DropdownListLayout.Padding = UDim.new(0, 3)
-            DropdownListLayout.Parent = DropdownScrollFrame
 
             local DropdownScrollFrame = Instance.new("ScrollingFrame")
             DropdownScrollFrame.Size = UDim2.new(1, -5, 1, -10)
@@ -674,6 +689,7 @@ function OrionLibV2:MakeWindow(Info)
             DropdownScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
             DropdownScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
             DropdownScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            DropdownListLayout.Parent = DropdownScrollFrame
 
             local DropdownHolderFrame = Instance.new("Frame")
             DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
@@ -766,20 +782,25 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end)
 
-            UserInputService.InputBegan:Connect(function(Input)
-                if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
-                    local AbsPos = DropdownHolderFrame.AbsolutePosition
-                    local AbsSize = DropdownHolderFrame.AbsoluteSize
-                    if
-                        Mouse.X < AbsPos.X or
-                        Mouse.X > AbsPos.X + AbsSize.X or
-                        Mouse.Y < (AbsPos.Y - 20) or
-                        Mouse.Y > AbsPos.Y + AbsSize.Y
-                    then
-                        Dropdown:Close()
+            -- Modificado para verificar se Mouse existe antes de usar
+            if Mouse then
+                UserInputService.InputBegan:Connect(function(Input)
+                    if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
+                        local AbsPos = DropdownHolderFrame.AbsolutePosition
+                        local AbsSize = DropdownHolderFrame.AbsoluteSize
+                        if
+                            Mouse.X < AbsPos.X or
+                            Mouse.X > AbsPos.X + AbsSize.X or
+                            Mouse.Y < (AbsPos.Y - 20) or
+                            Mouse.Y > AbsPos.Y + AbsSize.Y
+                        then
+                            Dropdown:Close()
+                        end
                     end
-                end
-            end)
+                end)
+            else
+                warn("Mouse não disponível; funcionalidade de fechar dropdown ao clicar fora desativada.")
+            end
 
             function Dropdown:Open()
                 Dropdown.Opened = true
@@ -947,7 +968,6 @@ function OrionLibV2:MakeWindow(Info)
 
                 ListSizeX = 0
                 for Button, _ in pairs(Buttons) do
-                    -- Substituído Button.TextLabel por WaitForChild
                     local textBounds = Button:WaitForChild("TextLabel").TextBounds
                     if textBounds.X > ListSizeX then
                         ListSizeX = textBounds.X + 30
