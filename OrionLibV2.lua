@@ -142,7 +142,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddSection(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 25)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
             container.Parent = TabContent
@@ -169,8 +169,8 @@ function OrionLibV2:MakeWindow(Info)
 
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -185,14 +185,13 @@ function OrionLibV2:MakeWindow(Info)
             corner.CornerRadius = UDim.new(0, 6)
             corner.Parent = container
 
-            -- Lista para armazenar TextLabels de Name e Content
             local nameLabels = {}
             local contentLabels = {}
 
             local function createTextLabel(text, font, textSize, color, position, parent)
                 local label = Instance.new("TextLabel")
                 label.Text = text
-                label.Size = UDim2.new(1, -10, 0, 0) -- Altura ajustada dinamicamente
+                label.Size = UDim2.new(1, -10, 0, 0)
                 label.Position = position
                 label.BackgroundTransparency = 1
                 label.TextColor3 = color
@@ -200,18 +199,18 @@ function OrionLibV2:MakeWindow(Info)
                 label.TextSize = textSize
                 label.TextXAlignment = Enum.TextXAlignment.Left
                 label.TextTransparency = 1
-                label.TextWrapped = false -- Desativa wrap automático
+                label.TextWrapped = false
                 label.Parent = parent
                 return label
             end
 
             local function splitText(text, label, maxWidth)
                 if not text or text == "" then
-                    return {""} -- Retorna uma linha vazia para evitar erros
+                    return {""}
                 end
 
                 local chars = {}
-                for char in text:gmatch("[\128-\191]*.") do -- Suporta caracteres multibyte
+                for char in text:gmatch("[\128-\191]*.") do
                     table.insert(chars, char)
                 end
 
@@ -221,7 +220,7 @@ function OrionLibV2:MakeWindow(Info)
                 for _, char in ipairs(chars) do
                     local testText = lines[currentLine] .. char
                     label.Text = testText
-                    task.wait() -- Aguarda renderização para TextBounds preciso
+                    task.wait()
                     if label.TextBounds.X <= maxWidth then
                         lines[currentLine] = testText
                     else
@@ -230,12 +229,11 @@ function OrionLibV2:MakeWindow(Info)
                     end
                 end
 
-                label.Text = text -- Restaura texto original
+                label.Text = text
                 return lines
             end
 
             local function adjustTextLabels()
-                -- Limpa labels existentes
                 for _, label in ipairs(nameLabels) do
                     label:Destroy()
                 end
@@ -245,24 +243,22 @@ function OrionLibV2:MakeWindow(Info)
                 nameLabels = {}
                 contentLabels = {}
 
-                -- Configura Name
                 local nameText = info.Name or "Label"
                 local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container)
-                local maxWidth = container.AbsoluteSize.X - 10 -- Espaço total menos margens
+                local maxWidth = container.AbsoluteSize.X - 10
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                 tempNameLabel:Destroy()
 
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
                     local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
-                    task.wait() -- Aguarda renderização
-                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14) -- Fallback para altura
+                    task.wait()
+                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
                     yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
                     TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                -- Configura Content
                 local contentText = info.Content or "Texto"
                 local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
                 local contentLines = splitText(contentText, tempContentLabel, maxWidth)
@@ -270,25 +266,22 @@ function OrionLibV2:MakeWindow(Info)
 
                 for i, line in ipairs(contentLines) do
                     local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
-                    task.wait() -- Aguarda renderização
-                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13) -- Fallback para altura
+                    task.wait()
+                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13)
                     table.insert(contentLabels, contentLabel)
                     yOffset = yOffset + (contentLabel.TextBounds.Y or 13) + 2
                     TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                -- Ajusta altura do container
                 container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
             end
 
-            -- Ajusta texto inicial
             adjustTextLabels()
 
-            -- Reajusta quando o tamanho do container mudar
             local function onSizeChanged()
                 adjustTextLabels()
-                elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
+                elementY = elementY - container.Size.Y.Offset
+                elementY = elementY + container.Size.Y.Offset + 10
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -298,7 +291,7 @@ function OrionLibV2:MakeWindow(Info)
                 BackgroundTransparency = 0
             }):Play()
 
-            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
+            elementY = elementY + container.Size.Y.Offset + 10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -306,7 +299,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddButton(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -362,15 +355,15 @@ function OrionLibV2:MakeWindow(Info)
                 end)
             end
 
-            elementY = elementY + 60 -- Mantém espaçamento padrão para botão
+            elementY = elementY + 60
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
 
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Size = UDim2.new(1, -20, 0, 50)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -413,14 +406,13 @@ function OrionLibV2:MakeWindow(Info)
             local isOn = info.Default or false
             local toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
 
-            -- Lista para armazenar TextLabels de Name e Description
             local nameLabels = {}
             local descriptionLabels = {}
 
             local function createTextLabel(text, font, textSize, color, position, parent)
                 local label = Instance.new("TextLabel")
                 label.Text = text
-                label.Size = UDim2.new(1, -60, 0, 0) -- Altura ajustada dinamicamente
+                label.Size = UDim2.new(1, -60, 0, 0)
                 label.Position = position
                 label.BackgroundTransparency = 1
                 label.TextColor3 = color
@@ -428,18 +420,18 @@ function OrionLibV2:MakeWindow(Info)
                 label.TextSize = textSize
                 label.TextXAlignment = Enum.TextXAlignment.Left
                 label.TextTransparency = 1
-                label.TextWrapped = false -- Desativa wrap automático
+                label.TextWrapped = false
                 label.Parent = parent
                 return label
             end
 
             local function splitText(text, label, maxWidth)
                 if not text or text == "" then
-                    return {""} -- Retorna uma linha vazia para evitar erros
+                    return {""}
                 end
 
                 local chars = {}
-                for char in text:gmatch("[\128-\191]*.") do -- Suporta caracteres multibyte
+                for char in text:gmatch("[\128-\191]*.") do
                     table.insert(chars, char)
                 end
 
@@ -449,7 +441,7 @@ function OrionLibV2:MakeWindow(Info)
                 for _, char in ipairs(chars) do
                     local testText = lines[currentLine] .. char
                     label.Text = testText
-                    task.wait() -- Aguarda renderização para TextBounds preciso
+                    task.wait()
                     if label.TextBounds.X <= maxWidth then
                         lines[currentLine] = testText
                     else
@@ -458,12 +450,11 @@ function OrionLibV2:MakeWindow(Info)
                     end
                 end
 
-                label.Text = text -- Restaura texto original
+                label.Text = text
                 return lines
             end
 
             local function adjustTextLabels()
-                -- Limpa labels existentes
                 for _, label in ipairs(nameLabels) do
                     label:Destroy()
                 end
@@ -473,24 +464,22 @@ function OrionLibV2:MakeWindow(Info)
                 nameLabels = {}
                 descriptionLabels = {}
 
-                -- Configura Name
                 local nameText = info.Name or "Toggle"
                 local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
-                local maxWidth = container.AbsoluteSize.X - 70 -- Espaço até o toggleButton (60 + margem de 10)
+                local maxWidth = container.AbsoluteSize.X - 70
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                 tempNameLabel:Destroy()
 
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
                     local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
-                    task.wait() -- Aguarda renderização
-                    nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14) -- Fallback para altura
+                    task.wait()
+                    nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
                     yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
                     TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                -- Configura Description
                 local descText = info.Description or ""
                 local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
                 local descLines = splitText(descText, tempDescLabel, maxWidth)
@@ -498,26 +487,23 @@ function OrionLibV2:MakeWindow(Info)
 
                 for i, line in ipairs(descLines) do
                     local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
-                    task.wait() -- Aguarda renderização
-                    descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11) -- Fallback para altura
+                    task.wait()
+                    descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11)
                     table.insert(descriptionLabels, descLabel)
                     yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
                     TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                -- Ajusta altura do container
                 container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
-                toggleButton.Position = UDim2.new(1, -60, 0.5, -12) -- Mantém toggle centralizado verticalmente
+                toggleButton.Position = UDim2.new(1, -60, 0.5, -12)
             end
 
-            -- Ajusta texto inicial
             adjustTextLabels()
 
-            -- Reajusta quando o tamanho do container mudar
             local function onTextOrSizeChanged()
                 adjustTextLabels()
-                elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
+                elementY = elementY - container.Size.Y.Offset
+                elementY = elementY + container.Size.Y.Offset + 10
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -566,7 +552,7 @@ function OrionLibV2:MakeWindow(Info)
 
             updateToggle()
 
-            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
+            elementY = elementY + container.Size.Y.Offset + 10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -574,7 +560,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
+            container.Position = UDim2.new(0, 10, 0, elementY + 10)
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -672,10 +658,10 @@ function OrionLibV2:MakeWindow(Info)
             DropdownScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             DropdownListLayout.Parent = DropdownScrollFrame
 
-            -- Adicionar controle personalizado de rolagem
+            -- Controle personalizado de rolagem para reduzir sensibilidade
             DropdownScrollFrame.InputBegan:Connect(function(input)
                 if input.UserInputType == Enum.UserInputType.MouseWheel then
-                    local scrollAmount = 30 -- Incremento reduzido para rolagem menos sensível
+                    local scrollAmount = 20 -- Incremento ainda menor para maior controle
                     local currentPosition = DropdownScrollFrame.CanvasPosition.Y
                     local newPosition = currentPosition - (input.Position.Z * scrollAmount)
                     newPosition = math.clamp(newPosition, 0, DropdownScrollFrame.CanvasSize.Y.Offset - DropdownScrollFrame.AbsoluteWindowSize.Y)
@@ -1016,7 +1002,7 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end
 
-            elementY = elementY + 60 -- Mantém espaçamento padrão para dropdown
+            elementY = elementY + 60
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
