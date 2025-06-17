@@ -111,8 +111,8 @@ function OrionLibV2:MakeWindow(Info)
 
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Name = TabInfo.Name or "TabContent"
-        TabContent.Size = UDim2.new(1, -150, 1, -80)
-        TabContent.Position = UDim2.new(0, 140, 0, 70)
+        TabContent.Size = UDim2.new(1, -145, 1, -80) -- Ajustado para ocupar a área à direita da VerticalLine
+        TabContent.Position = UDim2.new(0, 145, 0, 70)
         TabContent.BackgroundTransparency = 1
         TabContent.Visible = (#TabList == 0)
         TabContent.ScrollBarThickness = 4
@@ -120,7 +120,7 @@ function OrionLibV2:MakeWindow(Info)
         TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
         TabContent.ScrollingDirection = Enum.ScrollingDirection.Y
         TabContent.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-        TabContent.ClipsDescendants = false
+        TabContent.ClipsDescendants = true -- Ativado para evitar vazamento
         TabContent.Parent = window
         table.insert(TabList, TabContent)
 
@@ -145,10 +145,11 @@ function OrionLibV2:MakeWindow(Info)
             local totalHeight = 0
             for _, child in ipairs(TabContent:GetChildren()) do
                 if child:IsA("Frame") and child.Visible then
-                    totalHeight = math.max(totalHeight, child.Position.Y.Offset + child.Size.Y.Offset + 20)
+                    local childBottom = child.Position.Y.Offset + child.Size.Y.Offset
+                    totalHeight = math.max(totalHeight, childBottom)
                 end
             end
-            totalHeight = math.max(totalHeight, elementY + 20)
+            totalHeight = math.max(totalHeight, elementY) + 20 -- Margem final
             TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
         end
 
@@ -160,14 +161,14 @@ function OrionLibV2:MakeWindow(Info)
             tempLabel.TextSize = 16
             tempLabel.TextXAlignment = Enum.TextXAlignment.Left
             tempLabel.BackgroundTransparency = 1
-            tempLabel.Size = UDim2.new(1, -20, 0, 0) -- Altura automática
+            tempLabel.Size = UDim2.new(1, -20, 0, 0)
             tempLabel.Parent = TabContent
-            task.wait() -- Aguardar para calcular TextBounds
-            local textHeight = tempLabel.TextBounds.Y or 16 -- Fallback para 16 se TextBounds falhar
+            task.wait()
+            local textHeight = tempLabel.TextBounds.Y or 16
             tempLabel:Destroy()
 
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, textHeight) -- Altura do texto
+            container.Size = UDim2.new(1, -20, 0, textHeight)
             container.Position = UDim2.new(0, 10, 0, elementY)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -190,7 +191,7 @@ function OrionLibV2:MakeWindow(Info)
                 TextTransparency = 0
             }):Play()
 
-            elementY = elementY + textHeight + 10 -- Altura do texto + 10 de margem
+            elementY = elementY + textHeight + 10
             RecalculateCanvasSize()
             return container
         end
@@ -766,7 +767,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local holderStroke = Instance.new("UIStroke")
             holderStroke.Color = Color3.fromRGB(80, 80, 80)
-            stroke.Thickness = 1.5
+            holderStroke.Thickness = 1.5
             holderStroke.Parent = DropdownHolderFrame
 
             local shadow = Instance.new("ImageLabel")
