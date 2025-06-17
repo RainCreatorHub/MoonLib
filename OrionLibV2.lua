@@ -664,12 +664,24 @@ function OrionLibV2:MakeWindow(Info)
             DropdownScrollFrame.Size = UDim2.new(1, -5, 1, -10)
             DropdownScrollFrame.Position = UDim2.fromOffset(5, 5)
             DropdownScrollFrame.BackgroundTransparency = 1
-            DropdownScrollFrame.ScrollBarThickness = 4
+            DropdownScrollFrame.ScrollBarThickness = 6 -- Aumentar espessura da barra de rolagem
             DropdownScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+            DropdownScrollFrame.ScrollBarImageTransparency = 0.3 -- Tornar barra mais visível
             DropdownScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
             DropdownScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
             DropdownScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             DropdownListLayout.Parent = DropdownScrollFrame
+
+            -- Adicionar controle personalizado de rolagem
+            DropdownScrollFrame.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseWheel then
+                    local scrollAmount = 30 -- Incremento reduzido para rolagem menos sensível
+                    local currentPosition = DropdownScrollFrame.CanvasPosition.Y
+                    local newPosition = currentPosition - (input.Position.Z * scrollAmount)
+                    newPosition = math.clamp(newPosition, 0, DropdownScrollFrame.CanvasSize.Y.Offset - DropdownScrollFrame.AbsoluteWindowSize.Y)
+                    DropdownScrollFrame.CanvasPosition = Vector2.new(0, newPosition)
+                end
+            end)
 
             local DropdownHolderFrame = Instance.new("Frame")
             DropdownHolderFrame.Size = UDim2.fromScale(1, 0.6)
