@@ -1,40 +1,16 @@
 local OrionLibV2 = {}
 
--- Aguarda carregamento do jogo
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
 function OrionLibV2:MakeWindow(Info)
-    -- Função para tentar acessar o mouse com retries
-    local function getMouseWithRetry(localPlayer, maxAttempts, delay)
-        maxAttempts = maxAttempts or 10
-        delay = delay or 0.5
-        for i = 1, maxAttempts do
-            local mouse = localPlayer:GetMouse()
-            if mouse then
-                return mouse
-            end
-            task.wait(delay)
-        end
-        warn("Falha ao obter mouse após " .. maxAttempts .. " tentativas.")
-        return nil
-    end
-
-    -- Acessos com GetService para serviços
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
     local Players = game:GetService("Players")
-    local Workspace = game:GetService("Workspace")
-
-    -- Acessos com WaitForChild para instâncias
-    local LocalPlayer = Players:WaitForChild("LocalPlayer", 10)
-    local Mouse = getMouseWithRetry(LocalPlayer)
-    local Camera = Workspace:WaitForChild("CurrentCamera", 10)
+    local LocalPlayer = Players.LocalPlayer
+    local Mouse = LocalPlayer:GetMouse()
+    local Camera = game:GetService("Workspace").CurrentCamera
 
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CheatGUI"
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui", 10)
+    ScreenGui.Parent = LocalPlayer.PlayerGui
     ScreenGui.ResetOnSpawn = false
 
     local window = Instance.new("Frame")
@@ -166,7 +142,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddSection(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 25)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
             container.Parent = TabContent
@@ -194,7 +170,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddLabel(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 10)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -312,7 +288,7 @@ function OrionLibV2:MakeWindow(Info)
             local function onSizeChanged()
                 adjustTextLabels()
                 elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -322,7 +298,7 @@ function OrionLibV2:MakeWindow(Info)
                 BackgroundTransparency = 0
             }):Play()
 
-            elementY = elementY + container.Size.Y.Offset + 10
+            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -330,7 +306,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddButton(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -386,7 +362,7 @@ function OrionLibV2:MakeWindow(Info)
                 end)
             end
 
-            elementY = elementY + 60
+            elementY = elementY + 60 -- Mantém espaçamento padrão para botão
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -394,7 +370,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddToggle(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50) -- Tamanho inicial, ajustado dinamicamente
-            container.Position = UDim2.new(0, 10, 0, elementY + 10)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -500,7 +476,7 @@ function OrionLibV2:MakeWindow(Info)
                 -- Configura Name
                 local nameText = info.Name or "Toggle"
                 local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
-                local maxWidth = container.AbsoluteSize.X - 70 -- Espaço até o toggleButton
+                local maxWidth = container.AbsoluteSize.X - 70 -- Espaço até o toggleButton (60 + margem de 10)
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                 tempNameLabel:Destroy()
 
@@ -531,7 +507,7 @@ function OrionLibV2:MakeWindow(Info)
 
                 -- Ajusta altura do container
                 container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
-                toggleButton.Position = UDim2.new(1, -60, 0.5, -12) -- Mantém toggle centralizado
+                toggleButton.Position = UDim2.new(1, -60, 0.5, -12) -- Mantém toggle centralizado verticalmente
             end
 
             -- Ajusta texto inicial
@@ -541,7 +517,7 @@ function OrionLibV2:MakeWindow(Info)
             local function onTextOrSizeChanged()
                 adjustTextLabels()
                 elementY = elementY - container.Size.Y.Offset -- Remove altura antiga
-                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura
+                elementY = elementY + container.Size.Y.Offset + 10 -- Adiciona nova altura com espaçamento reduzido
                 TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             end
 
@@ -590,7 +566,7 @@ function OrionLibV2:MakeWindow(Info)
 
             updateToggle()
 
-            elementY = elementY + container.Size.Y.Offset + 10
+            elementY = elementY + container.Size.Y.Offset + 10 -- Ajustado para +10
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
@@ -598,7 +574,7 @@ function OrionLibV2:MakeWindow(Info)
         function TabFunctions:AddDropdown(info)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 10)
+            container.Position = UDim2.new(0, 10, 0, elementY + 10) -- Ajustado para +10
             container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -786,19 +762,16 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end)
 
-            -- Lógica para fechar dropdown ao clicar fora, sem depender de Mouse
-            UserInputService.InputBegan:Connect(function(input, gameProcessed)
-                if Dropdown.Opened and not gameProcessed and
-                    (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-                    local uiObjects = LocalPlayer:WaitForChild("PlayerGui", 10):GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)
-                    local isOutside = true
-                    for _, obj in ipairs(uiObjects) do
-                        if obj:IsDescendantOf(DropdownHolderFrame) or obj:IsDescendantOf(DropdownDisplay) then
-                            isOutside = false
-                            break
-                        end
-                    end
-                    if isOutside then
+            UserInputService.InputBegan:Connect(function(Input)
+                if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
+                    local AbsPos = DropdownHolderFrame.AbsolutePosition
+                    local AbsSize = DropdownHolderFrame.AbsoluteSize
+                    if
+                        Mouse.X < AbsPos.X or
+                        Mouse.X > AbsPos.X + AbsSize.X or
+                        Mouse.Y < (AbsPos.Y - 20) or
+                        Mouse.Y > AbsPos.Y + AbsSize.Y
+                    then
                         Dropdown:Close()
                     end
                 end
@@ -970,7 +943,7 @@ function OrionLibV2:MakeWindow(Info)
 
                 ListSizeX = 0
                 for Button, _ in pairs(Buttons) do
-                    local textBounds = Button:WaitForChild("TextLabel", 1).TextBounds
+                    local textBounds = Button.TextLabel.TextBounds
                     if textBounds.X > ListSizeX then
                         ListSizeX = textBounds.X + 30
                     end
@@ -1031,7 +1004,7 @@ function OrionLibV2:MakeWindow(Info)
                 end
             end
 
-            elementY = elementY + 60
+            elementY = elementY + 60 -- Mantém espaçamento padrão para dropdown
             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container
         end
