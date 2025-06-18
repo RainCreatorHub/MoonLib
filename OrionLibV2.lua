@@ -153,34 +153,27 @@ function OrionLibV2:MakeWindow(Info)
         end
 
         function TabFunctions:AddSection(info)
-            local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 30)
-            container.Position = UDim2.new(0, 10, 0, elementY)
+            local container = Instance.new("Frame", TabContent)
+            container.Size = UDim2.new(1, -20, 0, 25)
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
-            container.ZIndex = 1
-            container.Parent = TabContent
 
-            local sectionLabel = Instance.new("TextLabel")
+            local sectionLabel = Instance.new("TextLabel", container)
             sectionLabel.Text = info.Name or "Section"
             sectionLabel.Size = UDim2.new(1, 0, 1, 0)
-            sectionLabel.Position = UDim2.new(0.5, 0, 0.5, 0)
-            sectionLabel.AnchorPoint = Vector2.new(0.5, 0.5)
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
             sectionLabel.Font = Enum.Font.GothamBold
             sectionLabel.TextSize = 16
-            sectionLabel.TextXAlignment = Enum.TextXAlignment.Center
-            sectionLabel.TextYAlignment = Enum.TextYAlignment.Center
+            sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
             sectionLabel.TextTransparency = 1
-            sectionLabel.ZIndex = 1
-            sectionLabel.Parent = container
 
             TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 TextTransparency = 0
             }):Play()
 
-            elementY = elementY + 40
+            elementY = elementY + 30
             RecalculateCanvasSize()
             return container
         end
@@ -287,7 +280,7 @@ function OrionLibV2:MakeWindow(Info)
                     TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
             end
 
             adjustTextLabels()
@@ -453,7 +446,7 @@ function OrionLibV2:MakeWindow(Info)
                 end
                 local lines = {""}
                 local currentLine = 1
-                for i, char in ipairs(chars) do
+                for _, char in ipairs(chars) do
                     local testText = lines[currentLine] .. char
                     label.Text = testText
                     task.wait()
@@ -469,44 +462,44 @@ function OrionLibV2:MakeWindow(Info)
             end
 
             local function adjustTextLabels()
-                for _, label in ipairs(nameLabels)
+                for _, label in ipairs(nameLabels) do
                     label:Destroy()
                 end
-                for _, label in ipairs(descriptionLabels)
+                for _, label in ipairs(descriptionLabels) do
                     label:Destroy()
                 end
                 nameLabels = {}
                 descriptionLabels = {}
 
                 local nameText = info.Name or "Toggle"
-                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255,255, 255), UDim2.new(0, 5, 0, 5), container)
+                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
                 local maxWidth = container.AbsoluteSize.X - 70
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                 tempNameLabel:Destroy()
 
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
-                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255), UDim2.new(0, 5, 0, yOffset), container)
+                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
                     nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
                     yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
-                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0})
+                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
                 local descText = info.Description or ""
-                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180,180,180), UDim2.new(0, 10, 0, yOffset), container)
+                local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
                 local descLines = splitText(descText, tempDescLabel, maxWidth)
                 tempDescLabel:Destroy()
 
                 for i, line in ipairs(descLines) do
-                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180,180,180), UDim2.new(0, 10, yOffset, 0), container)
+                    local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
                     descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11)
                     table.insert(descriptionLabels, descLabel)
                     yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
-                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0})):Play()
+                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
                 toggleButton.Position = UDim2.new(1, -60, 0.5, -12)
             end
 
@@ -521,25 +514,24 @@ function OrionLibV2:MakeWindow(Info)
 
             TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
-            })
-
+            }):Play()
             TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
-            })):Play()
+            }):Play()
             TweenService:Create(toggleIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
                 BackgroundTransparency = 0
-            })):Play()
+            }):Play()
 
             local function updateToggle()
                 isOn = (isOn == nil) and false or isOn
-                toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50,50)
+                toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
                 local targetPosition = isOn and UDim2.new(0, 28, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
                 TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     BackgroundColor3 = toggleBackgroundColor
-                })):Play()
+                }):Play()
                 TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                     Position = targetPosition
-                })):Play()
+                }):Play()
                 if info.Callback and typeof(info.Callback) == "function" then
                     info.Callback(isOn)
                 end
@@ -550,21 +542,20 @@ function OrionLibV2:MakeWindow(Info)
                 updateToggle()
             end)
 
-            toggleButton.MouseEnter:Connect(function())
+            toggleButton.MouseEnter:Connect(function()
                 if not isOn then
-                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70,70,70)})):Play()
+                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
                 end
             end)
-
-            toggleButton.MouseLeave:Connect(function())
+            toggleButton.MouseLeave:Connect(function()
                 if not isOn then
-                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50,50,50)}):Play()
+                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
                 end
             end)
 
             updateToggle()
 
-            elementY = yOffset + container.Size.Y.Offset + 10
+            elementY = elementY + container.Size.Y.Offset + 10
             RecalculateCanvasSize()
             return container
         end
@@ -671,7 +662,7 @@ function OrionLibV2:MakeWindow(Info)
                     TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
             end
 
             adjustTextLabels()
@@ -758,7 +749,7 @@ function OrionLibV2:MakeWindow(Info)
 
             local holderStroke = Instance.new("UIStroke")
             holderStroke.Color = Color3.fromRGB(80, 80, 80)
-            stroke.Thickness = 1.5
+            holderStroke.Thickness = 1.5
             holderStroke.Parent = DropdownHolderFrame
 
             local shadow = Instance.new("ImageLabel")
@@ -925,7 +916,8 @@ function OrionLibV2:MakeWindow(Info)
                     local ButtonSelector = Instance.new("Frame")
                     ButtonSelector.Size = UDim2.fromOffset(4, 14)
                     ButtonSelector.Position = UDim2.fromOffset(-1, 16)
-                    ButtonSelector.AnchorPoint = Vector2.new(0, 0.5)
+                    ButtonSelector)
+                    AnchorPoint = Vector2.new(0, 0.5)
                     ButtonSelector.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
                     ButtonSelector.BackgroundTransparency = 1
                     ButtonSelector.ZIndex = 2
@@ -992,7 +984,8 @@ function OrionLibV2:MakeWindow(Info)
 
                     Button.MouseButton1Click:Connect(function()
                         local Try = not Selected
-                        if Dropdown:GetActiveValues() == 1 and not Try and not (info.AllowNull or false) then
+                        if Dropdown:GetActiveValues() == 1 and not Try and not (info.AllowNull or false)
+                            then
                             return
                         end
                         if Dropdown.Multi then
@@ -1007,7 +1000,7 @@ function OrionLibV2:MakeWindow(Info)
                         end
                         UpdateButton()
                         Dropdown:Display()
-                        if info.Callback and typeof(info.Callback) == "function" then
+                        if info.Callback and typeof(info) == "function" then
                             info.Callback(Dropdown.Value)
                         end
                     end)
