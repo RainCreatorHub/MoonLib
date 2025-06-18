@@ -167,7 +167,7 @@ function OrionLibV2:MakeWindow(Info)
             sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  
             sectionLabel.Font = Enum.Font.GothamBold  
             sectionLabel.TextSize = 16  
-            sectionLabel.TextXAlignment = Enum.TextXAlignment.Left  
+            sectionLabel.TextXAlignment = Enum.TextXAlignment.Center
             sectionLabel.TextTransparency = 1  
 
             TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
@@ -175,8 +175,7 @@ function OrionLibV2:MakeWindow(Info)
             }):Play()  
 
             elementY = elementY + 30  
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY) 
-            RecalculateCanvasSize() 
+            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
             return container  
         end
 
