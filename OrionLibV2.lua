@@ -1,301 +1,346 @@
 local OrionLibV2 = {}
 
 function OrionLibV2:MakeWindow(Info)
-    local TweenService = game:GetService("TweenService")
-    local UserInputService = game:GetService("UserInputService")
-    local Players = game:GetService("Players")
-    local LocalPlayer = Players.LocalPlayer
-    local Mouse = LocalPlayer:GetMouse()
-    local Camera = game:GetService("Workspace").CurrentCamera
+    local success, result = pcall(function()
+        local TweenService = game:GetService("TweenService")
+        local UserInputService = game:GetService("UserInputService")
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+        local Mouse = LocalPlayer:GetMouse()
+        local Camera = game:GetService("Workspace").CurrentCamera
 
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "CheatGUI"
-    ScreenGui.Parent = LocalPlayer.PlayerGui
-    ScreenGui.ResetOnSpawn = false
+        local ScreenGui = Instance.new("ScreenGui")
+        ScreenGui.Name = "CheatGUI"
+        ScreenGui.Parent = LocalPlayer.PlayerGui
+        ScreenGui.ResetOnSpawn = false
 
-    local window = Instance.new("Frame")
-    window.Name = "MainWindow"
-    window.Parent = ScreenGui
-    window.Size = UDim2.new(0, 500, 0, 350)
-    window.Position = UDim2.new(0.5, -250, 0.5, -175)
-    window.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    window.Active = true
-    window.Draggable = true
+        local window = Instance.new("Frame")
+        window.Name = "MainWindow"
+        window.Parent = ScreenGui
+        window.Size = UDim2.new(0, 500, 0, 350)
+        window.Position = UDim2.new(0.5, -250, 0.5, -175)
+        window.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        window.Active = true
+        window.Draggable = true
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 12)
-    corner.Parent = window
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 12)
+        corner.Parent = window
 
-    local stroke = Instance.new("UIStroke")
-    stroke.Thickness = 1.5
-    stroke.Color = Color3.fromRGB(0, 0, 0)
-    stroke.Transparency = 0.4
-    stroke.Parent = window
+        local stroke = Instance.new("UIStroke")
+        stroke.Thickness = 1.5
+        stroke.Color = Color3.fromRGB(0, 0, 0)
+        stroke.Transparency = 0.4
+        stroke.Parent = window
 
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
-    }
-    gradient.Rotation = 90
-    gradient.Parent = window
+        local gradient = Instance.new("UIGradient")
+        gradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+        }
+        gradient.Rotation = 90
+        gradient.Parent = window
 
-    local Title = Instance.new("TextLabel")
-    Title.Text = Info.Title or "Orion"
-    Title.Size = UDim2.new(0, 300, 0, 30)
-    Title.Position = UDim2.new(0, 10, 0, 5)
-    Title.BackgroundTransparency = 1
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 20
-    Title.Parent = window
+        local Title = Instance.new("TextLabel")
+        Title.Text = Info.Title or "Orion"
+        Title.Size = UDim2.new(0, 300, 0, 30)
+        Title.Position = UDim2.new(0, 10, 0, 5)
+        Title.BackgroundTransparency = 1
+        Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Title.TextXAlignment = Enum.TextXAlignment.Left
+        Title.Font = Enum.Font.GothamBold
+        Title.TextSize = 20
+        Title.Parent = window
 
-    local SubTitle = Instance.new("TextLabel")
-    SubTitle.Text = Info.SubTitle or "Orion Subtitle"
-    SubTitle.Size = UDim2.new(0, 300, 0, 20)
-    SubTitle.Position = UDim2.new(0, 10, 0, 35)
-    SubTitle.BackgroundTransparency = 1
-    SubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
-    SubTitle.TextXAlignment = Enum.TextXAlignment.Left
-    SubTitle.Font = Enum.Font.Gotham
-    SubTitle.TextSize = 14
-    SubTitle.Parent = window
+        local SubTitle = Instance.new("TextLabel")
+        SubTitle.Text = Info.SubTitle or "Orion Subtitle"
+        SubTitle.Size = UDim2.new(0, 300, 0, 20)
+        SubTitle.Position = UDim2.new(0, 10, 0, 35)
+        SubTitle.BackgroundTransparency = 1
+        SubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+        SubTitle.TextXAlignment = Enum.TextXAlignment.Left
+        SubTitle.Font = Enum.Font.Gotham
+        SubTitle.TextSize = 14
+        SubTitle.Parent = window
 
-    local Separator = Instance.new("Frame")
-    Separator.Size = UDim2.new(1, -20, 0, 1)
-    Separator.Position = UDim2.new(0, 10, 0, 60)
-    Separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    Separator.Parent = window
+        local Separator = Instance.new("Frame")
+        Separator.Size = UDim2.new(1, -20, 0, 1)
+        Separator.Position = UDim2.new(0, 10, 0, 60)
+        Separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        Separator.Parent = window
 
-    local VerticalLine = Instance.new("Frame")
-    VerticalLine.Size = UDim2.new(0, 1, 1, -80)
-    VerticalLine.Position = UDim2.new(0, 135, 0, 70)
-    VerticalLine.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    VerticalLine.BorderSizePixel = 0
-    VerticalLine.Parent = window
+        local VerticalLine = Instance.new("Frame")
+        VerticalLine.Size = UDim2.new(0, 1, 1, -80)
+        VerticalLine.Position = UDim2.new(0, 135, 0, 70)
+        VerticalLine.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+        VerticalLine.BorderSizePixel = 0
+        VerticalLine.Parent = window
 
-    local TabScrollFrame = Instance.new("ScrollingFrame")
-    TabScrollFrame.Size = UDim2.new(0, 120, 1, -80)
-    TabScrollFrame.Position = UDim2.new(0, 10, 0, 70)
-    TabScrollFrame.BackgroundTransparency = 1
-    TabScrollFrame.ScrollBarThickness = 4
-    TabScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
-    TabScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    TabScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
-    TabScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-    TabScrollFrame.Parent = window
+        local TabScrollFrame = Instance.new("ScrollingFrame")
+        TabScrollFrame.Size = UDim2.new(0, 120, 1, -80)
+        TabScrollFrame.Position = UDim2.new(0, 10, 0, 70)
+        TabScrollFrame.BackgroundTransparency = 1
+        TabScrollFrame.ScrollBarThickness = 4
+        TabScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+        TabScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        TabScrollFrame.ScrollingDirection = Enum.ScrollingDirection.Y
+        TabScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+        TabScrollFrame.Parent = window
 
-    local ButtonY = 0
-    local Tabs = {}
-    local TabList = {}
+        local ButtonY = 0
+        local Tabs = {}
+        local TabList = {}
 
-    function Tabs:MakeTab(TabInfo)
-        local Button = Instance.new("TextButton")
-        Button.Size = UDim2.new(0, 120, 0, 30)
-        Button.Position = UDim2.new(0, 0, 0, ButtonY)
-        Button.Text = TabInfo.Name or "Tab"
-        Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Button.Font = Enum.Font.Gotham
-        Button.TextSize = 14
-        Button.AutoButtonColor = false
-        Button.Parent = TabScrollFrame
+        function Tabs:MakeTab(TabInfo)
+            local Button = Instance.new("TextButton")
+            Button.Size = UDim2.new(0, 120, 0, 30)
+            Button.Position = UDim2.new(0, 0, 0, ButtonY)
+            Button.Text = TabInfo.Name or "Tab"
+            Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+            Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Button.Font = Enum.Font.Gotham
+            Button.TextSize = 14
+            Button.AutoButtonColor = false
+            Button.Parent = TabScrollFrame
 
-        local buttonCorner = Instance.new("UICorner")
-        buttonCorner.CornerRadius = UDim.new(0, 6)
-        buttonCorner.Parent = Button
+            local buttonCorner = Instance.new("UICorner")
+            buttonCorner.CornerRadius = UDim.new(0, 6)
+            buttonCorner.Parent = Button
 
-        ButtonY = ButtonY + 35
-        TabScrollFrame.CanvasSize = UDim2.new(0, 0, 0, ButtonY)
+            ButtonY = ButtonY + 35
+            TabScrollFrame.CanvasSize = UDim2.new(0, 0, 0, ButtonY)
 
-        local TabContent = Instance.new("ScrollingFrame")
-        TabContent.Name = TabInfo.Name or "TabContent"
-        TabContent.Size = UDim2.new(1, -145, 1, -80) -- Ajustado para ocupar a área à direita da VerticalLine
-        TabContent.Position = UDim2.new(0, 145, 0, 70)
-        TabContent.BackgroundTransparency = 1
-        TabContent.Visible = (#TabList == 0)
-        TabContent.ScrollBarThickness = 4
-        TabContent.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
-        TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
-        TabContent.ScrollingDirection = Enum.ScrollingDirection.Y
-        TabContent.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-        TabContent.ClipsDescendants = true -- Ativado para evitar vazamento
-        TabContent.Parent = window
-        table.insert(TabList, TabContent)
+            local TabContent = Instance.new("ScrollingFrame")
+            TabContent.Name = TabInfo.Name or "TabContent"
+            TabContent.Size = UDim2.new(1, -145, 1, -80)
+            TabContent.Position = UDim2.new(0, 145, 0, 70)
+            TabContent.BackgroundTransparency = 1
+            TabContent.Visible = (#TabList == 0)
+            TabContent.ScrollBarThickness = 4
+            TabContent.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+            TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
+            TabContent.ScrollingDirection = Enum.ScrollingDirection.Y
+            TabContent.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
+            TabContent.ClipsDescendants = true
+            TabContent.Parent = window
+            table.insert(TabList, TabContent)
 
-        Button.MouseButton1Click:Connect(function()
-            for _, f in ipairs(TabList) do
-                f.Visible = false
-            end
-            TabContent.Visible = true
-            for _, btn in ipairs(TabScrollFrame:GetChildren()) do
-                if btn:IsA("TextButton") then
-                    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-                end
-            end
-            Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-        end)
+            pcall(function()
+                Button.MouseButton1Click:Connect(function()
+                    for _, f in ipairs(TabList) do
+                        f.Visible = false
+                    end
+                    TabContent.Visible = true
+                    for _, btn in ipairs(TabScrollFrame:GetChildren()) do
+                        if btn:IsA("TextButton") then
+                            btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                        end
+                    end
+                    Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+                end)
+            end, function(err)
+                warn("Erro ao conectar MouseButton1Click na aba: " .. tostring(err))
+            end)
 
-        local elementY = 0
-        local TabFunctions = {}
+            local elementY = 0
+            local TabFunctions = {}
 
-        -- Função auxiliar para recalcular CanvasSize
-        local function RecalculateCanvasSize()
-            local totalHeight = 0
-            for _, child in ipairs(TabContent:GetChildren()) do
-                if child:IsA("Frame") and child.Visible then
-                    local childBottom = child.Position.Y.Offset + child.Size.Y.Offset
-                    totalHeight = math.max(totalHeight, childBottom)
-                end
-            end
-            totalHeight = math.max(totalHeight, elementY) + 20 -- Margem final
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-        end
-
-         TabFunctions:AddSection(info)  
-            local container = Instance.new("Frame", TabContent)  
-            container.Size = UDim2.new(1, -20, 0, 25)  
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)  
-            container.BackgroundTransparency = 1  
-            container.BorderSizePixel = 0  
-
-            local sectionLabel = Instance.new("TextLabel", container)  
-            sectionLabel.Text = info.Name or "Section"  
-            sectionLabel.Size = UDim2.new(1, 0, 1, 0)  
-            sectionLabel.BackgroundTransparency = 1  
-            sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  
-            sectionLabel.Font = Enum.Font.GothamBold  
-            sectionLabel.TextSize = 16  
-            sectionLabel.TextXAlignment = Enum.TextXAlignment.Center
-            sectionLabel.TextTransparency = 1  
-
-            TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                TextTransparency = 0  
-            }):Play()  
-
-            elementY = elementY + 30  
-            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
-            return container  
-        end
-
-        function TabFunctions:AddLabel(info)
-            local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, 50)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)
-            container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            container.BackgroundTransparency = 1
-            container.BorderSizePixel = 0
-            container.ZIndex = 1
-            container.Parent = TabContent
-
-            local stroke = Instance.new("UIStroke")
-            stroke.Color = Color3.fromRGB(80, 80, 80)
-            stroke.Thickness = 1.5
-            stroke.Parent = container
-
-            local corner = Instance.new("UICorner")
-            corner.CornerRadius = UDim.new(0, 6)
-            corner.Parent = container
-
-            local nameLabels = {}
-            local contentLabels = {}
-
-            local function createTextLabel(text, font, textSize, color, position, parent)
-                local label = Instance.new("TextLabel")
-                label.Text = text
-                label.Size = UDim2.new(1, -10, 0, 0)
-                label.Position = position
-                label.BackgroundTransparency = 1
-                label.TextColor3 = color
-                label.Font = font
-                label.TextSize = textSize
-                label.TextXAlignment = Enum.TextXAlignment.Left
-                label.TextTransparency = 1
-                label.TextWrapped = true
-                label.ZIndex = 1
-                label.Parent = parent
-                return label
-            end
-
-            local function splitText(text, label, maxWidth)
-                if not text or text == "" then
-                    return {""}
-                end
-                local chars = {}
-                for char in text:gmatch("[\128-\191]*.") do
-                    table.insert(chars, char)
-                end
-                local lines = {""}
-                local currentLine = 1
-                for _, char in ipairs(chars) do
-                    local testText = lines[currentLine] .. char
-                    label.Text = testText
-                    task.wait()
-                    if label.TextBounds.X <= maxWidth then
-                        lines[currentLine] = testText
-                    else
-                        currentLine = currentLine + 1
-                        lines[currentLine] = char
+            local function RecalculateCanvasSize()
+                local totalHeight = 0
+                for _, child in ipairs(TabContent:GetChildren()) do
+                    if child:IsA("Frame") and child.Visible then
+                        local childBottom = child.Position.Y.Offset + child.Size.Y.Offset
+                        totalHeight = math.max(totalHeight, childBottom)
                     end
                 end
-                label.Text = text
-                return lines
+                totalHeight = math.max(totalHeight, elementY) + 20
+                TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
             end
 
-            local function adjustTextLabels()
-                for _, label in ipairs(nameLabels) do
-                    label:Destroy()
-                end
-                for _, label in ipairs(contentLabels) do
-                    label:Destroy()
-                end
-                nameLabels = {}
-                contentLabels = {}
+            function TabFunctions:AddSection(info)
+                local container = Instance.new("Frame", TabContent)
+                container.Size = UDim2.new(1, -20, 0, 25)
+                container.Position = UDim2.new(0, 10, 0, elementY + 20)
+                container.BackgroundTransparency = 1
+                container.BorderSizePixel = 0
 
-                local nameText = info.Name or "Label"
-                local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container)
-                local maxWidth = container.AbsoluteSize.X - 10
-                local nameLines = splitText(nameText, tempNameLabel, maxWidth)
-                tempNameLabel:Destroy()
+                local sectionLabel = Instance.new("TextLabel", container)
+                sectionLabel.Text = info.Name or "Section"
+                sectionLabel.Size = UDim2.new(1, 0, 1, 0)
+                sectionLabel.BackgroundTransparency = 1
+                sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                sectionLabel.Font = Enum.Font.GothamBold
+                sectionLabel.TextSize = 16
+                sectionLabel.TextXAlignment = Enum.TextXAlignment.Center
+                sectionLabel.TextTransparency = 1
 
-                local yOffset = 5
-                for i, line in ipairs(nameLines) do
-                    local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
-                    nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14)
-                    table.insert(nameLabels, nameLabel)
-                    yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
-                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
-                end
+                pcall(function()
+                    TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                        TextTransparency = 0
+                    }):Play()
+                end, function(err)
+                    warn("Erro ao criar tween para sectionLabel: " .. tostring(err))
+                end)
 
-                local contentText = info.Content or "Texto"
-                local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
-                local contentLines = splitText(contentText, tempContentLabel, maxWidth)
-                tempContentLabel:Destroy()
-
-                for i, line in ipairs(contentLines) do
-                    local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
-                    contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13)
-                    table.insert(contentLabels, contentLabel)
-                    yOffset = yOffset + (contentLabel.TextBounds.Y or 13) + 2
-                    TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
-                end
-
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                elementY = elementY + 30
+                RecalculateCanvasSize()
+                return container
             end
+
+            function TabFunctions:AddLabel(info)
+                local container = Instance.new("Frame")
+                container.Size = UDim2.new(1, -20, 0, 50)
+                container.Position = UDim2.new(0, 10, 0, elementY + 20)
+                container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                container.BackgroundTransparency = 1
+                container.BorderSizePixel = 0
+                container.ZIndex = 1
+                container.Parent = TabContent
+
+                local stroke = Instance.new("UIStroke")
+                stroke.Color = Color3.fromRGB(80, 80, 80)
+                stroke.Thickness = 1.5
+                stroke.Parent = container
+
+                local corner = Instance.new("UICorner")
+                corner.CornerRadius = UDim.new(0, 6)
+                corner.Parent = container
+
+                local nameLabels = {}
+                local contentLabels = {}
+
+                local function createTextLabel(text, font, textSize, color, position, parent)
+                    local label = Instance.new("TextLabel")
+                    label.Text = text
+                    label.Size = UDim2.new(1, -10, 0, 0)
+                    label.Position = position
+                    label.BackgroundTransparency = 1
+                    label.TextColor3 = color
+                    label.Font = font
+                    label.TextSize = textSize
+                    label.TextXAlignment = Enum.TextXAlignment.Left
+                    label.TextTransparency = 1
+                    label.TextWrapped = true
+                    label.ZIndex = 1
+                    label.Parent = parent
+                    return label
+                end
+
+                local function splitText(text, label, maxWidth)
+                    if not text or text == "" then
+                        return {""}
+                    end
+                    local chars = {}
+                    for char in text:gmatch("[\128-\191]*.") do
+                        table.insert(chars, char)
+                    end
+                    local lines = {""}
+                    local currentLine = 1
+                    for _, char in ipairs(chars) do
+                        local testText = lines[currentLine] .. char
+                        label.Text = testText
+                        task.wait()
+                        if label.TextBounds.X <= maxWidth then
+                            lines[currentLine] = testText
+                        else
+                            currentLine = currentLine + 1
+                            lines[currentLine] = char
+                        end
+                    end
+                    label.Text = text
+                    return lines
+                end
+
+                local function adjustTextLabels()
+                    for _, label in ipairs(nameLabels) do
+                        pcall(function()
+                            label:Destroy()
+                        end, function(err)
+                            warn("Erro ao destruir nameLabel: " .. tostring(err))
+                        end)
+                    end
+                    for _, label in ipairs(contentLabels) do
+                        pcall(function()
+                            label:Destroy()
+                        end, function(err)
+                            warn("Erro ao destruir contentLabel: " .. tostring(err))
+                        end)
+                    end
+                    nameLabels = {}
+                    contentLabels = {}
+
+                    local nameText = info.Name or "Label"
+                    local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container)
+                    local maxWidth = container.AbsoluteSize.X - 10
+                    local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                    pcall(function()
+                        tempNameLabel:Destroy()
+                    end, function(err)
+                        warn("Erro ao destruir tempNameLabel: " .. tostring(err))
+                    end)
+
+                    local yOffset = 5
+                    for i, line in ipairs(nameLines) do
+                        local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
+                        nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or  local yOffset =  local yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                            table.insert(nameLabels, nameLabel)
+                            pcall(function()
+                                TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                            end, function(err)
+                                warn("Erro ao criar tween para nameLabel: " .. tostring(err))
+                            end)
+                        end
+                    end
+
+                    local contentText = info.Content or "Texto"
+                    local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                    local contentLines = splitText(tempContentLabel, maxWidth)
+                    pcall(function()
+                        tempContentLabel:Destroy()
+                    end, function(err)
+                        warn("Erro ao destruir tempContentLabel: " .. tostring(err))
+                    end)
+
+                    for i, line in ipairs(contentLines) do
+                        local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                        contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or  local yOffset = contentLabel.TextBounds.Y or 10)
+                            table.insert(contentLabels, contentLabel)
+                            pcall(function()
+                                TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                            end, function(err)
+                                warn("Erro ao criar tween para contentLabel: " .. tostring(err))
+                            end)
+                        end
+                    end
+
+                    container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                end
+            )
 
             adjustTextLabels()
 
             local function onSizeChanged()
-                adjustTextLabels()
-                RecalculateCanvasSize()
+                pcall(function()
+                    adjustTextLabels()
+                    RecalculateCanvasSize()
+                end, function(err)
+                    warn("Erro ao ajustar labels no evento SizeChanged: " .. tostring(err))
+                end)
             end
 
-            container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
+            pcall(function()
+                container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
+            end, function(err)
+                warn("Erro ao conectar evento AbsoluteSize: " .. tostring(err))
+            end)
 
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
+            pcall(function()
+                TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para container: " .. tostring(err))
+            end)
 
             elementY = elementY + container.Size.Y.Offset + 10
             RecalculateCanvasSize()
@@ -342,24 +387,58 @@ function OrionLibV2:MakeWindow(Info)
             buttonCorner.CornerRadius = UDim.new(0, 6)
             buttonCorner.Parent = button
 
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0,
-                BackgroundTransparency = 0
-            }):Play()
-
-            button.MouseEnter:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+            pcall(function()
+                TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para container: " .. tostring(err))
             end)
-            button.MouseLeave:Connect(function()
-                TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+
+            pcall(function()
+                TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 0,
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para button: " .. tostring(err))
+            end)
+
+            pcall(function()
+                button.MouseEnter:Connect(function()
+                    pcall(function()
+                        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+                    end, function(err)
+                        warn("Erro ao criar tween para MouseEnter: " .. tostring(err))
+                    end)
+                end)
+            end, function(err)
+                warn("Erro ao conectar MouseEnter: " .. tostring(err))
+            end)
+
+            pcall(function()
+                button.MouseLeave:Connect(function()
+                    pcall(function()
+                        TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+                    end, function(err)
+                        warn("Erro ao criar tween para MouseLeave: " .. tostring(err))
+                    end)
+                end)
+            end, function(err)
+                warn("Erro ao conectar MouseLeave: " .. tostring(err))
             end)
 
             if info.Callback and typeof(info.Callback) == "function" then
-                button.MouseButton1Click:Connect(function()
-                    info.Callback()
+                pcall(function()
+                    button.MouseButton1Click:Connect(function()
+                        pcall(function()
+                            info.Callback()
+                        end, function(err)
+                            warn("Erro ao executar callback do botão: " .. tostring(err))
+                        end)
+                    end)
+                end, function(err)
+                    warn("Erro ao conectar MouseButton1Click: " .. tostring(err))
                 end)
             end
 
@@ -464,10 +543,18 @@ function OrionLibV2:MakeWindow(Info)
 
             local function adjustTextLabels()
                 for _, label in ipairs(nameLabels) do
-                    label:Destroy()
+                    pcall(function()
+                        label:Destroy()
+                    end, function(err)
+                        warn("Erro ao destruir nameLabel: " .. tostring(err))
+                    end)
                 end
                 for _, label in ipairs(descriptionLabels) do
-                    label:Destroy()
+                    pcall(function()
+                        label:Destroy()
+                    end, function(err)
+                        warn("Erro ao destruir descriptionLabel: " .. tostring(err))
+                    end)
                 end
                 nameLabels = {}
                 descriptionLabels = {}
@@ -476,7 +563,11 @@ function OrionLibV2:MakeWindow(Info)
                 local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
                 local maxWidth = container.AbsoluteSize.X - 70
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
-                tempNameLabel:Destroy()
+                pcall(function()
+                    tempNameLabel:Destroy()
+                end, function(err)
+                    warn("Erro ao destruir tempNameLabel: " .. tostring(err))
+                end)
 
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
@@ -484,20 +575,32 @@ function OrionLibV2:MakeWindow(Info)
                     nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
                     yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
-                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    pcall(function()
+                        TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    end, function(err)
+                        warn("Erro ao criar tween para nameLabel: " .. tostring(err))
+                    end)
                 end
 
                 local descText = info.Description or ""
                 local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
                 local descLines = splitText(descText, tempDescLabel, maxWidth)
-                tempDescLabel:Destroy()
+                pcall(function()
+                    tempDescLabel:Destroy()
+                end, function(err)
+                    warn("Erro ao destruir tempDescLabel: " .. tostring(err))
+                end)
 
                 for i, line in ipairs(descLines) do
                     local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
                     descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11)
                     table.insert(descriptionLabels, descLabel)
                     yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
-                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    pcall(function()
+                        TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    end, function(err)
+                        warn("Erro ao criar tween para descLabel: " .. tostring(err))
+                    end)
                 end
 
                 container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
@@ -507,51 +610,106 @@ function OrionLibV2:MakeWindow(Info)
             adjustTextLabels()
 
             local function onTextOrSizeChanged()
-                adjustTextLabels()
-                RecalculateCanvasSize()
+                pcall(function()
+                    adjustTextLabels()
+                    RecalculateCanvasSize()
+                end, function(err)
+                    warn("Erro ao ajustar labels no evento TextOrSizeChanged: " .. tostring(err))
+                end)
             end
 
-            container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onTextOrSizeChanged)
+            pcall(function()
+                container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onTextOrSizeChanged)
+            end, function(err)
+                warn("Erro ao conectar evento AbsoluteSize: " .. tostring(err))
+            end)
 
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(toggleIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
+            pcall(function()
+                TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para container: " .. tostring(err))
+            end)
+
+            pcall(function()
+                TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para toggleButton: " .. tostring(err))
+            end)
+
+            pcall(function()
+                TweenService:Create(toggleIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para toggleIndicator: " .. tostring(err))
+            end)
 
             local function updateToggle()
                 isOn = (isOn == nil) and false or isOn
                 toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
                 local targetPosition = isOn and UDim2.new(0, 28, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
-                TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                    BackgroundColor3 = toggleBackgroundColor
-                }):Play()
-                TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                    Position = targetPosition
-                }):Play()
+                pcall(function()
+                    TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                        BackgroundColor3 = toggleBackgroundColor
+                    }):Play()
+                end, function(err)
+                    warn("Erro ao criar tween para toggleButton: " .. tostring(err))
+                end)
+                pcall(function()
+                    TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                        Position = targetPosition
+                    }):Play()
+                end, function(err)
+                    warn("Erro ao criar tween para toggleIndicator: " .. tostring(err))
+                end)
                 if info.Callback and typeof(info.Callback) == "function" then
-                    info.Callback(isOn)
+                    pcall(function()
+                        info.Callback(isOn)
+                    end, function(err)
+                        warn("Erro ao executar callback do toggle: " .. tostring(err))
+                    end)
                 end
             end
 
-            toggleButton.MouseButton1Click:Connect(function()
-                isOn = not isOn
-                updateToggle()
+            pcall(function()
+                toggleButton.MouseButton1Click:Connect(function()
+                    isOn = not isOn
+                    updateToggle()
+                end)
+            end, function(err)
+                warn("Erro ao conectar MouseButton1Click: " .. tostring(err))
             end)
 
-            toggleButton.MouseEnter:Connect(function()
-                if not isOn then
-                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
-                end
+            pcall(function()
+                toggleButton.MouseEnter:Connect(function()
+                    if not isOn then
+                        pcall(function()
+                            TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(70, 70, 70)}):Play()
+                        end, function(err)
+                            warn("Erro ao criar tween para MouseEnter: " .. tostring(err))
+                        end)
+                    end
+                end)
+            end, function(err)
+                warn("Erro ao conectar MouseEnter: " .. tostring(err))
             end)
-            toggleButton.MouseLeave:Connect(function()
-                if not isOn then
-                    TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
-                end
+
+            pcall(function()
+                toggleButton.MouseLeave:Connect(function()
+                    if not isOn then
+                        pcall(function()
+                            TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+                        end, function(err)
+                            warn("Erro ao criar tween para MouseLeave: " .. tostring(err))
+                        end)
+                    end
+                end)
+            end, function(err)
+                warn("Erro ao conectar MouseLeave: " .. tostring(err))
             end)
 
             updateToggle()
@@ -627,10 +785,18 @@ function OrionLibV2:MakeWindow(Info)
 
             local function adjustTextLabels()
                 for _, label in ipairs(nameLabels) do
-                    label:Destroy()
+                    pcall(function()
+                        label:Destroy()
+                    end, function(err)
+                        warn("Erro ao destruir nameLabel: " .. tostring(err))
+                    end)
                 end
                 for _, label in ipairs(descriptionLabels) do
-                    label:Destroy()
+                    pcall(function()
+                        label:Destroy()
+                    end, function(err)
+                        warn("Erro ao destruir descriptionLabel: " .. tostring(err))
+                    end)
                 end
                 nameLabels = {}
                 descriptionLabels = {}
@@ -639,7 +805,11 @@ function OrionLibV2:MakeWindow(Info)
                 local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
                 local maxWidth = container.AbsoluteSize.X - 180
                 local nameLines = splitText(nameText, tempNameLabel, maxWidth)
-                tempNameLabel:Destroy()
+                pcall(function()
+                    tempNameLabel:Destroy()
+                end, function(err)
+                    warn("Erro ao destruir tempNameLabel: " .. tostring(err))
+                end)
 
                 local yOffset = 5
                 for i, line in ipairs(nameLines) do
@@ -647,20 +817,32 @@ function OrionLibV2:MakeWindow(Info)
                     nameLabel.Size = UDim2.new(1, -170, 0, nameLabel.TextBounds.Y or 14)
                     table.insert(nameLabels, nameLabel)
                     yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
-                    TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    pcall(function()
+                        TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    end, function(err)
+                        warn("Erro ao criar tween para nameLabel: " .. tostring(err))
+                    end)
                 end
 
                 local descText = info.Description or ""
                 local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
                 local descLines = splitText(descText, tempDescLabel, maxWidth)
-                tempDescLabel:Destroy()
+                pcall(function()
+                    tempDescLabel:Destroy()
+                end, function(err)
+                    warn("Erro ao destruir tempDescLabel: " .. tostring(err))
+                end)
 
                 for i, line in ipairs(descLines) do
                     local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
                     descLabel.Size = UDim2.new(1, -170, 0, descLabel.TextBounds.Y or 11)
                     table.insert(descriptionLabels, descLabel)
                     yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
-                    TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    pcall(function()
+                        TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    end, function(err)
+                        warn("Erro ao criar tween para descLabel: " .. tostring(err))
+                    end)
                 end
 
                 container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
@@ -728,14 +910,18 @@ function OrionLibV2:MakeWindow(Info)
             DropdownScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
             DropdownListLayout.Parent = DropdownScrollFrame
 
-            DropdownScrollFrame.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseWheel then
-                    local scrollAmount = 20
-                    local currentPosition = DropdownScrollFrame.CanvasPosition.Y
-                    local newPosition = currentPosition - (input.Position.Z * scrollAmount)
-                    newPosition = math.clamp(newPosition, 0, DropdownScrollFrame.CanvasSize.Y.Offset - DropdownScrollFrame.AbsoluteWindowSize.Y)
-                    DropdownScrollFrame.CanvasPosition = Vector2.new(0, newPosition)
-                end
+            pcall(function()
+                DropdownScrollFrame.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseWheel then
+                        local scrollAmount = 20
+                        local currentPosition = DropdownScrollFrame.CanvasPosition.Y
+                        local newPosition = currentPosition - (input.Position.Z * scrollAmount)
+                        newPosition = math.clamp(newPosition, 0, DropdownScrollFrame.CanvasSize.Y.Offset - DropdownScrollFrame.AbsoluteWindowSize.Y)
+                        DropdownScrollFrame.CanvasPosition = Vector2.new(0, newPosition)
+                    end
+                end)
+            end, function(err)
+                warn("Erro ao conectar InputBegan: " .. tostring(err))
             end)
 
             local DropdownHolderFrame = Instance.new("Frame")
@@ -779,16 +965,30 @@ function OrionLibV2:MakeWindow(Info)
             sizeConstraint.MinSize = Vector2.new(170, 0)
             sizeConstraint.Parent = DropdownHolderCanvas
 
-            TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(DropdownDisplay, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0,
-                BackgroundTransparency = 0
-            }):Play()
-            TweenService:Create(DropdownIco, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                ImageTransparency = 0
-            }):Play()
+            pcall(function()
+                TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para container: " .. tostring(err))
+            end)
+
+            pcall(function()
+                TweenService:Create(DropdownDisplay, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    TextTransparency = 0,
+                    BackgroundTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para DropdownDisplay: " .. tostring(err))
+            end)
+
+            pcall(function()
+                TweenService:Create(DropdownIco, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                    ImageTransparency = 0
+                }):Play()
+            end, function(err)
+                warn("Erro ao criar tween para DropdownIco: " .. tostring(err))
+            end)
 
             local function RecalculateListPosition()
                 local absPos = DropdownDisplay.AbsolutePosition
@@ -816,40 +1016,56 @@ function OrionLibV2:MakeWindow(Info)
             RecalculateListPosition()
             RecalculateListSize()
 
-            DropdownDisplay:GetPropertyChangedSignal("AbsolutePosition"):Connect(RecalculateListPosition)
-
-            DropdownDisplay.MouseButton1Click:Connect(function()
-                if Dropdown.Opened then
-                    Dropdown:Close()
-                else
-                    Dropdown:Open()
-                end
+            pcall(function()
+                DropdownDisplay:GetPropertyChangedSignal("AbsolutePosition"):Connect(RecalculateListPosition)
+            end, function(err)
+                warn("Erro ao conectar evento AbsolutePosition: " .. tostring(err))
             end)
 
-            UserInputService.InputBegan:Connect(function(Input)
-                if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
-                    local AbsPos = DropdownHolderFrame.AbsolutePosition
-                    local AbsSize = DropdownHolderFrame.AbsoluteSize
-                    if
-                        Mouse.X < AbsPos.X or
-                        Mouse.X > AbsPos.X + AbsSize.X or
-                        Mouse.Y < (AbsPos.Y - 20) or
-                        Mouse.Y > AbsPos.Y + AbsSize.Y
-                    then
+            pcall(function()
+                DropdownDisplay.MouseButton1Click:Connect(function()
+                    if Dropdown.Opened then
                         Dropdown:Close()
+                    else
+                        Dropdown:Open()
                     end
-                end
+                end)
+            end, function(err)
+                warn("Erro ao conectar MouseButton1Click: " .. tostring(err))
+            end)
+
+            pcall(function()
+                UserInputService.InputBegan:Connect(function(Input)
+                    if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
+                        local AbsPos = DropdownHolderFrame.AbsolutePosition
+                        local AbsSize = DropdownHolderFrame.AbsoluteSize
+                        if
+                            Mouse.X < AbsPos.X or
+                            Mouse.X > AbsPos.X + AbsSize.X or
+                            Mouse.Y < (AbsPos.Y - 20) or
+                            Mouse.Y > AbsPos.Y + AbsSize.Y
+                        then
+                            Dropdown:Close()
+                        end
+                    end
+                end)
+            end, function(err)
+                warn("Erro ao conectar InputBegan: " .. tostring(err))
             end)
 
             function Dropdown:Open()
                 Dropdown.Opened = true
                 TabContent.ScrollingEnabled = false
                 DropdownHolderCanvas.Visible = true
-                TweenService:Create(
-                    DropdownHolderFrame,
-                    TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-                    { Size = UDim2.fromScale(1, 1) }
-                ):Play()
+                pcall(function()
+                    TweenService:Create(
+                        DropdownHolderFrame,
+                        TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                        { Size = UDim2.fromScale(1, 1) }
+                    ):Play()
+                end, function(err)
+                    warn("Erro ao criar tween para DropdownHolderFrame: " .. tostring(err))
+                end)
             end
 
             function Dropdown:Close()
@@ -891,7 +1107,11 @@ function OrionLibV2:MakeWindow(Info)
             function Dropdown:BuildDropdownList()
                 for _, Element in pairs(DropdownScrollFrame:GetChildren()) do
                     if not Element:IsA("UIListLayout") then
-                        Element:Destroy()
+                        pcall(function()
+                            Element:Destroy()
+                        end, function(err)
+                            warn("Erro ao destruir elemento do DropdownScrollFrame: " .. tostring(err))
+                        end)
                     end
                 end
 
@@ -940,9 +1160,13 @@ function OrionLibV2:MakeWindow(Info)
                     ButtonLabel.ZIndex = 2
                     ButtonLabel.Parent = Button
 
-                    TweenService:Create(ButtonLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                        TextTransparency = 0
-                    }):Play()
+                    pcall(function()
+                        TweenService:Create(ButtonLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
+                            TextTransparency = 0
+                        }):Play()
+                    end, function(err)
+                        warn("Erro ao criar tween para ButtonLabel: " .. tostring(err))
+                    end)
 
                     local Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
 
@@ -950,58 +1174,117 @@ function OrionLibV2:MakeWindow(Info)
                         Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
                         local targetTransparency = Selected and 0 or 1
                         local targetSize = Selected and 14 or 6
-                        TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            BackgroundTransparency = Selected and 0.85 or 1
-                        }):Play()
-                        TweenService:Create(ButtonSelector, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            BackgroundTransparency = targetTransparency
-                        }):Play()
-                        TweenService:Create(ButtonSelector, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
-                            Size = UDim2.fromOffset(4, targetSize)
-                        }):Play()
+                        pcall(function()
+                            TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                                BackgroundTransparency = Selected and 0.85 or 1
+                            }):Play()
+                        end, function(err)
+                            warn("Erro ao criar tween para Button: " .. tostring(err))
+                        end)
+                        pcall(function()
+                            TweenService:Create(ButtonSelector, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                                BackgroundTransparency = targetTransparency
+                            }):Play()
+                        end, function(err)
+                            warn("Erro ao criar tween para ButtonSelector: " .. tostring(err))
+                        end)
+                        pcall(function()
+                            TweenService:Create(ButtonSelector, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
+                                Size = UDim2.fromOffset(4, targetSize)
+                            }):Play()
+                        end, function(err)
+                            warn("Erro ao criar tween para ButtonSelector Size: " .. tostring(err))
+                        end)
                     end
 
-                    Button.MouseEnter:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.85 or 0.89
-                        }):Play()
-                    end)
-                    Button.MouseLeave:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.89 or 1
-                        }):Play()
-                    end)
-                    Button.MouseButton1Down:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = 0.92
-                        }):Play()
-                    end)
-                    Button.MouseButton1Up:Connect(function()
-                        TweenService:Create(Button, TweenInfo.new(0.2), {
-                            BackgroundTransparency = Selected and 0.85 or 0.89
-                        }):Play()
+                    pcall(function()
+                        Button.MouseEnter:Connect(function()
+                            pcall(function()
+                                TweenService:Create(Button, TweenInfo.new(0.2), {
+                                    BackgroundTransparency = Selected and 0.85 or 0.89
+                                }):Play()
+                            end, function(err)
+                                warn("Erro ao criar tween para MouseEnter: " .. tostring(err))
+                            end)
+                        end)
+                    end, function(err)
+                        warn("Erro ao conectar MouseEnter: " .. tostring(err))
                     end)
 
-                    Button.MouseButton1Click:Connect(function()
-                        local Try = not Selected
-                        if Dropdown:GetActiveValues() == 1 and not Try and not (info.AllowNull or false) then
-                            return
-                        end
-                        if Dropdown.Multi then
-                            Selected = Try
-                            Dropdown.Value[Value] = Selected and true or nil
-                        else
-                            Selected = Try
-                            Dropdown.Value = Selected and Value or nil
-                            for _, OtherButton in pairs(Buttons) do
-                                OtherButton:UpdateButton()
+                    pcall(function()
+                        Button.MouseLeave:Connect(function()
+                            pcall(function()
+                                TweenService:Create(Button, TweenInfo.new(0.2), {
+                                    BackgroundTransparency = Selected and 0.89 or 1
+                                }):Play()
+                            end, function(err)
+                                warn("Erro ao criar tween para MouseLeave: " .. tostring(err))
+                            end)
+                        end)
+                    end, function(err)
+                        warn("Erro ao conectar MouseLeave: " .. tostring(err))
+                    end)
+
+                    pcall(function()
+                        Button.MouseButton1Down:Connect(function()
+                            pcall(function()
+                                TweenService:Create(Button, TweenInfo.new(0.2), {
+                                    BackgroundTransparency = 0.92
+                                }):Play()
+                            end, function(err)
+                                warn("Erro ao criar tween para MouseButton1Down: " .. tostring(err))
+                            end)
+                        end)
+                    end, function(err)
+                        warn("Erro ao conectar MouseButton1Down: " .. tostring(err))
+                    end)
+
+                    pcall(function()
+                        Button.MouseButton1Up:Connect(function()
+                            pcall(function()
+                                TweenService:Create(Button, TweenInfo.new(0.2), {
+                                    BackgroundTransparency = Selected and 0.85 or 0.89
+                                }):Play()
+                            end, function(err)
+                                warn("Erro ao criar tween para MouseButton1Up: " .. tostring(err))
+                            end)
+                        end)
+                    end, function(err)
+                        warn("Erro ao conectar MouseButton1Up: " .. tostring(err))
+                    end)
+
+                    pcall(function()
+                        Button.MouseButton1Click:Connect(function()
+                            local Try = not Selected
+                            if Dropdown:GetActiveValues() == 1 and not Try and not (info.AllowNull or false) then
+                                return
                             end
-                        end
-                        UpdateButton()
-                        Dropdown:Display()
-                        if info.Callback and typeof(info.Callback) == "function" then
-                            info.Callback(Dropdown.Value)
-                        end
+                            if Dropdown.Multi then
+                                Selected = Try
+                                Dropdown.Value[Value] = Selected and true or nil
+                            else
+                                Selected = Try
+                                Dropdown.Value = Selected and Value or nil
+                                for _, OtherButton in pairs(Buttons) do
+                                    pcall(function()
+                                        OtherButton:UpdateButton()
+                                    end, function(err)
+                                        warn("Erro ao atualizar outro botão: " .. tostring(err))
+                                    end)
+                                end
+                            end
+                            UpdateButton()
+                            Dropdown:Display()
+                            if info.Callback and typeof(info.Callback) == "function" then
+                                pcall(function()
+                                    info.Callback(Dropdown.Value)
+                                end, function(err)
+                                    warn("Erro ao executar callback do dropdown: " .. tostring(err))
+                                end)
+                            end
+                        end)
+                    end, function(err)
+                        warn("Erro ao conectar MouseButton1Click: " .. tostring(err))
                     end)
 
                     Buttons[Button] = { UpdateButton = UpdateButton }
@@ -1044,7 +1327,11 @@ function OrionLibV2:MakeWindow(Info)
                 Dropdown:BuildDropdownList()
                 Dropdown:Display()
                 if info.Callback and typeof(info.Callback) == "function" then
-                    info.Callback(Dropdown.Value)
+                    pcall(function()
+                        info.Callback(Dropdown.Value)
+                    end, function(err)
+                        warn("Erro ao executar callback do dropdown: " .. tostring(err))
+                    end)
                 end
             end
 
@@ -1067,16 +1354,28 @@ function OrionLibV2:MakeWindow(Info)
                 Dropdown:BuildDropdownList()
                 Dropdown:Display()
                 if info.Callback and typeof(info.Callback) == "function" then
-                    info.Callback(Dropdown.Value)
+                    pcall(function()
+                        info.Callback(Dropdown.Value)
+                    end, function(err)
+                        warn("Erro ao executar callback do dropdown: " .. tostring(err))
+                    end)
                 end
             end
 
             local function onSizeChanged()
-                adjustTextLabels()
-                RecalculateCanvasSize()
+                pcall(function()
+                    adjustTextLabels()
+                    RecalculateCanvasSize()
+                end, function(err)
+                    warn("Erro ao ajustar labels no evento SizeChanged: " .. tostring(err))
+                end)
             end
 
-            container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
+            pcall(function()
+                container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
+            end, function(err)
+                warn("Erro ao conectar evento AbsoluteSize: " .. tostring(err))
+            end)
 
             elementY = elementY + container.Size.Y.Offset + 10
             RecalculateCanvasSize()
@@ -1087,6 +1386,8 @@ function OrionLibV2:MakeWindow(Info)
     end
 
     return Tabs
+end)
+if not success then
+    warn("Erro ao criar janela: " .. tostring(result))
 end
-
 return OrionLibV2
