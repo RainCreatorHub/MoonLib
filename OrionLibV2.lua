@@ -154,21 +154,8 @@ function OrionLibV2:MakeWindow(Info)
         end
 
         function TabFunctions:AddSection(info)
-            -- Criar TextLabel temporário para medir a altura do texto
-            local tempLabel = Instance.new("TextLabel")
-            tempLabel.Text = info.Name or "Section"
-            tempLabel.Font = Enum.Font.GothamBold
-            tempLabel.TextSize = 16
-            tempLabel.TextXAlignment = Enum.TextXAlignment.Left
-            tempLabel.BackgroundTransparency = 1
-            tempLabel.Size = UDim2.new(1, -20, 0, 0)
-            tempLabel.Parent = TabContent
-            task.wait()
-            local textHeight = tempLabel.TextBounds.Y or 16
-            tempLabel:Destroy()
-
             local container = Instance.new("Frame")
-            container.Size = UDim2.new(1, -20, 0, textHeight)
+            container.Size = UDim2.new(1, -20, 0,)
             container.Position = UDim2.new(0, 10, 0, elementY)
             container.BackgroundTransparency = 1
             container.BorderSizePixel = 0
@@ -182,7 +169,7 @@ function OrionLibV2:MakeWindow(Info)
             sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
             sectionLabel.Font = Enum.Font.GothamBold
             sectionLabel.TextSize = 16
-            sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+            sectionLabel.TextXAlignment = Enum.TextXAlignment.Center
             sectionLabel.TextYAlignment = Enum.TextYAlignment.Center
             sectionLabel.TextTransparency = 1
             sectionLabel.ZIndex = 1
