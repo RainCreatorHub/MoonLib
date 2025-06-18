@@ -111,7 +111,7 @@ function OrionLibV2:MakeWindow(Info)
 
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Name = TabInfo.Name or "TabContent"
-        TabContent.Size = UDim2.new(1, -145, 1, -80)
+        TabContent.Size = UDim2.new(1, -145, 1, -80) -- Ajustado para ocupar a área à direita da VerticalLine
         TabContent.Position = UDim2.new(0, 145, 0, 70)
         TabContent.BackgroundTransparency = 1
         TabContent.Visible = (#TabList == 0)
@@ -120,7 +120,7 @@ function OrionLibV2:MakeWindow(Info)
         TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
         TabContent.ScrollingDirection = Enum.ScrollingDirection.Y
         TabContent.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
-        TabContent.ClipsDescendants = true
+        TabContent.ClipsDescendants = true -- Ativado para evitar vazamento
         TabContent.Parent = window
         table.insert(TabList, TabContent)
 
@@ -140,6 +140,7 @@ function OrionLibV2:MakeWindow(Info)
         local elementY = 0
         local TabFunctions = {}
 
+        -- Função auxiliar para recalcular CanvasSize
         local function RecalculateCanvasSize()
             local totalHeight = 0
             for _, child in ipairs(TabContent:GetChildren()) do
@@ -148,34 +149,35 @@ function OrionLibV2:MakeWindow(Info)
                     totalHeight = math.max(totalHeight, childBottom)
                 end
             end
-            totalHeight = math.max(totalHeight, elementY) + 20
+            totalHeight = math.max(totalHeight, elementY) + 20 -- Margem final
             TabContent.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
         end
 
-        function TabFunctions:AddSection(info)
-            local container = Instance.new("Frame", TabContent)
-            container.Size = UDim2.new(1, -20, 0, 25)
-            container.Position = UDim2.new(0, 10, 0, elementY + 20)
-            container.BackgroundTransparency = 1
-            container.BorderSizePixel = 0
+         TabFunctions:AddSection(info)  
+            local container = Instance.new("Frame", TabContent)  
+            container.Size = UDim2.new(1, -20, 0, 25)  
+            container.Position = UDim2.new(0, 10, 0, elementY + 20)  
+            container.BackgroundTransparency = 1  
+            container.BorderSizePixel = 0  
 
-            local sectionLabel = Instance.new("TextLabel", container)
-            sectionLabel.Text = info.Name or "Section"
-            sectionLabel.Size = UDim2.new(1, 0, 1, 0)
-            sectionLabel.BackgroundTransparency = 1
-            sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-            sectionLabel.Font = Enum.Font.GothamBold
-            sectionLabel.TextSize = 16
-            sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
-            sectionLabel.TextTransparency = 1
+            local sectionLabel = Instance.new("TextLabel", container)  
+            sectionLabel.Text = info.Name or "Section"  
+            sectionLabel.Size = UDim2.new(1, 0, 1, 0)  
+            sectionLabel.BackgroundTransparency = 1  
+            sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  
+            sectionLabel.Font = Enum.Font.GothamBold  
+            sectionLabel.TextSize = 16  
+            sectionLabel.TextXAlignment = Enum.TextXAlignment.Left  
+            sectionLabel.TextTransparency = 1  
 
-            TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {
-                TextTransparency = 0
-            }):Play()
+            TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
+                TextTransparency = 0  
+            }):Play()  
 
-            elementY = elementY + 30
-            RecalculateCanvasSize()
-            return container
+            elementY = elementY + 30  
+            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY) 
+            RecalculateCanvasSize() 
+            return container  
         end
 
         function TabFunctions:AddLabel(info)
@@ -280,7 +282,7 @@ function OrionLibV2:MakeWindow(Info)
                     TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
             end
 
             adjustTextLabels()
@@ -499,7 +501,7 @@ function OrionLibV2:MakeWindow(Info)
                     TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
                 toggleButton.Position = UDim2.new(1, -60, 0.5, -12)
             end
 
@@ -662,7 +664,7 @@ function OrionLibV2:MakeWindow(Info)
                     TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                 end
 
-                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
+                container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
             end
 
             adjustTextLabels()
@@ -916,8 +918,7 @@ function OrionLibV2:MakeWindow(Info)
                     local ButtonSelector = Instance.new("Frame")
                     ButtonSelector.Size = UDim2.fromOffset(4, 14)
                     ButtonSelector.Position = UDim2.fromOffset(-1, 16)
-                    ButtonSelector)
-                    AnchorPoint = Vector2.new(0, 0.5)
+                    ButtonSelector.AnchorPoint = Vector2.new(0, 0.5)
                     ButtonSelector.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
                     ButtonSelector.BackgroundTransparency = 1
                     ButtonSelector.ZIndex = 2
@@ -984,8 +985,7 @@ function OrionLibV2:MakeWindow(Info)
 
                     Button.MouseButton1Click:Connect(function()
                         local Try = not Selected
-                        if Dropdown:GetActiveValues() == 1 and not Try and not (info.AllowNull or false)
-                            then
+                        if Dropdown:GetActiveValues() == 1 and not Try and not (info.AllowNull or false) then
                             return
                         end
                         if Dropdown.Multi then
@@ -1000,7 +1000,7 @@ function OrionLibV2:MakeWindow(Info)
                         end
                         UpdateButton()
                         Dropdown:Display()
-                        if info.Callback and typeof(info) == "function" then
+                        if info.Callback and typeof(info.Callback) == "function" then
                             info.Callback(Dropdown.Value)
                         end
                     end)
