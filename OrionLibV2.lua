@@ -183,6 +183,7 @@ function OrionLibV2:MakeWindow(Info)
             sectionLabel.Font = Enum.Font.GothamBold
             sectionLabel.TextSize = 16
             sectionLabel.TextXAlignment = Enum.TextXAlignment.Left
+            sectionLabel.TextYAlignment = Enum.TextYAlignment.Center
             sectionLabel.TextTransparency = 1
             sectionLabel.ZIndex = 1
             sectionLabel.Parent = container
