@@ -92,7 +92,6 @@ function OrionLibV2:MakeWindow(Info)
             Button.AutoButtonColor = false  
             Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)  
 
-            -- Soft wrap para o texto do botão da aba
             local tempLabel = Instance.new("TextLabel")
             tempLabel.Text = TabInfo.Name or "Tab"
             tempLabel.Font = Enum.Font.Gotham
@@ -137,6 +136,47 @@ function OrionLibV2:MakeWindow(Info)
             local elementY = 0  
             local TabFunctions = {}  
 
+            local function createTextLabel(text, font, textSize, color, position, parent)
+                local label = Instance.new("TextLabel")
+                label.Text = text
+                label.Size = UDim2.new(1, -10, 0, 0)
+                label.Position = position
+                label.BackgroundTransparency = 1
+                label.TextColor3 = color
+                label.Font = font
+                label.TextSize = textSize
+                label.TextXAlignment = Enum.TextXAlignment.Left
+                label.TextTransparency = 1
+                label.TextWrapped = true
+                label.ZIndex = 1
+                label.Parent = parent
+                return label
+            end
+
+            local function splitText(text, label, maxWidth)
+                if not text or text == "" then
+                    return {""}
+                end
+                local chars = {}
+                for char in text:gmatch("[\128-\191]*.") do
+                    table.insert(chars, char)
+                end
+                local lines = {""}
+                local currentLine = 1
+                for _, char in ipairs(chars) do
+                    local testText = lines[currentLine] .. char
+                    label.Text = testText
+                    if label.TextBounds.X <= maxWidth then
+                        lines[currentLine] = testText
+                    else
+                        currentLine = currentLine + 1
+                        lines[currentLine] = char
+                    end
+                end
+                label.Text = text
+                return lines
+            end
+
             function TabFunctions:AddSection(info)  
                 local success, result = xpcall(function()
                     local container = Instance.new("Frame", TabContent)  
@@ -145,28 +185,48 @@ function OrionLibV2:MakeWindow(Info)
                     container.BackgroundTransparency = 1  
                     container.BorderSizePixel = 0  
 
-                    local sectionLabel = Instance.new("TextLabel", container)  
-                    sectionLabel.Text = info.Name or "Section"  
-                    sectionLabel.BackgroundTransparency = 1  
-                    sectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)  
-                    sectionLabel.Font = Enum.Font.GothamBold  
-                    sectionLabel.TextSize = 16  
-                    sectionLabel.TextXAlignment = Enum.TextXAlignment.Left  
-                    sectionLabel.TextTransparency = 1  
-                    sectionLabel.TextWrapped = true  
-                    sectionLabel.Size = UDim2.new(1, 0, 0, 0)  
+                    local nameLabels = {}
+                    local nameText = info.Name or "Section"
+                    local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container)
+                    local maxWidth = container.AbsoluteSize.X - 10
+                    local nameLines = splitText(nameText, tempLabel, maxWidth)
+                    tempLabel:Destroy()
 
-                    -- Soft wrap para o texto da seção
-                    local textBounds = sectionLabel.TextBounds
-                    sectionLabel.Size = UDim2.new(1, 0, 0, math.ceil(textBounds.Y) or 25)
-                    container.Size = UDim2.new(1, -20, 0, sectionLabel.Size.Y.Offset + 5)
+                    local yOffset = 0
+                    for i, line in ipairs(nameLines) do
+                        local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, yOffset), container)
+                        nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
+                        table.insert(nameLabels, nameLabel)
+                        yOffset = yOffset + (nameLabel.TextBounds.Y or 16) + 2
+                        TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                    end
 
-                    TweenService:Create(sectionLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                        TextTransparency = 0  
-                    }):Play()  
-
+                    container.Size = UDim2.new(1, -20, 0, math.max(25, yOffset + 5))
                     elementY = elementY + container.Size.Y.Offset + 5  
                     TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)  
+
+                    local function onSizeChanged()
+                        for _, label in ipairs(nameLabels) do
+                            label:Destroy()
+                        end
+                        nameLabels = {}
+                        local maxWidth = container.AbsoluteSize.X - 10
+                        local nameLines = splitText(nameText, createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container), maxWidth)
+                        tempLabel:Destroy()
+                        yOffset = 0
+                        for i, line in ipairs(nameLines) do
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, yOffset), container)
+                            nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
+                            table.insert(nameLabels, nameLabel)
+                            yOffset = yOffset + (nameLabel.TextBounds.Y or 16) + 2
+                            TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+                        container.Size = UDim2.new(1, -20, 0, math.max(25, yOffset + 5))
+                        TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY + container.Size.Y.Offset + 5)
+                    end
+
+                    container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
+
                     return container  
                 end, errorHandler)
                 if not success then
@@ -192,46 +252,62 @@ function OrionLibV2:MakeWindow(Info)
                     local corner = Instance.new("UICorner", container)  
                     corner.CornerRadius = UDim.new(0, 6)  
 
-                    local title = Instance.new("TextLabel", container)  
-                    title.Text = info.Name or "Label"  
-                    title.BackgroundTransparency = 1  
-                    title.TextColor3 = Color3.fromRGB(255, 255, 255)  
-                    title.Font = Enum.Font.GothamBold  
-                    title.TextSize = 14  
-                    title.TextXAlignment = Enum.TextXAlignment.Left  
-                    title.TextTransparency = 1  
-                    title.TextWrapped = true  
-                    title.Size = UDim2.new(1, -10, 0, 0)  
-                    title.Position = UDim2.new(0, 5, 0, 5)  
+                    local nameLabels = {}
+                    local contentLabels = {}
 
-                    local content = Instance.new("TextLabel", container)  
-                    content.Text = info.Content or "Texto"  
-                    content.BackgroundTransparency = 1  
-                    content.TextColor3 = Color3.fromRGB(180, 180, 180)  
-                    content.Font = Enum.Font.Gotham  
-                    content.TextSize = 13  
-                    content.TextXAlignment = Enum.TextXAlignment.Left  
-                    content.TextTransparency = 1  
-                    content.TextWrapped = true  
-                    content.Size = UDim2.new(1, -10, 0, 0)  
+                    local function adjustTextLabels()
+                        for _, label in ipairs(nameLabels) do
+                            label:Destroy()
+                        end
+                        for _, label in ipairs(contentLabels) do
+                            label:Destroy()
+                        end
+                        nameLabels = {}
+                        contentLabels = {}
 
-                    -- Soft wrap para os textos do label
-                    local titleBounds = title.TextBounds
-                    title.Size = UDim2.new(1, -10, 0, math.ceil(titleBounds.Y) or 18)
-                    content.Position = UDim2.new(0, 5, 0, title.Size.Y.Offset + 5)
-                    local contentBounds = content.TextBounds
-                    content.Size = UDim2.new(1, -10, 0, math.ceil(contentBounds.Y) or 18)
-                    container.Size = UDim2.new(1, -20, 0, title.Size.Y.Offset + content.Size.Y.Offset + 15)
+                        local nameText = info.Name or "Label"
+                        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container)
+                        local maxWidth = container.AbsoluteSize.X - 20
+                        local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                        tempNameLabel:Destroy()
+
+                        local yOffset = 5
+                        for i, line in ipairs(nameLines) do
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, yOffset), container)
+                            nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14)
+                            table.insert(nameLabels, nameLabel)
+                            yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                            TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+
+                        local contentText = info.Content or "Texto"
+                        local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                        local contentLines = splitText(contentText, tempContentLabel, maxWidth)
+                        tempContentLabel:Destroy()
+
+                        for i, line in ipairs(contentLines) do
+                            local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container)
+                            contentLabel.Size = UDim2.new(1, -10, 0, contentLabel.TextBounds.Y or 13)
+                            table.insert(contentLabels, contentLabel)
+                            yOffset = yOffset + (contentLabel.TextBounds.Y or 13) + 2
+                            TweenService:Create(contentLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+
+                        container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
+                        TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY + container.Size.Y.Offset + 10)
+                    end
+
+                    adjustTextLabels()
 
                     TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
                         BackgroundTransparency = 0  
                     }):Play()  
-                    TweenService:Create(title, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                        TextTransparency = 0  
-                    }):Play()  
-                    TweenService:Create(content, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                        TextTransparency = 0  
-                    }):Play()  
+
+                    local function onSizeChanged()
+                        adjustTextLabels()
+                    end
+
+                    container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
 
                     elementY = elementY + container.Size.Y.Offset + 10  
                     TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)  
@@ -261,6 +337,35 @@ function OrionLibV2:MakeWindow(Info)
                     local corner = Instance.new("UICorner", container)  
                     corner.CornerRadius = UDim.new(0, 6)  
 
+                    local nameLabels = {}
+
+                    local function adjustTextLabels()
+                        for _, label in ipairs(nameLabels) do
+                            label:Destroy()
+                        end
+                        nameLabels = {}
+
+                        local nameText = info.Name or "Button"
+                        local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
+                        local maxWidth = container.AbsoluteSize.X - 20
+                        local nameLines = splitText(nameText, tempLabel, maxWidth)
+                        tempLabel:Destroy()
+
+                        local yOffset = 5
+                        for i, line in ipairs(nameLines) do
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
+                            nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 14)
+                            table.insert(nameLabels, nameLabel)
+                            yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                            TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+
+                        container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
+                        TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY + container.Size.Y.Offset + 10)
+                    end
+
+                    adjustTextLabels()
+
                     local button = Instance.new("TextButton", container)  
                     button.Size = UDim2.new(1, -10, 1, -10)  
                     button.Position = UDim2.new(0, 5, 0, 5)  
@@ -274,22 +379,7 @@ function OrionLibV2:MakeWindow(Info)
                     button.TextTransparency = 1  
                     button.BackgroundTransparency = 0.3  
                     button.ClipsDescendants = true  
-                    button.TextWrapped = true  
-
-                    -- Soft wrap para o texto do botão
-                    local tempLabel = Instance.new("TextLabel")
-                    tempLabel.Text = info.Name or "Button"
-                    tempLabel.Font = Enum.Font.GothamBold
-                    tempLabel.TextSize = 14
-                    tempLabel.TextWrapped = true
-                    tempLabel.Size = UDim2.new(1, -20, 0, 0)
-                    tempLabel.Parent = button
-                    local textBounds = tempLabel.TextBounds
-                    tempLabel:Destroy()
-                    button.Text = info.Name or "Button"
-                    local buttonHeight = math.ceil(textBounds.Y) or 30
-                    button.Size = UDim2.new(1, -10, 0, buttonHeight)
-                    container.Size = UDim2.new(1, -20, 0, buttonHeight + 10)
+                    button.Text = ""  
 
                     local buttonCorner = Instance.new("UICorner", button)  
                     buttonCorner.CornerRadius = UDim.new(0, 6)  
@@ -298,7 +388,6 @@ function OrionLibV2:MakeWindow(Info)
                         BackgroundTransparency = 0  
                     }):Play()  
                     TweenService:Create(button, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                        TextTransparency = 0,  
                         BackgroundTransparency = 0  
                     }):Play()  
 
@@ -317,6 +406,12 @@ function OrionLibV2:MakeWindow(Info)
                             end
                         end)  
                     end  
+
+                    local function onSizeChanged()
+                        adjustTextLabels()
+                    end
+
+                    container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
 
                     elementY = elementY + container.Size.Y.Offset + 10  
                     TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)  
@@ -348,48 +443,6 @@ function OrionLibV2:MakeWindow(Info)
 
                     local nameLabels = {}
                     local descriptionLabels = {}
-
-                    local function createTextLabel(text, font, textSize, color, position, parent)
-                        local label = Instance.new("TextLabel")
-                        label.Text = text
-                        label.Size = UDim2.new(1, -60, 0, 0)
-                        label.Position = position
-                        label.BackgroundTransparency = 1
-                        label.TextColor3 = color
-                        label.Font = font
-                        label.TextSize = textSize
-                        label.TextXAlignment = Enum.TextXAlignment.Left
-                        label.TextTransparency = 1
-                        label.TextWrapped = true
-                        label.ZIndex = 1
-                        label.Parent = parent
-                        return label
-                    end
-
-                    local function splitText(text, label, maxWidth)
-                        if not text or text == "" then
-                            return {""}
-                        end
-                        local chars = {}
-                        for char in text:gmatch("[\128-\191]*.") do
-                            table.insert(chars, char)
-                        end
-                        local lines = {""}
-                        local currentLine = 1
-                        for _, char in ipairs(chars) do
-                            local testText = lines[currentLine] .. char
-                            label.Text = testText
-                            task.wait()
-                            if label.TextBounds.X <= maxWidth then
-                                lines[currentLine] = testText
-                            else
-                                currentLine = currentLine + 1
-                                lines[currentLine] = char
-                            end
-                        end
-                        label.Text = text
-                        return lines
-                    end
 
                     local function adjustTextLabels()
                         for _, label in ipairs(nameLabels) do
@@ -479,7 +532,7 @@ function OrionLibV2:MakeWindow(Info)
                         TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {  
                             Position = targetPosition  
                         }):Play()  
-                        adjustTextLabels() -- Recalcula o soft wrap ao ativar/desativar
+                        adjustTextLabels()
                         if info.Callback and typeof(info.Callback) == "function" then  
                             local success, callbackError = xpcall(function()
                                 info.Callback(isOn)
@@ -548,48 +601,6 @@ function OrionLibV2:MakeWindow(Info)
 
                     local nameLabels = {}
                     local descriptionLabels = {}
-
-                    local function createTextLabel(text, font, textSize, color, position, parent)
-                        local label = Instance.new("TextLabel")
-                        label.Text = text
-                        label.Size = UDim2.new(1, -170, 0, 0)
-                        label.Position = position
-                        label.BackgroundTransparency = 1
-                        label.TextColor3 = color
-                        label.Font = font
-                        label.TextSize = textSize
-                        label.TextXAlignment = Enum.TextXAlignment.Left
-                        label.TextTransparency = 1
-                        label.TextWrapped = true
-                        label.ZIndex = 1
-                        label.Parent = parent
-                        return label
-                    end
-
-                    local function splitText(text, label, maxWidth)
-                        if not text or text == "" then
-                            return {""}
-                        end
-                        local chars = {}
-                        for char in text:gmatch("[\128-\191]*.") do
-                            table.insert(chars, char)
-                        end
-                        local lines = {""}
-                        local currentLine = 1
-                        for _, char in ipairs(chars) do
-                            local testText = lines[currentLine] .. char
-                            label.Text = testText
-                            task.wait()
-                            if label.TextBounds.X <= maxWidth then
-                                lines[currentLine] = testText
-                            else
-                                currentLine = currentLine + 1
-                                lines[currentLine] = char
-                            end
-                        end
-                        label.Text = text
-                        return lines
-                    end
 
                     local function adjustTextLabels()
                         for _, label in ipairs(nameLabels) do
@@ -814,7 +825,7 @@ function OrionLibV2:MakeWindow(Info)
                         Dropdown.Opened = true
                         TabContent.ScrollingEnabled = false
                         DropdownHolderCanvas.Visible = true
-                        adjustTextLabels() -- Recalcula o soft wrap ao abrir
+                        adjustTextLabels()
                         TweenService:Create(
                             DropdownHolderFrame,
                             TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
