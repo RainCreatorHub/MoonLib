@@ -56,20 +56,6 @@ local Label = Tab:AddLabel({
 })
 ```
 
-### Adding a Dropdown
-Create a dropdown with customizable options and callbacks:
-``` lua
-local Dropdown = Tab:AddDropdown({
-    Name = "Selecione uma Opção",
-    Default = "Opção 1",
-    Values = {"Opção 1", "Opção 2 muito longa", "Opção 3 ainda mais longa texto de teste", "Opção 4 curta"},
-    Multi = false,
-    Callback = function(Value)
-        print("Selecionado: " .. tostring(Value))
-    end
-})
-```
-
 ### Adding a Button
 Add a button with a callback function:
 ``` lua
@@ -86,9 +72,24 @@ Add a toggle with a callback function:
 ``` lua
 local Toggle = Tab:AddToggle({
     Name = "Ativar Opção",
+    Description = "Ola",
     Default = false,
     Callback = function(Value)
         print("Toggle está: " .. tostring(Value))
+    end
+})
+```
+
+### Adding a Dropdown
+Create a dropdown with customizable options and callbacks:
+``` lua
+local Dropdown = Tab:AddDropdown({
+    Name = "Selecione uma Opção",
+    Default = "Opção 1",
+    Values = {"Opção 1", "Opção 2 muito longa", "Opção 3 ainda mais longa texto de teste", "Opção 4 curta"},
+    Multi = false,
+    Callback = function(Value)
+        print("Selecionado: " .. tostring(Value))
     end
 })
 ```
@@ -97,4 +98,4 @@ local Toggle = Tab:AddToggle({
 This library is provided as-is for educational and personal use. Feel free to modify and adapt it for your Roblox projects.
 
 ## Last Updated
-Wednesday, June 11, 2025, 03:41
+Wednesday, June, 19, 2025, 01:15
