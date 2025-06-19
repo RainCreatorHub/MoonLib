@@ -7,7 +7,7 @@ function OrionLibV2:MakeWindow(Info)
     local Mouse = game.Players.LocalPlayer:GetMouse()
 
     local ScreenGui = Instance.new("ScreenGui", game.CoreGui)  
-    ScreenGui.Name = "CheatGUI"  
+    ScreenGui.Name = "OrionLibV2"  
 
     local window = Instance.new("Frame")  
     window.Name = "MainWindow"  
@@ -42,7 +42,7 @@ function OrionLibV2:MakeWindow(Info)
     Title.TextSize = 20  
 
     local SubTitle = Instance.new("TextLabel", window)  
-    SubTitle.Text = Info.SubTitle or "Orion Subtitle"  
+    SubTitle.Text = Info.SubTitle or "Subtitle"  
     SubTitle.Size = UDim2.new(0, 300, 0, 20)  
     SubTitle.Position = UDim2.new(0, 10, 0, 35)  
     SubTitle.BackgroundTransparency = 1  
