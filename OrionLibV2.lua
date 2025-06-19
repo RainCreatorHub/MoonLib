@@ -346,36 +346,94 @@ function OrionLibV2:MakeWindow(Info)
                     local corner = Instance.new("UICorner", container)  
                     corner.CornerRadius = UDim.new(0, 6)  
 
-                    local toggleText = Instance.new("TextLabel", container)  
-                    toggleText.Text = info.Name or "Toggle"  
-                    toggleText.BackgroundTransparency = 1  
-                    toggleText.TextColor3 = Color3.fromRGB(255, 255, 255)  
-                    toggleText.Font = Enum.Font.GothamBold  
-                    toggleText.TextSize = 14  
-                    toggleText.TextXAlignment = Enum.TextXAlignment.Left  
-                    toggleText.TextTransparency = 1  
-                    toggleText.TextWrapped = true  
-                    toggleText.Size = UDim2.new(1, -60, 0, 0)  
-                    toggleText.Position = UDim2.new(0, 10, 0, 5)  
+                    local nameLabels = {}
+                    local descriptionLabels = {}
 
-                    local toggleDescription = Instance.new("TextLabel", container)  
-                    toggleDescription.Text = info.Description or ""  
-                    toggleDescription.BackgroundTransparency = 1  
-                    toggleDescription.TextColor3 = Color3.fromRGB(180, 180, 180)  
-                    toggleDescription.Font = Enum.Font.Gotham  
-                    toggleDescription.TextSize = 11  
-                    toggleDescription.TextXAlignment = Enum.TextXAlignment.Left  
-                    toggleDescription.TextTransparency = 1  
-                    toggleDescription.TextWrapped = true  
-                    toggleDescription.Size = UDim2.new(1, -60, 0, 0)  
+                    local function createTextLabel(text, font, textSize, color, position, parent)
+                        local label = Instance.new("TextLabel")
+                        label.Text = text
+                        label.Size = UDim2.new(1, -60, 0, 0)
+                        label.Position = position
+                        label.BackgroundTransparency = 1
+                        label.TextColor3 = color
+                        label.Font = font
+                        label.TextSize = textSize
+                        label.TextXAlignment = Enum.TextXAlignment.Left
+                        label.TextTransparency = 1
+                        label.TextWrapped = true
+                        label.ZIndex = 1
+                        label.Parent = parent
+                        return label
+                    end
 
-                    -- Soft wrap para os textos do toggle
-                    local toggleTextBounds = toggleText.TextBounds
-                    toggleText.Size = UDim2.new(1, -60, 0, math.ceil(toggleTextBounds.Y) or 20)
-                    toggleDescription.Position = UDim2.new(0, 10, 0, toggleText.Size.Y.Offset + 5)
-                    local toggleDescBounds = toggleDescription.TextBounds
-                    toggleDescription.Size = UDim2.new(1, -60, 0, math.ceil(toggleDescBounds.Y) or 15)
-                    container.Size = UDim2.new(1, -20, 0, toggleText.Size.Y.Offset + toggleDescription.Size.Y.Offset + 15)
+                    local function splitText(text, label, maxWidth)
+                        if not text or text == "" then
+                            return {""}
+                        end
+                        local chars = {}
+                        for char in text:gmatch("[\128-\191]*.") do
+                            table.insert(chars, char)
+                        end
+                        local lines = {""}
+                        local currentLine = 1
+                        for _, char in ipairs(chars) do
+                            local testText = lines[currentLine] .. char
+                            label.Text = testText
+                            task.wait()
+                            if label.TextBounds.X <= maxWidth then
+                                lines[currentLine] = testText
+                            else
+                                currentLine = currentLine + 1
+                                lines[currentLine] = char
+                            end
+                        end
+                        label.Text = text
+                        return lines
+                    end
+
+                    local function adjustTextLabels()
+                        for _, label in ipairs(nameLabels) do
+                            label:Destroy()
+                        end
+                        for _, label in ipairs(descriptionLabels) do
+                            label:Destroy()
+                        end
+                        nameLabels = {}
+                        descriptionLabels = {}
+
+                        local nameText = info.Name or "Toggle"
+                        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container)
+                        local maxWidth = container.AbsoluteSize.X - 70
+                        local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                        tempNameLabel:Destroy()
+
+                        local yOffset = 5
+                        for i, line in ipairs(nameLines) do
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container)
+                            nameLabel.Size = UDim2.new(1, -60, 0, nameLabel.TextBounds.Y or 14)
+                            table.insert(nameLabels, nameLabel)
+                            yOffset = yOffset + (nameLabel.TextBounds.Y or 14) + 2
+                            TweenService:Create(nameLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+
+                        local descText = info.Description or ""
+                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                        local descLines = splitText(descText, tempDescLabel, maxWidth)
+                        tempDescLabel:Destroy()
+
+                        for i, line in ipairs(descLines) do
+                            local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container)
+                            descLabel.Size = UDim2.new(1, -60, 0, descLabel.TextBounds.Y or 11)
+                            table.insert(descriptionLabels, descLabel)
+                            yOffset = yOffset + (descLabel.TextBounds.Y or 11) + 2
+                            TweenService:Create(descLabel, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+
+                        container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                        TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY + container.Size.Y.Offset + 30)
+                    end
+
+                    adjustTextLabels()
 
                     local toggleButton = Instance.new("TextButton", container)  
                     toggleButton.Size = UDim2.new(0, 50, 0, 24)  
@@ -404,12 +462,6 @@ function OrionLibV2:MakeWindow(Info)
                     TweenService:Create(container, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
                         BackgroundTransparency = 0  
                     }):Play()  
-                    TweenService:Create(toggleText, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                        TextTransparency = 0  
-                    }):Play()  
-                    TweenService:Create(toggleDescription, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
-                        TextTransparency = 0  
-                    }):Play()  
                     TweenService:Create(toggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {  
                         BackgroundTransparency = 0  
                     }):Play()  
@@ -427,6 +479,7 @@ function OrionLibV2:MakeWindow(Info)
                         TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {  
                             Position = targetPosition  
                         }):Play()  
+                        adjustTextLabels() -- Recalcula o soft wrap ao ativar/desativar
                         if info.Callback and typeof(info.Callback) == "function" then  
                             local success, callbackError = xpcall(function()
                                 info.Callback(isOn)
@@ -454,6 +507,12 @@ function OrionLibV2:MakeWindow(Info)
                     end)  
 
                     updateToggle()
+
+                    local function onSizeChanged()
+                        adjustTextLabels()
+                    end
+
+                    container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
 
                     elementY = elementY + container.Size.Y.Offset + 10  
                     TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)  
@@ -571,6 +630,7 @@ function OrionLibV2:MakeWindow(Info)
                         end
 
                         container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
+                        TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY + container.Size.Y.Offset + 30)
                     end
 
                     adjustTextLabels()
@@ -754,6 +814,7 @@ function OrionLibV2:MakeWindow(Info)
                         Dropdown.Opened = true
                         TabContent.ScrollingEnabled = false
                         DropdownHolderCanvas.Visible = true
+                        adjustTextLabels() -- Recalcula o soft wrap ao abrir
                         TweenService:Create(
                             DropdownHolderFrame,
                             TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
@@ -878,7 +939,7 @@ function OrionLibV2:MakeWindow(Info)
 
                             Button.MouseLeave:Connect(function()
                                 TweenService:Create(Button, TweenInfo.new(0.2), {
-                                    BackgroundTransparency = Selected and 0.89 or 1
+                                    BackgroundTransparency = Selected and 0.85 or 1
                                 }):Play()
                             end)
 
