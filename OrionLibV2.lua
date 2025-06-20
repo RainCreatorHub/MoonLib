@@ -5,9 +5,8 @@ function OrionLibV2:MakeWindow(Info)
     local UserInputService = game:GetService("UserInputService")
     local Camera = game:GetService("Workspace").CurrentCamera
     local Mouse = game.Players.LocalPlayer:GetMouse()
-    local PlayerGui = game.Players.LocalPlayer.PlayerGui
 
-    local ScreenGui = Instance.new("ScreenGui", PlayerGui)  
+    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)  
     ScreenGui.Name = "CheatGUI"  
 
     local window = Instance.new("Frame")  
@@ -752,7 +751,7 @@ function OrionLibV2:MakeWindow(Info)
                     DropdownHolderCanvas.Size = UDim2.fromOffset(170, 300)
                     DropdownHolderCanvas.Visible = false
                     DropdownHolderCanvas.ZIndex = 3
-                    DropdownHolderCanvas.Parent = PlayerGui
+                    DropdownHolderCanvas.Parent = ScreenGui
                     DropdownHolderFrame.Parent = DropdownHolderCanvas
 
                     local sizeConstraint = Instance.new("UISizeConstraint")
