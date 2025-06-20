@@ -22,7 +22,7 @@ function OrionLibV2:MakeWindow(Info)
     local success, result = pcall(function()
         local ScreenGui = Instance.new("ScreenGui", PlayerGui)  
         ScreenGui.Name = "CheatGUI"  
-        ScreenGui.ResetOnSpawn = false -- Evita que a GUI seja destruída ao respawn
+        ScreenGui.ResetOnSpawn = false
 
         local window = Instance.new("Frame")  
         window.Name = "MainWindow"  
@@ -120,6 +120,7 @@ function OrionLibV2:MakeWindow(Info)
                 if textBounds.Y > 30 then
                     Button.Size = UDim2.new(0, 120, 0, math.ceil(textBounds.Y) + 10)
                 end
+                Button.TextYAlignment = Enum.TextYAlignment.Center -- Centraliza o texto na altura
 
                 ButtonY = ButtonY + Button.Size.Y.Offset + 5  
                 TabScrollFrame.CanvasSize = UDim2.new(0, 0, 0, ButtonY)  
@@ -211,10 +212,11 @@ function OrionLibV2:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempLabel, maxWidth)
                         tempLabel:Destroy()
 
-                        local yOffset = 0
+                        local yOffset = -((#nameLines * 16) / 2) -- Centraliza verticalmente
                         for i, line in ipairs(nameLines) do
-                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, yOffset), container, -10)
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOffset), container, -10)
                             nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
+                            nameLabel.AnchorPoint = Vector2.new(0, 0.5)
                             table.insert(nameLabels, nameLabel)
                             yOffset = yOffset + (nameLabel.TextBounds.Y or 16)
                             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
@@ -236,10 +238,11 @@ function OrionLibV2:MakeWindow(Info)
                             local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container, -10)
                             local nameLines = splitText(nameText, tempLabel, maxWidth)
                             tempLabel:Destroy()
-                            yOffset = 0
+                            yOffset = -((#nameLines * 16) / 2)
                             for i, line in ipairs(nameLines) do
-                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, yOffset), container, -10)
+                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOffset), container, -10)
                                 nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
+                                nameLabel.AnchorPoint = Vector2.new(0, 0.5)
                                 table.insert(nameLabels, nameLabel)
                                 yOffset = yOffset + (nameLabel.TextBounds.Y or 16)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
@@ -276,20 +279,20 @@ function OrionLibV2:MakeWindow(Info)
                         corner.CornerRadius = UDim.new(0, 6)  
 
                         local nameLabels = {}
-                        local contentLabels = {}
+                        local descriptionLabels = {}
 
                         local function adjustTextLabels()
                             for _, label in ipairs(nameLabels) do
                                 label:Destroy()
                             end
-                            for _, label in ipairs(contentLabels) do
+                            for _, label in ipairs(descriptionLabels) do
                                 label:Destroy()
                             end
                             nameLabels = {}
-                            contentLabels = {}
+                            descriptionLabels = {}
 
                             local nameText = info.Name or "Label"
-                            local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 5), container, -20)
+                            local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), container, -20)
                             local maxWidth = container.AbsoluteSize.X - 20
                             if maxWidth <= 0 then
                                 maxWidth = 300
@@ -306,17 +309,17 @@ function OrionLibV2:MakeWindow(Info)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                             end
 
-                            local contentText = info.Content or "Texto"
-                            local tempContentLabel = createTextLabel(contentText, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container, -20)
-                            local contentLines = splitText(contentText, tempContentLabel, maxWidth)
-                            tempContentLabel:Destroy()
+                            local descText = info.Description or ""
+                            local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container, -20)
+                            local descLines = splitText(descText, tempDescLabel, maxWidth)
+                            tempDescLabel:Destroy()
 
-                            for i, line in ipairs(contentLines) do
-                                local contentLabel = createTextLabel(line, Enum.Font.Gotham, 13, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container, -20)
-                                contentLabel.Size = UDim2.new(1, -20, 0, contentLabel.TextBounds.Y or 13)
-                                table.insert(contentLabels, contentLabel)
-                                yOffset = yOffset + (contentLabel.TextBounds.Y or 13)
-                                TweenService:Create(contentLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                            for i, line in ipairs(descLines) do
+                                local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), container, -20)
+                                descLabel.Size = UDim2.new(1, -20, 0, descLabel.TextBounds.Y or 11)
+                                table.insert(descriptionLabels, descLabel)
+                                yOffset = yOffset + (descLabel.TextBounds.Y or 11)
+                                TweenService:Create(descLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                             end
 
                             container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
@@ -364,29 +367,56 @@ function OrionLibV2:MakeWindow(Info)
                         corner.CornerRadius = UDim.new(0, 6)  
 
                         local nameLabels = {}
+                        local descriptionLabels = {}
+
+                        local button = Instance.new("TextButton", container)  
+                        button.Size = UDim2.new(1, 0, 1, 0)  
+                        button.Position = UDim2.new(0, 0, 0, 0)  
+                        button.BackgroundTransparency = 1  
+                        button.Text = ""  
+                        button.AutoButtonColor = false  
+                        button.ZIndex = 2  
 
                         local function adjustTextLabels()
                             for _, label in ipairs(nameLabels) do
                                 label:Destroy()
                             end
+                            for _, label in ipairs(descriptionLabels) do
+                                label:Destroy()
+                            end
                             nameLabels = {}
+                            descriptionLabels = {}
 
                             local nameText = info.Name or "Button"
-                            local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container, -20)
+                            local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0), container, -20)
                             local maxWidth = container.AbsoluteSize.X - 20
                             if maxWidth <= 0 then
                                 maxWidth = 300
                             end
-                            local nameLines = splitText(nameText, tempLabel, maxWidth)
-                            tempLabel:Destroy()
+                            local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                            tempNameLabel:Destroy()
 
-                            local yOffset = 5
+                            local yOffset = -((#nameLines * 14) / 2) -- Centraliza Name
                             for i, line in ipairs(nameLines) do
-                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container, -20)
+                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), container, -20)
                                 nameLabel.Size = UDim2.new(1, -20, 0, nameLabel.TextBounds.Y or 14)
+                                nameLabel.AnchorPoint = Vector2.new(0, 0.5)
                                 table.insert(nameLabels, nameLabel)
                                 yOffset = yOffset + (nameLabel.TextBounds.Y or 14)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                            end
+
+                            local descText = info.Description or ""
+                            local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container, -20)
+                            local descLines = splitText(descText, tempDescLabel, maxWidth)
+                            tempDescLabel:Destroy()
+
+                            for i, line in ipairs(descLines) do
+                                local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), container, -20)
+                                descLabel.Size = UDim2.new(1, -20, 0, descLabel.TextBounds.Y or 11)
+                                table.insert(descriptionLabels, descLabel)
+                                yOffset = yOffset + (descLabel.TextBounds.Y or 11)
+                                TweenService:Create(descLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                             end
 
                             container.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
@@ -395,36 +425,15 @@ function OrionLibV2:MakeWindow(Info)
 
                         adjustTextLabels()
 
-                        local button = Instance.new("TextButton", container)  
-                        button.Size = UDim2.new(1, -10, 1, -10)  
-                        button.Position = UDim2.new(0, 5, 0, 5)  
-                        button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)  
-                        button.TextColor3 = Color3.fromRGB(255, 255, 255)  
-                        button.Font = Enum.Font.GothamBold  
-                        button.TextSize = 14  
-                        button.TextXAlignment = Enum.TextXAlignment.Left  
-                        button.AutoButtonColor = false  
-                        button.BorderSizePixel = 0  
-                        button.TextTransparency = 1  
-                        button.BackgroundTransparency = 0.3  
-                        button.ClipsDescendants = true  
-                        button.Text = ""  
-
-                        local buttonCorner = Instance.new("UICorner", button)  
-                        buttonCorner.CornerRadius = UDim.new(0, 6)  
-
                         TweenService:Create(container, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {  
-                            BackgroundTransparency = 0  
-                        }):Play()  
-                        TweenService:Create(button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {  
                             BackgroundTransparency = 0  
                         }):Play()  
 
                         button.MouseEnter:Connect(function()  
-                            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()  
+                            TweenService:Create(container, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()  
                         end)  
                         button.MouseLeave:Connect(function()  
-                            TweenService:Create(button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()  
+                            TweenService:Create(container, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()  
                         end)  
 
                         if info.Callback and typeof(info.Callback) == "function" then  
@@ -484,7 +493,7 @@ function OrionLibV2:MakeWindow(Info)
                             descriptionLabels = {}
 
                             local nameText = info.Name or "Toggle"
-                            local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container, -70)
+                            local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0), container, -70)
                             local maxWidth = container.AbsoluteSize.X - 70
                             if maxWidth <= 0 then
                                 maxWidth = 300
@@ -492,10 +501,11 @@ function OrionLibV2:MakeWindow(Info)
                             local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                             tempNameLabel:Destroy()
 
-                            local yOffset = 5
+                            local yOffset = -((#nameLines * 14) / 2) -- Centraliza Name
                             for i, line in ipairs(nameLines) do
-                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container, -70)
+                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), container, -70)
                                 nameLabel.Size = UDim2.new(1, -70, 0, nameLabel.TextBounds.Y or 14)
+                                nameLabel.AnchorPoint = Vector2.new(0, 0.5)
                                 table.insert(nameLabels, nameLabel)
                                 yOffset = yOffset + (nameLabel.TextBounds.Y or 14)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
@@ -645,7 +655,7 @@ function OrionLibV2:MakeWindow(Info)
                             descriptionLabels = {}
 
                             local nameText = info.Name or "Dropdown"
-                            local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 5), container, -170)
+                            local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0), container, -170)
                             local maxWidth = container.AbsoluteSize.X - 170
                             if maxWidth <= 0 then
                                 maxWidth = 300
@@ -653,10 +663,11 @@ function OrionLibV2:MakeWindow(Info)
                             local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                             tempNameLabel:Destroy()
 
-                            local yOffset = 5
+                            local yOffset = -((#nameLines * 14) / 2) -- Centraliza Name
                             for i, line in ipairs(nameLines) do
-                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, yOffset), container, -170)
+                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), container, -170)
                                 nameLabel.Size = UDim2.new(1, -170, 0, nameLabel.TextBounds.Y or 14)
+                                nameLabel.AnchorPoint = Vector2.new(0, 0.5)
                                 table.insert(nameLabels, nameLabel)
                                 yOffset = yOffset + (nameLabel.TextBounds.Y or 14)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
@@ -965,7 +976,7 @@ function OrionLibV2:MakeWindow(Info)
                                 local function UpdateButton()
                                     Selected = Dropdown.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
                                     local targetTransparency = Selected and 0 or 1
-                                    local targetSize = Selected and 14 or 6
+                                    local targetSize = Selected and 14 or 10
                                     TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {
                                         BackgroundTransparency = Selected and 0.85 or 1
                                     }):Play()
