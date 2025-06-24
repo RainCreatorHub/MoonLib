@@ -13,7 +13,7 @@ MoonLib is a customizable and responsive GUI library designed for Roblox, suppor
 
 ### executor
 ``` lua
-local MoonLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/MoonLib.lua'))()
+local MoonLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RainCreatorHub/MoonLib/refs/heads/main/MoonLib.lua'))()
 ```
 ### Roblox studio
 ``` lua
