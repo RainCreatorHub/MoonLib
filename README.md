@@ -1,6 +1,6 @@
-# OrionLibV2 - GUI Library for Roblox
+# MoonLib - GUI Library for Roblox
 
-OrionLibV2 is a customizable and responsive GUI library designed for Roblox, supporting both PC and mobile devices. It provides a sleek interface with features like tabs, buttons, toggles, labels, and a dynamic dropdown menu with text truncation for long values.
+MoonLib is a customizable and responsive GUI library designed for Roblox, supporting both PC and mobile devices. It provides a sleek interface with features like tabs, buttons, toggles, labels, and a dynamic dropdown menu with text truncation for long values.
 
 ## Features
 - **Cross-Platform Support**: Optimized for PC (mouse) and mobile (touch) devices.
@@ -13,11 +13,11 @@ OrionLibV2 is a customizable and responsive GUI library designed for Roblox, sup
 
 ### executor
 ``` lua
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/OrionLibV2.lua'))()
+local MoonLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/RainCreatorHub/OrionLibV2/refs/heads/main/MoonLib.lua'))()
 ```
 ### Roblox studio
 ``` lua
-local OrionLib = require(game.ReplicatedStorage.OrionLibV2)
+local MoonLib = require(game.ReplicatedStorage.MoonLib)
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ local OrionLib = require(game.ReplicatedStorage.OrionLibV2)
 ### Creating a Window
 Create a main window with a title and subtitle:
 ``` lua
-local Window = OrionLib:MakeWindow({
+local Window = MoonLib:MakeWindow({
     Title = "Minha Interface",
     SubTitle = "Exemplo de Uso"
 })
@@ -93,9 +93,3 @@ local Dropdown = Tab:AddDropdown({
     end
 })
 ```
-
-## License
-This library is provided as-is for educational and personal use. Feel free to modify and adapt it for your Roblox projects.
-
-## Last Updated
-Wednesday, June, 19, 2025, 01:15
