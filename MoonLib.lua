@@ -1,6 +1,6 @@
-local MoonLib = {}
+local OrionLibV2 = {}
 
-function MoonLib:MakeWindow(Info)
+function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
     local Camera = game:GetService("Workspace").CurrentCamera
@@ -9,12 +9,12 @@ function MoonLib:MakeWindow(Info)
     local Mouse = LocalPlayer:GetMouse()
 
     if not LocalPlayer then
-        warn("MoonLib Error: LocalPlayer não está disponível.")
+        warn("OrionLibV2 Error: LocalPlayer não está disponível.")
         return nil
     end
     local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 5)
     if not PlayerGui then
-        warn("MoonLib Error: PlayerGui não encontrado.")
+        warn("OrionLibV2 Error: PlayerGui não encontrado.")
         return nil
     end
 
@@ -46,7 +46,7 @@ function MoonLib:MakeWindow(Info)
         gradient.Rotation = 90
 
         local Title = Instance.new("TextLabel", window)
-        Title.Text = Info.Title or "MoonLib"
+        Title.Text = Info.Title or "Orion"
         Title.Size = UDim2.new(0, 300, 0, 30)
         Title.Position = UDim2.new(0, 10, 0, 5)
         Title.BackgroundTransparency = 1
@@ -56,7 +56,7 @@ function MoonLib:MakeWindow(Info)
         Title.TextSize = 20
 
         local SubTitle = Instance.new("TextLabel", window)
-        SubTitle.Text = Info.SubTitle or "MoonLib Subtitle"
+        SubTitle.Text = Info.SubTitle or "Orion Subtitle"
         SubTitle.Size = UDim2.new(0, 300, 0, 20)
         SubTitle.Position = UDim2.new(0, 10, 0, 35)
         SubTitle.BackgroundTransparency = 1
@@ -91,7 +91,7 @@ function MoonLib:MakeWindow(Info)
         local TabList = {}
 
         local function errorHandler(err)
-            warn("MoonLib Error: " .. tostring(err))
+            warn("OrionLibV2 Error: " .. tostring(err))
         end
 
         local function createTextLabel(text, font, textSize, color, position, parent, maxWidthOffset)
@@ -196,9 +196,89 @@ function MoonLib:MakeWindow(Info)
                     local success, result = xpcall(createFunc, errorHandler)
                     if success and result then
                         elementY = elementY + result.Size.Y.Offset + 10
-                        parent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+                        if parent:IsA("ScrollingFrame") then
+                            parent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+                        elseif parent:IsA("Frame") then
+                            parent.Size = UDim2.new(1, maxWidthOffset, 0, math.max(50, elementY))
+                            local grandParent = parent.Parent
+                            if grandParent:IsA("ScrollingFrame") then
+                                grandParent.CanvasSize = UDim2.new(0, 0, 0, grandParent.CanvasSize.Y.Offset + parent.Size.Y.Offset + 10)
+                            end
+                        end
                     end
                     return result, elementY
+                end
+
+                function TabFunctions:AddSection(info)
+                    local success, sectionResult = xpcall(function()
+                        local container = Instance.new("Frame", TabContent)
+                        container.Size = UDim2.new(1, -20, 0, 25)
+                        container.Position = UDim2.new(0, 10, 0, elementY + 20)
+                        container.BackgroundTransparency = 1
+                        container.BorderSizePixel = 0
+
+                        local contentFrame = Instance.new("Frame", container)
+                        contentFrame.Size = UDim2.new(1, -10, 0, 0)
+                        contentFrame.Position = UDim2.new(0, 5, 0, 25)
+                        contentFrame.BackgroundTransparency = 1
+                        contentFrame.BorderSizePixel = 0
+
+                        local nameLabels = {}
+                        local nameText = info.Name or "Section"
+                        local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container, -10)
+                        local maxWidth = container.AbsoluteSize.X - 10
+                        if maxWidth <= 0 then
+                            warn("OrionLibV2 Warning: maxWidth inválido para Section, usando valor padrão.")
+                            maxWidth = 300
+                        end
+                        local nameLines = splitText(nameText, tempLabel, maxWidth)
+                        tempLabel:Destroy()
+
+                        local yOffset = -((#nameLines * 16) / 2)
+                        for i, line in ipairs(nameLines) do
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOffset), container, -10)
+                            nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
+                            nameLabel.AnchorPoint = Vector2.new(0, 0.5)
+                            table.insert(nameLabels, nameLabel)
+                            yOffset = yOffset + (nameLabel.TextBounds.Y or 16)
+                            TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+
+                        container.Size = UDim2.new(1, -20, 0, math.max(25, yOffset + 5))
+                        elementY = elementY + container.Size.Y.Offset + 5
+                        TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+
+                        local function onSizeChanged()
+                            for _, label in ipairs(nameLabels) do
+                                label:Destroy()
+                            end
+                            nameLabels = {}
+                            local maxWidth = container.AbsoluteSize.X - 10
+                            if maxWidth <= 0 then
+                                maxWidth = 300
+                            end
+                            local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container, -10)
+                            local nameLines = splitText(nameText, tempLabel, maxWidth)
+                            tempLabel:Destroy()
+                            yOffset = -((#nameLines * 16) / 2)
+                            for i, line in ipairs(nameLines) do
+                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOffset), container, -10)
+                                nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
+                                nameLabel.AnchorPoint = Vector2.new(0, 0.5)
+                                table.insert(nameLabels, nameLabel)
+                                yOffset = yOffset + (nameLabel.TextBounds.Y or 16)
+                                TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                            end
+                            container.Size = UDim2.new(1, -20, 0, math.max(25, yOffset + 5))
+                            TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+                        end
+
+                        container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
+                        return container
+                    end, errorHandler)
+                    if success then
+                        return sectionResult
+                    end
                 end
 
                 function TabFunctions:AddLabel(info)
@@ -229,8 +309,7 @@ function MoonLib:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
-                        local nameHeight = #nameLines * 14
-                        local yOffset = -nameHeight / 2
+                        local yOffset = -((#nameLines * 14) / 2)
                         for i, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0.5, yOffset), labelContainer, -20)
                             nameLabel.Size = UDim2.new(1, -20, 0, nameLabel.TextBounds.Y or 14)
@@ -241,7 +320,7 @@ function MoonLib:MakeWindow(Info)
                         end
 
                         local descText = info.Description or ""
-                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, 0), labelContainer, -20)
+                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
                         local descLines = splitText(descText, tempDescLabel, maxWidth)
                         tempDescLabel:Destroy()
 
@@ -298,8 +377,7 @@ function MoonLib:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
-                        local nameHeight = #nameLines * 14
-                        local yOffset = -nameHeight / 2
+                        local yOffset = -((#nameLines * 14) / 2)
                         for i, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), buttonContainer, -20)
                             nameLabel.Size = UDim2.new(1, -20, 0, nameLabel.TextBounds.Y or 14)
@@ -310,7 +388,7 @@ function MoonLib:MakeWindow(Info)
                         end
 
                         local descText = info.Description or ""
-                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, 0), buttonContainer, -20)
+                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), buttonContainer, -20)
                         local descLines = splitText(descText, tempDescLabel, maxWidth)
                         tempDescLabel:Destroy()
 
@@ -376,8 +454,7 @@ function MoonLib:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
-                        local nameHeight = #nameLines * 14
-                        local yOffset = -nameHeight / 2
+                        local yOffset = -((#nameLines * 14) / 2)
                         for i, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), toggleContainer, -70)
                             nameLabel.Size = UDim2.new(1, -70, 0, nameLabel.TextBounds.Y or 14)
@@ -388,7 +465,7 @@ function MoonLib:MakeWindow(Info)
                         end
 
                         local descText = info.Description or ""
-                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, 0), toggleContainer, -70)
+                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), toggleContainer, -70)
                         local descLines = splitText(descText, tempDescLabel, maxWidth)
                         tempDescLabel:Destroy()
 
@@ -499,8 +576,7 @@ function MoonLib:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
-                        local nameHeight = #nameLines * 14
-                        local yOffset = -nameHeight / 2
+                        local yOffset = -((#nameLines * 14) / 2)
                         for i, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), dropdownContainer, -170)
                             nameLabel.Size = UDim2.new(1, -170, 0, nameLabel.TextBounds.Y or 14)
@@ -511,7 +587,7 @@ function MoonLib:MakeWindow(Info)
                         end
 
                         local descText = info.Description or ""
-                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, 0), dropdownContainer, -170)
+                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), dropdownContainer, -170)
                         local descLines = splitText(descText, tempDescLabel, maxWidth)
                         tempDescLabel:Destroy()
 
@@ -943,4 +1019,4 @@ function MoonLib:MakeWindow(Info)
     end
 end
 
-return MoonLib
+return OrionLibV2
