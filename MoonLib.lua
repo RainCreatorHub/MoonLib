@@ -1,10 +1,10 @@
 local OrionLibV2 = {}
 
 function OrionLibV2:MakeWindow(Info)
-    local TweenService = game:GetService("TweenService")
-    local UserInputService = game:GetService("UserInputService")
-    local Camera = workspace.CurrentCamera
-    local Players = game:GetService("Players")
+    local TweenService = game:WaitForChild("TweenService")
+    local UserInputService = game:WaitForChild("UserInputService")
+    local Players = game:WaitForChild("Players")
+    local Camera = workspace:WaitForChild("Camera")
     local LocalPlayer = Players.LocalPlayer
     local Mouse = LocalPlayer and LocalPlayer:GetMouse()
     if not LocalPlayer then return nil end
@@ -185,6 +185,7 @@ function OrionLibV2:MakeWindow(Info)
 
                 local elementY = 0
                 local TabFunctions = {}
+                local extraYOffset = 2
 
                 local function addElementToContainer(container, y, parent, maxWidthOffset, createFunc)
                     local ok, obj = xpcall(createFunc, errorHandler)
@@ -203,7 +204,6 @@ function OrionLibV2:MakeWindow(Info)
                     return obj, y
                 end
 
-                -- SECTION MANTIDA COMO ESTÁ
                 function TabFunctions:AddSection(info)
                     local ok, sectionResult = xpcall(function()
                         local container = Instance.new("Frame", TabContent)
@@ -228,10 +228,10 @@ function OrionLibV2:MakeWindow(Info)
 
                         local yOff = -((#nameLines * 16) / 2)
                         for _, line in ipairs(nameLines) do
-                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOff), container, -10)
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0.5, 0, 0.5, yOff), container, -10)
                             nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
-                            nameLabel.AnchorPoint = Vector2.new(0, 0.5)
-                            nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+                            nameLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+                            nameLabel.TextXAlignment = Enum.TextXAlignment.Center
                             table.insert(nameLabels, nameLabel)
                             yOff = yOff + (nameLabel.TextBounds.Y or 16)
                             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
@@ -251,10 +251,10 @@ function OrionLibV2:MakeWindow(Info)
                             tempLabel:Destroy()
                             local yOff = -((#nameLines * 16) / 2)
                             for _, line in ipairs(nameLines) do
-                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOff), container, -10)
+                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0.5, 0, 0.5, yOff), container, -10)
                                 nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
-                                nameLabel.AnchorPoint = Vector2.new(0, 0.5)
-                                nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+                                nameLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+                                nameLabel.TextXAlignment = Enum.TextXAlignment.Center
                                 table.insert(nameLabels, nameLabel)
                                 yOff = yOff + (nameLabel.TextBounds.Y or 16)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
@@ -271,7 +271,6 @@ function OrionLibV2:MakeWindow(Info)
                     end
                 end
 
-                -- LABEL (centralizado apenas no eixo Y)
                 function TabFunctions:AddLabel(info)
                     info = info or {}
                     local createLabel = function()
@@ -301,7 +300,7 @@ function OrionLibV2:MakeWindow(Info)
                         tempNameLabel:Destroy()
 
                         local totalNameHeight = #nameLines * nameLineHeight
-                        local yOffset = -(totalNameHeight / 2)
+                        local yOffset = -(totalNameHeight / 2) + extraYOffset
                         for _, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0.5, yOffset), labelContainer, -20)
                             nameLabel.Size = UDim2.new(1, -20, 0, nameLineHeight)
@@ -334,7 +333,6 @@ function OrionLibV2:MakeWindow(Info)
                     return newLabel
                 end
 
-                -- BUTTON (centralizado apenas no eixo Y)
                 function TabFunctions:AddButton(info)
                     local createButton = function()
                         local buttonContainer = Instance.new("Frame", TabContent)
@@ -369,7 +367,7 @@ function OrionLibV2:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
-                        local yOffset = -((#nameLines * 14) / 2)
+                        local yOffset = -((#nameLines * 14) / 2) + extraYOffset
                         for _, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), buttonContainer, -20)
                             nameLabel.Size = UDim2.new(1, -20, 0, nameLabel.TextBounds.Y or 14)
@@ -417,7 +415,6 @@ function OrionLibV2:MakeWindow(Info)
                     return newButton
                 end
 
-                -- TOGGLE (centralizado apenas no eixo Y)
                 function TabFunctions:AddToggle(info)
                     local createToggle = function()
                         local toggleContainer = Instance.new("Frame", TabContent)
@@ -444,7 +441,7 @@ function OrionLibV2:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
-                        local yOffset = -((#nameLines * 14) / 2)
+                        local yOffset = -((#nameLines * 14) / 2) + extraYOffset
                         for _, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), toggleContainer, -70)
                             nameLabel.Size = UDim2.new(1, -70, 0, nameLabel.TextBounds.Y or 14)
@@ -532,7 +529,6 @@ function OrionLibV2:MakeWindow(Info)
                     return newToggle
                 end
 
-                -- DROPDOWN (centralizado apenas no eixo Y)
                 function TabFunctions:AddDropdown(info)
                     local createDropdown = function()
                         local dropdownContainer = Instance.new("Frame", TabContent)
@@ -562,7 +558,7 @@ function OrionLibV2:MakeWindow(Info)
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
-                        local yOffset = -((#nameLines * 14) / 2)
+                        local yOffset = -((#nameLines * 14) / 2) + extraYOffset
                         for _, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), dropdownContainer, -170)
                             nameLabel.Size = UDim2.new(1, -170, 0, nameLabel.TextBounds.Y or 14)
