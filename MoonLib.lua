@@ -3,19 +3,17 @@ local OrionLibV2 = {}
 function OrionLibV2:MakeWindow(Info)
     local TweenService = game:GetService("TweenService")
     local UserInputService = game:GetService("UserInputService")
-    local Camera = game:GetService("Workspace").CurrentCamera
+    local Camera = workspace.CurrentCamera
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer
-    local Mouse = LocalPlayer:GetMouse()
+    local Mouse = LocalPlayer and LocalPlayer:GetMouse()
 
-    if not LocalPlayer then
-        warn("OrionLibV2 Error: LocalPlayer não está disponível.")
-        return nil
-    end
+    if not LocalPlayer then return nil end
     local PlayerGui = LocalPlayer:WaitForChild("PlayerGui", 5)
-    if not PlayerGui then
-        warn("OrionLibV2 Error: PlayerGui não encontrado.")
-        return nil
+    if not PlayerGui then return nil end
+
+    local function errorHandler(err)
+        warn("OrionLibV2 Error: " .. tostring(err))
     end
 
     local success, result = pcall(function()
@@ -46,7 +44,7 @@ function OrionLibV2:MakeWindow(Info)
         gradient.Rotation = 90
 
         local Title = Instance.new("TextLabel", window)
-        Title.Text = Info.Title or "Orion"
+        Title.Text = (Info and Info.Title) or "Orion"
         Title.Size = UDim2.new(0, 300, 0, 30)
         Title.Position = UDim2.new(0, 10, 0, 5)
         Title.BackgroundTransparency = 1
@@ -56,7 +54,7 @@ function OrionLibV2:MakeWindow(Info)
         Title.TextSize = 20
 
         local SubTitle = Instance.new("TextLabel", window)
-        SubTitle.Text = Info.SubTitle or "Orion Subtitle"
+        SubTitle.Text = (Info and Info.SubTitle) or "Orion Subtitle"
         SubTitle.Size = UDim2.new(0, 300, 0, 20)
         SubTitle.Position = UDim2.new(0, 10, 0, 35)
         SubTitle.BackgroundTransparency = 1
@@ -87,12 +85,7 @@ function OrionLibV2:MakeWindow(Info)
         TabScrollFrame.VerticalScrollBarInset = Enum.ScrollBarInset.ScrollBar
 
         local ButtonY = 0
-        local Tabs = {}
         local TabList = {}
-
-        local function errorHandler(err)
-            warn("OrionLibV2 Error: " .. tostring(err))
-        end
 
         local function createTextLabel(text, font, textSize, color, position, parent, maxWidthOffset)
             local label = Instance.new("TextLabel")
@@ -135,6 +128,8 @@ function OrionLibV2:MakeWindow(Info)
             return lines
         end
 
+        local Tabs = {}
+
         function Tabs:MakeTab(TabInfo)
             local success, tabResult = xpcall(function()
                 local Button = Instance.new("TextButton", TabScrollFrame)
@@ -148,7 +143,7 @@ function OrionLibV2:MakeWindow(Info)
                 Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
 
                 local tempLabel = Instance.new("TextLabel")
-                tempLabel.Text = TabInfo.Name or "Tab"
+                tempLabel.Text = (TabInfo and TabInfo.Name) or "Tab"
                 tempLabel.Font = Enum.Font.Gotham
                 tempLabel.TextSize = 14
                 tempLabel.TextWrapped = true
@@ -156,7 +151,7 @@ function OrionLibV2:MakeWindow(Info)
                 tempLabel.Parent = Button
                 local textBounds = tempLabel.TextBounds
                 tempLabel:Destroy()
-                Button.Text = TabInfo.Name or "Tab"
+                Button.Text = (TabInfo and TabInfo.Name) or "Tab"
                 if textBounds.Y > 30 then
                     Button.Size = UDim2.new(0, 120, 0, math.ceil(textBounds.Y) + 10)
                 end
@@ -166,7 +161,7 @@ function OrionLibV2:MakeWindow(Info)
                 TabScrollFrame.CanvasSize = UDim2.new(0, 0, 0, ButtonY)
 
                 local TabContent = Instance.new("ScrollingFrame", window)
-                TabContent.Name = TabInfo.Name or "TabContent"
+                TabContent.Name = (TabInfo and TabInfo.Name) or "TabContent"
                 TabContent.Size = UDim2.new(1, -150, 1, -80)
                 TabContent.Position = UDim2.new(0, 140, 0, 70)
                 TabContent.BackgroundTransparency = 1
@@ -192,25 +187,25 @@ function OrionLibV2:MakeWindow(Info)
                 local elementY = 0
                 local TabFunctions = {}
 
-                local function addElementToContainer(container, elementY, parent, maxWidthOffset, createFunc)
-                    local success, result = xpcall(createFunc, errorHandler)
-                    if success and result then
-                        elementY = elementY + result.Size.Y.Offset + 10
+                local function addElementToContainer(container, y, parent, maxWidthOffset, createFunc)
+                    local ok, obj = xpcall(createFunc, errorHandler)
+                    if ok and obj then
+                        y = y + obj.Size.Y.Offset + 10
                         if parent:IsA("ScrollingFrame") then
-                            parent.CanvasSize = UDim2.new(0, 0, 0, elementY)
+                            parent.CanvasSize = UDim2.new(0, 0, 0, y)
                         elseif parent:IsA("Frame") then
-                            parent.Size = UDim2.new(1, maxWidthOffset, 0, math.max(50, elementY))
-                            local grandParent = parent.Parent
-                            if grandParent:IsA("ScrollingFrame") then
-                                grandParent.CanvasSize = UDim2.new(0, 0, 0, grandParent.CanvasSize.Y.Offset + parent.Size.Y.Offset + 10)
+                            parent.Size = UDim2.new(1, maxWidthOffset, 0, math.max(50, y))
+                            local gp = parent.Parent
+                            if gp:IsA("ScrollingFrame") then
+                                gp.CanvasSize = UDim2.new(0, 0, 0, gp.CanvasSize.Y.Offset + parent.Size.Y.Offset + 10)
                             end
                         end
                     end
-                    return result, elementY
+                    return obj, y
                 end
 
                 function TabFunctions:AddSection(info)
-                    local success, sectionResult = xpcall(function()
+                    local ok, sectionResult = xpcall(function()
                         local container = Instance.new("Frame", TabContent)
                         container.Size = UDim2.new(1, -20, 0, 25)
                         container.Position = UDim2.new(0, 10, 0, elementY + 20)
@@ -224,124 +219,116 @@ function OrionLibV2:MakeWindow(Info)
                         contentFrame.BorderSizePixel = 0
 
                         local nameLabels = {}
-                        local nameText = info.Name or "Section"
+                        local nameText = (info and info.Name) or "Section"
                         local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container, -10)
                         local maxWidth = container.AbsoluteSize.X - 5
-                        if maxWidth <= 0 then
-                            warn("OrionLibV2 Warning: maxWidth inválido para Section, usando valor padrão.")
-                            maxWidth = 300
-                        end
+                        if maxWidth <= 0 then maxWidth = 300 end
                         local nameLines = splitText(nameText, tempLabel, maxWidth)
                         tempLabel:Destroy()
 
-                        local yOffset = -((#nameLines * 16) / 2)
-                        for i, line in ipairs(nameLines) do
-                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOffset), container, -10)
+                        local yOff = -((#nameLines * 16) / 2)
+                        for _, line in ipairs(nameLines) do
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOff), container, -10)
                             nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
                             nameLabel.AnchorPoint = Vector2.new(0, 0.5)
                             table.insert(nameLabels, nameLabel)
-                            yOffset = yOffset + (nameLabel.TextBounds.Y or 16)
+                            yOff = yOff + (nameLabel.TextBounds.Y or 16)
                             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                         end
 
-                        container.Size = UDim2.new(1, -15, 0, math.max(20, yOffset + 5))
+                        container.Size = UDim2.new(1, -15, 0, math.max(20, yOff + 5))
                         elementY = elementY + container.Size.Y.Offset + 5
                         TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
 
                         local function onSizeChanged()
-                            for _, label in ipairs(nameLabels) do
-                                label:Destroy()
-                            end
+                            for _, label in ipairs(nameLabels) do label:Destroy() end
                             nameLabels = {}
                             local maxWidth = container.AbsoluteSize.X - 10
-                            if maxWidth <= 0 then
-                                maxWidth = 300
-                            end
+                            if maxWidth <= 0 then maxWidth = 300 end
                             local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container, -10)
                             local nameLines = splitText(nameText, tempLabel, maxWidth)
                             tempLabel:Destroy()
-                            yOffset = -((#nameLines * 16) / 2)
-                            for i, line in ipairs(nameLines) do
-                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOffset), container, -10)
+                            local yOff = -((#nameLines * 16) / 2)
+                            for _, line in ipairs(nameLines) do
+                                local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0.5, yOff), container, -10)
                                 nameLabel.Size = UDim2.new(1, -10, 0, nameLabel.TextBounds.Y or 16)
                                 nameLabel.AnchorPoint = Vector2.new(0, 0.5)
                                 table.insert(nameLabels, nameLabel)
-                                yOffset = yOffset + (nameLabel.TextBounds.Y or 16)
+                                yOff = yOff + (nameLabel.TextBounds.Y or 16)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                             end
-                            container.Size = UDim2.new(1, -15, 0, math.max(25, yOffset + 5))
+                            container.Size = UDim2.new(1, -15, 0, math.max(25, yOff + 5))
                             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
                         end
 
                         container:GetPropertyChangedSignal("AbsoluteSize"):Connect(onSizeChanged)
                         return container
                     end, errorHandler)
-                    if success then
+                    if ok then
                         return sectionResult
                     end
                 end
 
-function TabFunctions:AddLabel(info)
-    local createLabel = function()
-        local labelContainer = Instance.new("Frame", TabContent)
-        labelContainer.Size = UDim2.new(1, -20, 0, 50)
-        labelContainer.Position = UDim2.new(0, 10, 0, elementY + 20)
-        labelContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        labelContainer.BackgroundTransparency = 1
-        labelContainer.BorderSizePixel = 0
+                function TabFunctions:AddLabel(info)
+                    info = info or {}
+                    local createLabel = function()
+                        local labelContainer = Instance.new("Frame", TabContent)
+                        labelContainer.Size = UDim2.new(1, -20, 0, 50)
+                        labelContainer.Position = UDim2.new(0, 10, 0, elementY + 20)
+                        labelContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                        labelContainer.BackgroundTransparency = 1
+                        labelContainer.BorderSizePixel = 0
 
-        local stroke = Instance.new("UIStroke", labelContainer)
-        stroke.Color = Color3.fromRGB(80, 80, 80)
-        stroke.Thickness = 1.5
+                        local stroke = Instance.new("UIStroke", labelContainer)
+                        stroke.Color = Color3.fromRGB(80, 80, 80)
+                        stroke.Thickness = 1.5
 
-        local corner = Instance.new("UICorner", labelContainer)
-        corner.CornerRadius = UDim.new(0, 6)
+                        local corner = Instance.new("UICorner", labelContainer)
+                        corner.CornerRadius = UDim.new(0, 6)
 
-        local nameLabels = {}
-        local descriptionLabels = {}
+                        local nameLabels = {}
+                        local descriptionLabels = {}
 
-        local nameText = info.Name or "Label"
-        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), labelContainer, -20)
-        local maxWidth = labelContainer.AbsoluteSize.X - 20
-        if maxWidth <= 0 then
-            maxWidth = 300
-        end
-        local nameLines = splitText(nameText, tempNameLabel, maxWidth)
-        local nameLineHeight = (tempNameLabel.TextBounds.Y ~= 0 and tempNameLabel.TextBounds.Y) or 14
-        tempNameLabel:Destroy()
+                        local nameText = info.Name or "Label"
+                        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), labelContainer, -20)
+                        local maxWidth = labelContainer.AbsoluteSize.X - 20
+                        if maxWidth <= 0 then maxWidth = 300 end
+                        local nameLines = splitText(nameText, tempNameLabel, maxWidth)
+                        local nameLineHeight = (tempNameLabel.TextBounds.Y ~= 0 and tempNameLabel.TextBounds.Y) or 14
+                        tempNameLabel:Destroy()
 
-        local totalNameHeight = #nameLines * nameLineHeight
-        local yOffset = -(totalNameHeight / 2)
-        for i, line in ipairs(nameLines) do
-            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0.5, yOffset), labelContainer, -20)
-            nameLabel.Size = UDim2.new(1, -20, 0, nameLineHeight)
-            nameLabel.AnchorPoint = Vector2.new(0, 0.5)
-            table.insert(nameLabels, nameLabel)
-            yOffset = yOffset + nameLineHeight
-            TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
-        end
-
-        local descText = info.Description or ""
-        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
-        local descLines = splitText(descText, tempDescLabel, maxWidth)
-        tempDescLabel:Destroy()
-
-        for i, line in ipairs(descLines) do
-            local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
-            descLabel.Size = UDim2.new(1, -20, 0, descLabel.TextBounds.Y or 11)
-            table.insert(descriptionLabels, descLabel)
-            yOffset = yOffset + (descLabel.TextBounds.Y or 11)
-            TweenService:Create(descLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
-        end
-
-        labelContainer.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
-        TweenService:Create(labelContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-        return labelContainer
-    end
-    local newLabel, newElementY = addElementToContainer(TabContent, elementY, TabContent, -20, createLabel)
-    elementY = newElementY
-    return newLabel
+                        local totalNameHeight = #nameLines * nameLineHeight
+                        local yOffset = -(totalNameHeight / 2)
+                        for _, line in ipairs(nameLines) do
+                            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0.5, yOffset), labelContainer, -20)
+                            nameLabel.Size = UDim2.new(1, -20, 0, nameLineHeight)
+                            nameLabel.AnchorPoint = Vector2.new(0, 0.5)
+                            table.insert(nameLabels, nameLabel)
+                            yOffset = yOffset + nameLineHeight
+                            TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                         end
+
+                        local descText = info.Description or ""
+                        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
+                        local descLines = splitText(descText, tempDescLabel, maxWidth)
+                        tempDescLabel:Destroy()
+
+                        for _, line in ipairs(descLines) do
+                            local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
+                            descLabel.Size = UDim2.new(1, -20, 0, descLabel.TextBounds.Y or 11)
+                            table.insert(descriptionLabels, descLabel)
+                            yOffset = yOffset + (descLabel.TextBounds.Y or 11)
+                            TweenService:Create(descLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+
+                        labelContainer.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
+                        TweenService:Create(labelContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+                        return labelContainer
+                    end
+                    local newLabel, newElementY = addElementToContainer(TabContent, elementY, TabContent, -20, createLabel)
+                    elementY = newElementY
+                    return newLabel
+                end
 
                 function TabFunctions:AddButton(info)
                     local createButton = function()
@@ -370,17 +357,15 @@ function TabFunctions:AddLabel(info)
                         button.AutoButtonColor = false
                         button.ZIndex = 2
 
-                        local nameText = info.Name or "Button"
+                        local nameText = (info and info.Name) or "Button"
                         local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0), buttonContainer, -20)
                         local maxWidth = buttonContainer.AbsoluteSize.X - 20
-                        if maxWidth <= 0 then
-                            maxWidth = 300
-                        end
+                        if maxWidth <= 0 then maxWidth = 300 end
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
                         local yOffset = -((#nameLines * 14) / 2)
-                        for i, line in ipairs(nameLines) do
+                        for _, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), buttonContainer, -20)
                             nameLabel.Size = UDim2.new(1, -20, 0, nameLabel.TextBounds.Y or 14)
                             nameLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -389,12 +374,12 @@ function TabFunctions:AddLabel(info)
                             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                         end
 
-                        local descText = info.Description or ""
+                        local descText = (info and info.Description) or ""
                         local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), buttonContainer, -20)
                         local descLines = splitText(descText, tempDescLabel, maxWidth)
                         tempDescLabel:Destroy()
 
-                        for i, line in ipairs(descLines) do
+                        for _, line in ipairs(descLines) do
                             local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), buttonContainer, -20)
                             descLabel.Size = UDim2.new(1, -20, 0, descLabel.TextBounds.Y or 11)
                             table.insert(descriptionLabels, descLabel)
@@ -405,21 +390,19 @@ function TabFunctions:AddLabel(info)
                         buttonContainer.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
                         TweenService:Create(buttonContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
 
+                        if info and typeof(info.Callback) == "function" then
+                            button.MouseButton1Click:Connect(function()
+                                local ok, cbErr = xpcall(info.Callback, errorHandler)
+                                if not ok then warn(cbErr) end
+                            end)
+                        end
+
                         button.MouseEnter:Connect(function()
                             TweenService:Create(buttonContainer, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
                         end)
                         button.MouseLeave:Connect(function()
                             TweenService:Create(buttonContainer, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
                         end)
-
-                        if info.Callback and typeof(info.Callback) == "function" then
-                            button.MouseButton1Click:Connect(function()
-                                local success, callbackError = xpcall(info.Callback, errorHandler)
-                                if not success then
-                                    warn("Button Callback Error: " .. tostring(callbackError))
-                                end
-                            end)
-                        end
 
                         return buttonContainer
                     end
@@ -447,17 +430,15 @@ function TabFunctions:AddLabel(info)
                         local nameLabels = {}
                         local descriptionLabels = {}
 
-                        local nameText = info.Name or "Toggle"
+                        local nameText = (info and info.Name) or "Toggle"
                         local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0), toggleContainer, -70)
                         local maxWidth = toggleContainer.AbsoluteSize.X - 70
-                        if maxWidth <= 0 then
-                            maxWidth = 300
-                        end
+                        if maxWidth <= 0 then maxWidth = 300 end
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
                         local yOffset = -((#nameLines * 14) / 2)
-                        for i, line in ipairs(nameLines) do
+                        for _, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), toggleContainer, -70)
                             nameLabel.Size = UDim2.new(1, -70, 0, nameLabel.TextBounds.Y or 14)
                             nameLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -466,12 +447,12 @@ function TabFunctions:AddLabel(info)
                             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                         end
 
-                        local descText = info.Description or ""
+                        local descText = (info and info.Description) or ""
                         local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), toggleContainer, -70)
                         local descLines = splitText(descText, tempDescLabel, maxWidth)
                         tempDescLabel:Destroy()
 
-                        for i, line in ipairs(descLines) do
+                        for _, line in ipairs(descLines) do
                             local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), toggleContainer, -70)
                             descLabel.Size = UDim2.new(1, -70, 0, descLabel.TextBounds.Y or 11)
                             table.insert(descriptionLabels, descLabel)
@@ -502,24 +483,16 @@ function TabFunctions:AddLabel(info)
                         local indicatorCorner = Instance.new("UICorner", toggleIndicator)
                         indicatorCorner.CornerRadius = UDim.new(0, 10)
 
-                        local isOn = info.Default or false
-                        local toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
-
-                        TweenService:Create(toggleContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-                        TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-                        TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-
+                        local isOn = (info and info.Default) or false
                         local function updateToggle()
                             isOn = (isOn == nil) and false or isOn
-                            toggleBackgroundColor = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
+                            local bg = isOn and Color3.fromRGB(0, 170, 0) or Color3.fromRGB(50, 50, 50)
                             local targetPosition = isOn and UDim2.new(0, 28, 0.5, -10) or UDim2.new(0, 2, 0.5, -10)
-                            TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundColor3 = toggleBackgroundColor}):Play()
+                            TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundColor3 = bg}):Play()
                             TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {Position = targetPosition}):Play()
-                            if info.Callback and typeof(info.Callback) == "function" then
-                                local success, callbackError = xpcall(function() info.Callback(isOn) end, errorHandler)
-                                if not success then
-                                    warn("Toggle Callback Error: " .. tostring(callbackError))
-                                end
+                            if info and typeof(info.Callback) == "function" then
+                                local ok, cbErr = xpcall(function() info.Callback(isOn) end, errorHandler)
+                                if not ok then warn(cbErr) end
                             end
                         end
 
@@ -538,6 +511,10 @@ function TabFunctions:AddLabel(info)
                                 TweenService:Create(toggleButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
                             end
                         end)
+
+                        TweenService:Create(toggleContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+                        TweenService:Create(toggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+                        TweenService:Create(toggleIndicator, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
 
                         updateToggle()
                         return toggleContainer
@@ -569,17 +546,15 @@ function TabFunctions:AddLabel(info)
                         local nameLabels = {}
                         local descriptionLabels = {}
 
-                        local nameText = info.Name or "Dropdown"
+                        local nameText = (info and info.Name) or "Dropdown"
                         local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0, 0), dropdownContainer, -170)
                         local maxWidth = dropdownContainer.AbsoluteSize.X - 170
-                        if maxWidth <= 0 then
-                            maxWidth = 300
-                        end
+                        if maxWidth <= 0 then maxWidth = 300 end
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
                         tempNameLabel:Destroy()
 
                         local yOffset = -((#nameLines * 14) / 2)
-                        for i, line in ipairs(nameLines) do
+                        for _, line in ipairs(nameLines) do
                             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 10, 0.5, yOffset), dropdownContainer, -170)
                             nameLabel.Size = UDim2.new(1, -170, 0, nameLabel.TextBounds.Y or 14)
                             nameLabel.AnchorPoint = Vector2.new(0, 0.5)
@@ -588,12 +563,12 @@ function TabFunctions:AddLabel(info)
                             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                         end
 
-                        local descText = info.Description or ""
+                        local descText = (info and info.Description) or ""
                         local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), dropdownContainer, -170)
                         local descLines = splitText(descText, tempDescLabel, maxWidth)
                         tempDescLabel:Destroy()
 
-                        for i, line in ipairs(descLines) do
+                        for _, line in ipairs(descLines) do
                             local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 10, 0, yOffset), dropdownContainer, -170)
                             descLabel.Size = UDim2.new(1, -170, 0, descLabel.TextBounds.Y or 11)
                             table.insert(descriptionLabels, descLabel)
@@ -604,12 +579,12 @@ function TabFunctions:AddLabel(info)
                         dropdownContainer.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 5))
 
                         local Dropdown = {
-                            Values = info.Values or {},
-                            Value = info.Default or (info.Multi and {} or nil),
-                            Multi = info.Multi or false,
+                            Values = (info and info.Values) or {},
+                            Value = (info and info.Default) or ((info and info.Multi) and {} or nil),
+                            Multi = (info and info.Multi) or false,
                             Buttons = {},
                             Opened = false,
-                            Callback = info.Callback or function() end,
+                            Callback = (info and info.Callback) or function() end,
                         }
 
                         local DropdownDisplay = Instance.new("TextButton")
@@ -758,12 +733,7 @@ function TabFunctions:AddLabel(info)
                             if Dropdown.Opened and (Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch) then
                                 local AbsPos = DropdownHolderFrame.AbsolutePosition
                                 local AbsSize = DropdownHolderFrame.AbsoluteSize
-                                if
-                                    Mouse.X < AbsPos.X or
-                                    Mouse.X > AbsPos.X + AbsSize.X or
-                                    Mouse.Y < (AbsPos.Y - 20) or
-                                    Mouse.Y > AbsPos.Y + AbsSize.Y
-                                then
+                                if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20) or Mouse.Y > AbsPos.Y + AbsSize.Y then
                                     Dropdown:Close()
                                 end
                             end
@@ -819,12 +789,9 @@ function TabFunctions:AddLabel(info)
                                 end
                             end
 
-                            local Count = 0
                             local Buttons = {}
 
                             for _, Value in ipairs(Dropdown.Values) do
-                                Count = Count + 1
-
                                 local Button = Instance.new("TextButton")
                                 Button.Size = UDim2.new(1, -5, 0, 32)
                                 Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -895,7 +862,7 @@ function TabFunctions:AddLabel(info)
 
                                 Button.MouseButton1Click:Connect(function()
                                     local Try = not Selected
-                                    if Dropdown:GetActiveValues() == 1 and not Try and not (info.AllowNull or false) then
+                                    if Dropdown:GetActiveValues() == 1 and not Try and not ((info and info.AllowNull) or false) then
                                         return
                                     end
                                     if Dropdown.Multi then
@@ -910,11 +877,9 @@ function TabFunctions:AddLabel(info)
                                     end
                                     UpdateButton()
                                     Dropdown:Display()
-                                    if info.Callback and typeof(info.Callback) == "function" then
-                                        local success, callbackError = xpcall(function() info.Callback(Dropdown.Value) end, errorHandler)
-                                        if not success then
-                                            warn("Dropdown Callback Error: " .. tostring(callbackError))
-                                        end
+                                    if info and typeof(info.Callback) == "function" then
+                                        local ok, cbErr = xpcall(function() info.Callback(Dropdown.Value) end, errorHandler)
+                                        if not ok then warn(cbErr) end
                                     end
                                 end)
 
@@ -924,9 +889,12 @@ function TabFunctions:AddLabel(info)
 
                             ListSizeX = 0
                             for Button, _ in pairs(Buttons) do
-                                local textBounds = Button.TextLabel.TextBounds
-                                if textBounds.X > ListSizeX then
-                                    ListSizeX = textBounds.X + 30
+                                local lbl = Button:FindFirstChildWhichIsA("TextLabel", true)
+                                if lbl then
+                                    local textBounds = lbl.TextBounds
+                                    if textBounds.X > ListSizeX then
+                                        ListSizeX = textBounds.X + 30
+                                    end
                                 end
                             end
 
@@ -935,19 +903,17 @@ function TabFunctions:AddLabel(info)
                         end
 
                         function Dropdown:SetValues(NewValues)
-                            local success, callbackError = xpcall(function()
+                            local ok, err = xpcall(function()
                                 if NewValues then
                                     Dropdown.Values = NewValues
                                 end
                                 Dropdown:BuildDropdownList()
                             end, errorHandler)
-                            if not success then
-                                warn("Dropdown SetValues Error: " .. tostring(callbackError))
-                            end
+                            if not ok then warn(err) end
                         end
 
                         function Dropdown:SetValue(Val)
-                            local success, callbackError = xpcall(function()
+                            local ok, err = xpcall(function()
                                 if Dropdown.Multi then
                                     local nTable = {}
                                     for _, Value in pairs(Val or {}) do
@@ -963,20 +929,18 @@ function TabFunctions:AddLabel(info)
                                 end
                                 Dropdown:BuildDropdownList()
                                 Dropdown:Display()
-                                if info.Callback and typeof(info.Callback) == "function" then
+                                if info and typeof(info.Callback) == "function" then
                                     info.Callback(Dropdown.Value)
                                 end
                             end, errorHandler)
-                            if not success then
-                                warn("Dropdown SetValue Error: " .. tostring(callbackError))
-                            end
+                            if not ok then warn(err) end
                         end
 
                         Dropdown:BuildDropdownList()
                         Dropdown:Display()
 
-                        if info.Default then
-                            local success, callbackError = xpcall(function()
+                        if info and info.Default then
+                            local ok, err = xpcall(function()
                                 if Dropdown.Multi then
                                     local Defaults = type(info.Default) == "table" and info.Default or {info.Default}
                                     for _, Value in pairs(Defaults) do
@@ -991,13 +955,11 @@ function TabFunctions:AddLabel(info)
                                 end
                                 Dropdown:BuildDropdownList()
                                 Dropdown:Display()
-                                if info.Callback and typeof(info.Callback) == "function" then
+                                if info and typeof(info.Callback) == "function" then
                                     info.Callback(Dropdown.Value)
                                 end
                             end, errorHandler)
-                            if not success then
-                                warn("Dropdown Default Value Error: " .. tostring(callbackError))
-                            end
+                            if not ok then warn(err) end
                         end
 
                         return dropdownContainer
@@ -1016,6 +978,7 @@ function TabFunctions:AddLabel(info)
 
         return Tabs
     end, errorHandler)
+
     if success then
         return result
     end
