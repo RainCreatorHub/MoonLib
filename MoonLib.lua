@@ -226,7 +226,7 @@ function OrionLibV2:MakeWindow(Info)
                         local nameLabels = {}
                         local nameText = info.Name or "Section"
                         local tempLabel = createTextLabel(nameText, Enum.Font.GothamBold, 16, Color3.fromRGB(200, 200, 200), UDim2.new(0, 0, 0, 0), container, -10)
-                        local maxWidth = container.AbsoluteSize.X - 10
+                        local maxWidth = container.AbsoluteSize.X - 5
                         if maxWidth <= 0 then
                             warn("OrionLibV2 Warning: maxWidth inválido para Section, usando valor padrão.")
                             maxWidth = 300
@@ -244,7 +244,7 @@ function OrionLibV2:MakeWindow(Info)
                             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                         end
 
-                        container.Size = UDim2.new(1, -20, 0, math.max(25, yOffset + 5))
+                        container.Size = UDim2.new(1, -15, 0, math.max(20, yOffset + 5))
                         elementY = elementY + container.Size.Y.Offset + 5
                         TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
 
@@ -269,7 +269,7 @@ function OrionLibV2:MakeWindow(Info)
                                 yOffset = yOffset + (nameLabel.TextBounds.Y or 16)
                                 TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
                             end
-                            container.Size = UDim2.new(1, -20, 0, math.max(25, yOffset + 5))
+                            container.Size = UDim2.new(1, -15, 0, math.max(25, yOffset + 5))
                             TabContent.CanvasSize = UDim2.new(0, 0, 0, elementY)
                         end
 
