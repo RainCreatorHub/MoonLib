@@ -207,16 +207,16 @@ function OrionLibV2:MakeWindow(Info)
                 function TabFunctions:AddSection(info)
                     local ok, sectionResult = xpcall(function()
                         local container = Instance.new("Frame", TabContent)
-                        container.Size = UDim2.new(1, -20, 0, 25)
+                        container.Size = UDim2.new(1, -20, 0, 20)
                         container.Position = UDim2.new(0, 10, 0, elementY + 20)
                         container.BackgroundTransparency = 1
-                        container.BorderSizePixel = 0
+                        container.BorderSizePixel = 0.1
 
                         local contentFrame = Instance.new("Frame", container)
                         contentFrame.Size = UDim2.new(1, -10, 0, 0)
-                        contentFrame.Position = UDim2.new(0, 5, 0, 25)
+                        contentFrame.Position = UDim2.new(0, 5, 0, 15)
                         contentFrame.BackgroundTransparency = 1
-                        contentFrame.BorderSizePixel = 0
+                        contentFrame.BorderSizePixel = 0.1
 
                         local nameLabels = {}
                         local nameText = (info and info.Name) or "Section"
