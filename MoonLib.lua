@@ -214,7 +214,7 @@ function OrionLibV2:MakeWindow(Info)
 
                         local contentFrame = Instance.new("Frame", container)
                         contentFrame.Size = UDim2.new(1, -10, 0, 0)
-                        contentFrame.Position = UDim2.new(0, 5, 0, 15)
+                        contentFrame.Position = UDim2.new(0, 5, 0, 12)
                         contentFrame.BackgroundTransparency = 1
                         contentFrame.BorderSizePixel = 0.1
 
