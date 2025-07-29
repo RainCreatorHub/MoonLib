@@ -214,7 +214,7 @@ function OrionLibV2:MakeWindow(Info)
 
                         local contentFrame = Instance.new("Frame", container)
                         contentFrame.Size = UDim2.new(1, -10, 0, 0)
-                        contentFrame.Position = UDim2.new(0, 5, 0, 12)
+                        contentFrame.Position = UDim2.new(0, 5, 0, 10)
                         contentFrame.BackgroundTransparency = 1
                         contentFrame.BorderSizePixel = 0.1
 
@@ -296,7 +296,7 @@ function OrionLibV2:MakeWindow(Info)
                         local maxWidth = labelContainer.AbsoluteSize.X - 20
                         if maxWidth <= 0 then maxWidth = 300 end
                         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
-                        local nameLineHeight = (tempNameLabel.TextBounds.Y ~= 0 and tempNameLabel.TextBounds.Y) or 14
+                        local nameLineHeight = (tempNameLabel.TextBounds.Y ~= 0 and tempNameLabel.TextBounds.Y) or 13
                         tempNameLabel:Destroy()
 
                         local totalNameHeight = #nameLines * nameLineHeight
