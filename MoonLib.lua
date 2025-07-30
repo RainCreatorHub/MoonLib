@@ -317,9 +317,11 @@ function TabFunctions:AddLabel(info)
             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
         end
 
-        -- Ajustando a descrição abaixo do nome
+        -- Ajustando yOffset para descrição: começa logo abaixo da última linha do nome
+        yOffset = yOffset - (nameLineHeight / 2) + 2
+
         local descText = info.Description or ""
-        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset + 5), labelContainer, -20) -- Ajuste para colocar a descrição
+        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
         local descLines = splitText(descText, tempDescLabel, maxWidth)
         tempDescLabel:Destroy()
 
