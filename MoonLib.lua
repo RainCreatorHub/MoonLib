@@ -1,4 +1,5 @@
 local OrionLibV2 = {}
+print("Ui library: Loading")
 
 function OrionLibV2:MakeWindow(Info)
     local TweenService = game:WaitForChild("TweenService")
@@ -127,6 +128,7 @@ function OrionLibV2:MakeWindow(Info)
             return lines
         end
 
+            print("Ui Library: Window Loaded")
         local Tabs = {}
 
         function Tabs:MakeTab(TabInfo)
@@ -204,6 +206,8 @@ function OrionLibV2:MakeWindow(Info)
                     return obj, y
                 end
 
+                        print("Ui library: Tab Loaded")
+                        
                 function TabFunctions:AddSection(info)
                     local ok, sectionResult = xpcall(function()
                         local container = Instance.new("Frame", TabContent)
@@ -271,6 +275,7 @@ function OrionLibV2:MakeWindow(Info)
                     end
                 end
 
+                        print("Ui Library: Section Loaded")
 function TabFunctions:AddLabel(info)
     info = info or {}
     local createLabel = function()
@@ -333,8 +338,8 @@ function TabFunctions:AddLabel(info)
     elementY = newElementY
     return newLabel
 end
-local SlaMano = "To com preguiça Ok? isso veio da Ui Library não do script."
-        print(SlaMano)
+
+                        print("Ui Library: Label Loaded")
                 function TabFunctions:AddButton(info)
                     local createButton = function()
                         local buttonContainer = Instance.new("Frame", TabContent)
@@ -417,6 +422,7 @@ local SlaMano = "To com preguiça Ok? isso veio da Ui Library não do script."
                     return newButton
                 end
 
+                        print("Ui Library: Button Loaded")
                 function TabFunctions:AddToggle(info)
                     local createToggle = function()
                         local toggleContainer = Instance.new("Frame", TabContent)
@@ -531,6 +537,7 @@ local SlaMano = "To com preguiça Ok? isso veio da Ui Library não do script."
                     return newToggle
                 end
 
+                        print("Ui Library: Toggle Loaded")
                 function TabFunctions:AddDropdown(info)
                     local createDropdown = function()
                         local dropdownContainer = Instance.new("Frame", TabContent)
@@ -977,6 +984,7 @@ local SlaMano = "To com preguiça Ok? isso veio da Ui Library não do script."
                     return newDropdown
                 end
 
+                        print("Ui Library: Dropdown Loaded")
                 return TabFunctions
             end, errorHandler)
             if success then
@@ -991,5 +999,6 @@ local SlaMano = "To com preguiça Ok? isso veio da Ui Library não do script."
         return result
     end
 end
-
+print("To com preguiça Ok? isso veio da Ui Library não do script.")
+print("Ui library: Loaded")
 return OrionLibV2
