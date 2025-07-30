@@ -281,9 +281,8 @@ function TabFunctions:AddLabel(info)
     info = info or {}
     local createLabel = function()
         local labelContainer = Instance.new("Frame", TabContent)
-        labelContainer.Size = UDim2.new(1, -20, 0, 70) -- Ajustei a altura do container
-        labelContainer.Position = UDim2.new(0.5, -10, 0, elementY + 20) -- Centralizei horizontalmente
-        labelContainer.AnchorPoint = Vector2.new(0.5, 0) -- Ancorei no centro horizontal
+        labelContainer.Size = UDim2.new(1, -20, 0, 50)
+        labelContainer.Position = UDim2.new(0, 10, 0, elementY + 20)
         labelContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         labelContainer.BackgroundTransparency = 1
         labelContainer.BorderSizePixel = 0
@@ -299,44 +298,43 @@ function TabFunctions:AddLabel(info)
         local descriptionLabels = {}
 
         local nameText = info.Name or "Label"
-        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 0, 0.5, 0), labelContainer, 0) -- Voltei o tamanho da fonte do nome para 14
-        tempNameLabel.AnchorPoint = Vector2.new(0.5, 0.5) -- Ancorei no centro
-        tempNameLabel.Position = UDim2.new(0.5, 0, 0.5, 0) -- Centralizei
+        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), labelContainer, -20)
         local maxWidth = labelContainer.AbsoluteSize.X - 20
         if maxWidth <= 0 then maxWidth = 300 end
         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
-        local nameLineHeight = (tempNameLabel.TextBounds.Y ~= 0 and tempNameLabel.TextBounds.Y) or 14
+        local nameLineHeight = (tempNameLabel.TextBounds.Y ~= 0 and tempNameLabel.TextBounds.Y) or 13
         tempNameLabel:Destroy()
 
         local totalNameHeight = #nameLines * nameLineHeight
+        local yOffset = -(totalNameHeight / 2) + 0.5 -- Centralizando o nome em altura e movendo 0.5 para baixo
         for _, line in ipairs(nameLines) do
-            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0.5, 0, 0.5, -(totalNameHeight / 2) + (#nameLines - 1) * nameLineHeight / 2), labelContainer, 0) -- Centralizei verticalmente
-            nameLabel.AnchorPoint = Vector2.new(0.5, 0.5) -- Ancorei no centro
+            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0.5, 0, 0.5, yOffset), labelContainer, -20)
             nameLabel.Size = UDim2.new(1, -20, 0, nameLineHeight)
-            nameLabel.TextXAlignment = Enum.TextXAlignment.Center -- Centralizei horizontalmente
+            nameLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+            nameLabel.TextXAlignment = Enum.TextXAlignment.Center
             table.insert(nameLabels, nameLabel)
+            yOffset = yOffset + nameLineHeight
             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
         end
 
-        -- Adicionando a descrição abaixo do nome
+        -- Ajustando a descrição abaixo do nome
         local descText = info.Description or ""
-        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0.5, 0, 1, 10), labelContainer, 0) -- Adicionei a descrição com tamanho de fonte 11
-        tempDescLabel.AnchorPoint = Vector2.new(0.5, 0) -- Ancorei no centro horizontal
+        local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset + 5), labelContainer, -20) -- Ajuste para colocar a descrição
         local descLines = splitText(descText, tempDescLabel, maxWidth)
         tempDescLabel:Destroy()
 
         for _, line in ipairs(descLines) do
-            local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0.5, 0, 1, 10 + (#descLines - 1) * (tempDescLabel.TextBounds.Y or 11)), labelContainer, 0) -- Adicionei a descrição com tamanho de fonte 11
-            descLabel.AnchorPoint = Vector2.new(0.5, 0) -- Ancorei no centro horizontal
+            local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0.5, 0, 0, yOffset), labelContainer, -20)
             descLabel.Size = UDim2.new(1, -20, 0, descLabel.TextBounds.Y or 11)
-            descLabel.TextXAlignment = Enum.TextXAlignment.Center -- Centralizei horizontalmente
+            descLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+            descLabel.TextXAlignment = Enum.TextXAlignment.Center
             table.insert(descriptionLabels, descLabel)
+            yOffset = yOffset + (descLabel.TextBounds.Y or 11)
             TweenService:Create(descLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
         end
 
-        labelContainer.Size = UDim2.new(1, -20, 0, math.max(70, totalNameHeight + (#descLines * (tempDescLabel.TextBounds.Y or 11)) + 20)) -- Ajustei a altura do container
+        labelContainer.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
         TweenService:Create(labelContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
-
         return labelContainer
     end
     local newLabel, newElementY = addElementToContainer(TabContent, elementY, TabContent, -20, createLabel)
