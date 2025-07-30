@@ -164,7 +164,7 @@ function OrionLibV2:MakeWindow(Info)
                 local TabContent = Instance.new("ScrollingFrame", window)
                 TabContent.Name = (TabInfo and TabInfo.Name) or "TabContent"
                 TabContent.Size = UDim2.new(1, -150, 1, -80)
-                TabContent.Position = UDim2.new(0, 140, 0, 70)
+                TabContent.Position = UDim2.new(0, 140, 0, 50)
                 TabContent.BackgroundTransparency = 1
                 TabContent.Visible = (#TabList == 0)
                 TabContent.ScrollBarThickness = 4
@@ -185,7 +185,7 @@ function OrionLibV2:MakeWindow(Info)
                     Button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
                 end)
 
-                local elementY = 0
+                local elementY + 20
                 local TabFunctions = {}
                 local extraYOffset = 2
 
@@ -931,6 +931,7 @@ function OrionLibV2:MakeWindow(Info)
     return newDropdown
 end
 
+    return Tabs
 print("To com preguiça Ok? isso veio da Ui Library não do script.")
 print("Ui library: Loaded")
 return OrionLibV2
