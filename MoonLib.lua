@@ -318,7 +318,7 @@ function TabFunctions:AddLabel(info)
         end
 
         -- Ajustando yOffset para descrição: começa logo abaixo da última linha do nome
-        yOffset = yOffset - (nameLineHeight / 2) + 19
+        yOffset = yOffset - (nameLineHeight / 2) + 39
 
         local descText = info.Description or ""
         local tempDescLabel = createTextLabel(descText, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
