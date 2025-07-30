@@ -298,7 +298,7 @@ function TabFunctions:AddLabel(info)
         local descriptionLabels = {}
 
         local nameText = info.Name or "Label"
-        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), labelContainer, -20)
+        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 2), labelContainer, -20) -- Ajuste na posição Y
         local maxWidth = labelContainer.AbsoluteSize.X - 20
         if maxWidth <= 0 then maxWidth = 300 end
         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
