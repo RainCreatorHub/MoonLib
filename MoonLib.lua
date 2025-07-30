@@ -300,12 +300,12 @@ function TabFunctions:AddLabel(info)
         tempNameLabel:Destroy()
 
         local totalNameHeight = #nameLines * nameLineHeight
-        local yOffset = -(totalNameHeight / 2) + 10 -- Ajuste para descer o nome
+        local yOffset = -(totalNameHeight / 2) -- Centralizando o nome
         for _, line in ipairs(nameLines) do
-            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0.5, yOffset), labelContainer, -20)
+            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0.5, 0, 0.5, yOffset), labelContainer, -20)
             nameLabel.Size = UDim2.new(1, -20, 0, nameLineHeight)
-            nameLabel.AnchorPoint = Vector2.new(0, 0.5)
-            nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+            nameLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+            nameLabel.TextXAlignment = Enum.TextXAlignment.Center
             table.insert(nameLabels, nameLabel)
             yOffset = yOffset + nameLineHeight
             TweenService:Create(nameLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
@@ -318,8 +318,10 @@ function TabFunctions:AddLabel(info)
         tempDescLabel:Destroy()
 
         for _, line in ipairs(descLines) do
-            local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0, 5, 0, yOffset), labelContainer, -20)
+            local descLabel = createTextLabel(line, Enum.Font.Gotham, 11, Color3.fromRGB(180, 180, 180), UDim2.new(0.5, 0, 0, yOffset), labelContainer, -20)
             descLabel.Size = UDim2.new(1, -20, 0, descLabel.TextBounds.Y or 11)
+            descLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+            descLabel.TextXAlignment = Enum.TextXAlignment.Center
             table.insert(descriptionLabels, descLabel)
             yOffset = yOffset + (descLabel.TextBounds.Y or 11)
             TweenService:Create(descLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
