@@ -332,6 +332,16 @@ function TabFunctions:AddLabel(info)
 
         labelContainer.Size = UDim2.new(1, -20, 0, math.max(50, yOffset + 10))
         TweenService:Create(labelContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+
+        -- Printando cada elemento
+        print("Label Container:", labelContainer)
+        for _, label in ipairs(nameLabels) do
+            print("Name Label:", label.Text)
+        end
+        for _, label in ipairs(descriptionLabels) do
+            print("Description Label:", label.Text)
+        end
+
         return labelContainer
     end
     local newLabel, newElementY = addElementToContainer(TabContent, elementY, TabContent, -20, createLabel)
@@ -339,7 +349,6 @@ function TabFunctions:AddLabel(info)
     return newLabel
 end
 
-                        print("Ui Library: Label Loaded")
                 function TabFunctions:AddButton(info)
                     local createButton = function()
                         local buttonContainer = Instance.new("Frame", TabContent)
