@@ -298,7 +298,7 @@ function TabFunctions:AddLabel(info)
         local descriptionLabels = {}
 
         local nameText = info.Name or "Label"
-        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), labelContainer, -20)
+        local tempNameLabel = createTextLabel(nameText, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0, 5, 0, 0), labelContainer, -10)
         local maxWidth = labelContainer.AbsoluteSize.X - 20
         if maxWidth <= 0 then maxWidth = 300 end
         local nameLines = splitText(nameText, tempNameLabel, maxWidth)
@@ -306,9 +306,9 @@ function TabFunctions:AddLabel(info)
         tempNameLabel:Destroy()
 
         local totalNameHeight = #nameLines * nameLineHeight
-        local yOffset = -(totalNameHeight / 2) + 0.5 -- Centralizando o nome em altura e movendo 0.5 para baixo
+        local yOffset = -(totalNameHeight / 2) + 1 -- Centralizando o nome em altura e movendo 0.5 para baixo
         for _, line in ipairs(nameLines) do
-            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0.5, 0, 0.5, yOffset), labelContainer, -20)
+            local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0.5, 0, 0.5, yOffset), labelContainer, -10)
             nameLabel.Size = UDim2.new(1, -20, 0, nameLineHeight)
             nameLabel.AnchorPoint = Vector2.new(0.5, 0.5)
             nameLabel.TextXAlignment = Enum.TextXAlignment.Center
