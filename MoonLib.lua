@@ -300,7 +300,7 @@ function TabFunctions:AddLabel(info)
         tempNameLabel:Destroy()
 
         local totalNameHeight = #nameLines * nameLineHeight
-        local yOffset = -(totalNameHeight / 2) -- Centralizando o nome
+        local yOffset = -(totalNameHeight / 2) + 0.5 -- Centralizando o nome em altura e movendo 0.5 para baixo
         for _, line in ipairs(nameLines) do
             local nameLabel = createTextLabel(line, Enum.Font.GothamBold, 14, Color3.fromRGB(255, 255, 255), UDim2.new(0.5, 0, 0.5, yOffset), labelContainer, -20)
             nameLabel.Size = UDim2.new(1, -20, 0, nameLineHeight)
