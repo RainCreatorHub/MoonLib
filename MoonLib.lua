@@ -931,13 +931,6 @@ function OrionLibV2:MakeWindow(Info)
     return newDropdown
 end
 
-return TabFunctions
-            end, errorHandler)
-        end
-
-        return Tabs
-    end, errorHandler)
-end
 print("To com preguiça Ok? isso veio da Ui Library não do script.")
 print("Ui library: Loaded")
 return OrionLibV2
