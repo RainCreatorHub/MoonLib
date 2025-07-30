@@ -333,7 +333,7 @@ function TabFunctions:AddLabel(info)
     elementY = newElementY
     return newLabel
 end
-local SlaMano = "To com preguiça Ok? isso veio da Ui Library não do script.")
+local SlaMano = "To com preguiça Ok? isso veio da Ui Library não do script."
         print(SlaMano)
                 function TabFunctions:AddButton(info)
                     local createButton = function()
